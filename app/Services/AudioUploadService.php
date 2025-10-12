@@ -1,0 +1,255 @@
+<?php
+
+namespace App\Services;
+
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use InvalidArgumentException;
+
+class AudioUploadService
+{
+    /**
+     * Handle audio upload from either base64 string or UploadedFile
+     *
+     * @param string|UploadedFile $audio Base64 encoded audio data or UploadedFile
+     * @return string The URL of the uploaded audio file
+     * @throws InvalidArgumentException
+     */
+    public function handleAudioUpload(string|UploadedFile $audio): string
+    {
+        if ($audio instanceof UploadedFile) {
+            return $this->handleUploadedAudioFile($audio);
+        }
+
+        return $this->handleBase64Audio($audio);
+    }
+
+    /**
+     * Handle base64 audio upload and return the URL
+     *
+     * @param string $base64Audio Base64 encoded audio data
+     * @return string The URL of the uploaded audio file
+     * @throws InvalidArgumentException
+     */
+    private function handleBase64Audio(string $base64Audio): string
+    {
+        // Extract the audio data from base64
+        if (preg_match('/^data:audio\/(\w+);base64,/', $base64Audio, $matches)) {
+            $extension = $this->normalizeAudioExtension($matches[1]);
+            $audioData = substr($base64Audio, strpos($base64Audio, ',') + 1);
+            $audioData = base64_decode($audioData);
+            if ($audioData === false) {
+                throw new InvalidArgumentException('Invalid base64 audio data');
+            }
+
+            // Validate audio file size (max 50MB)
+            if (strlen($audioData) > 50 * 1024 * 1024) {
+                throw new InvalidArgumentException('Audio file too large. Maximum size is 50MB');
+            }
+
+            // Generate unique filename with timestamp
+            $filename = 'sermons/audio/' . Str::random(32) . '.' . $extension;
+
+            // Store the audio file
+            Storage::disk('public')->put($filename, $audioData);
+
+            // Return the URL
+            return asset('storage/' . $filename);
+        }
+
+        throw new InvalidArgumentException('Invalid base64 audio format. Expected format: data:audio/{type};base64,{data}');
+    }
+
+    /**
+     * Handle uploaded audio file and return the URL
+     *
+     * @param UploadedFile $audio Uploaded audio file
+     * @return string The URL of the uploaded audio file
+     * @throws InvalidArgumentException
+     */
+    private function handleUploadedAudioFile(UploadedFile $audio): string
+    {
+        // Validate the uploaded file
+        $this->validateUploadedAudioFile($audio);
+
+        // Get file extension
+        $extension = $audio->getClientOriginalExtension();
+        $extension = $this->normalizeAudioExtension($extension);
+
+        // Generate unique filename with timestamp
+        $filename = 'sermons/audio/' . date('Y/m/d') . '/' . Str::random(32) . '_sermon.' . $extension;
+
+        // Store the audio file
+        $audio->storeAs('', $filename, 'public');
+
+        // Return the URL
+        return asset('storage/' . $filename);
+    }
+
+    /**
+     * Delete audio file from storage
+     *
+     * @param string $fileUrl The URL of the file to delete
+     * @return bool
+     */
+    public function deleteAudioFile(string $fileUrl): bool
+    {
+        try {
+            // Extract the relative path from URL
+            $relativePath = str_replace(asset('storage/'), '', $fileUrl);
+
+            // Delete if exists
+            if (Storage::disk('public')->exists($relativePath)) {
+                return Storage::disk('public')->delete($relativePath);
+            }
+
+            return true; // File doesn't exist, consider as successfully deleted
+        } catch (\Exception $e) {
+            // Log the error but don't throw exception to avoid breaking the flow
+            Log::warning("Failed to delete audio file: {$fileUrl}", ['error' => $e->getMessage()]);
+            return false;
+        }
+    }
+
+    /**
+     * Get audio file information
+     *
+     * @param string $audioUrl URL of the audio file
+     * @return array|null File information or null if file doesn't exist
+     */
+    public function getAudioFileInfo(string $audioUrl): ?array
+    {
+        try {
+            $relativePath = str_replace(asset('storage/'), '', $audioUrl);
+
+            if (!Storage::disk('public')->exists($relativePath)) {
+                return null;
+            }
+
+            $size = Storage::disk('public')->size($relativePath);
+            $lastModified = Storage::disk('public')->lastModified($relativePath);
+
+            return [
+                'path' => $relativePath,
+                'size' => $size,
+                'size_formatted' => $this->formatFileSize($size),
+                'last_modified' => date('Y-m-d H:i:s', $lastModified),
+                'exists' => true
+            ];
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Validate uploaded audio file
+     *
+     * @param UploadedFile $audio
+     * @throws InvalidArgumentException
+     */
+    private function validateUploadedAudioFile(UploadedFile $audio): void
+    {
+        // Check if file was uploaded successfully
+        if (!$audio->isValid()) {
+            throw new InvalidArgumentException('Audio file upload failed: ' . $audio->getErrorMessage());
+        }
+
+        // Validate file size (max 50MB)
+        if ($audio->getSize() > 50 * 1024 * 1024) {
+            throw new InvalidArgumentException('Audio file too large. Maximum size is 50MB');
+        }
+
+        // Validate MIME type
+        $allowedMimeTypes = [
+            'audio/mpeg',
+            'audio/mp3',
+            'audio/wav',
+            'audio/x-wav',
+            'audio/mp4',
+            'audio/m4a',
+            'audio/aac',
+            'audio/ogg'
+        ];
+
+        if (!in_array($audio->getMimeType(), $allowedMimeTypes)) {
+            throw new InvalidArgumentException('Invalid audio file type. Allowed types: MP3, WAV, M4A, AAC, OGG');
+        }
+    }
+
+    /**
+     * Normalize audio file extension
+     *
+     * @param string $extension
+     * @return string
+     **/
+    private function normalizeAudioExtension(string $extension): string
+    {
+        $allowedExtensions = ['mp3', 'wav', 'm4a', 'aac', 'ogg'];
+        $extension = strtolower($extension);
+
+        // Handle special cases
+        $extensionMap = [
+            'mpeg' => 'mp3',
+            'mp4' => 'm4a',
+            'x-m4a' => 'm4a'
+        ];
+
+        if (isset($extensionMap[$extension])) {
+            $extension = $extensionMap[$extension];
+        }
+
+        if (!in_array($extension, $allowedExtensions)) {
+            throw new InvalidArgumentException("Unsupported audio format: {$extension}. Allowed formats: " . implode(', ', $allowedExtensions));
+        }
+
+        return $extension;
+    }
+
+    /**
+     * Format file size in human readable format
+     *
+     * @param int $size Size in bytes
+     * @return string
+     **/
+    private function formatFileSize(int $size): string
+    {
+        $units = ['B', 'KB', 'MB', 'GB'];
+        $unit = 0;
+
+        while ($size >= 1024 && $unit < count($units) - 1) {
+            $size /= 1024;
+            $unit++;
+        }
+
+        return round($size, 2) . ' ' . $units[$unit];
+    }
+
+    /**
+     * Check if the input is a base64 audio string
+     *
+     * @param mixed $input
+     * @return bool
+     **/
+    public function isBase64AudioString($input): bool
+    {
+        return is_string($input) && preg_match('/^data:audio\/\w+;base64,/', $input);
+    }
+
+    /**
+     * Check if the input is an uploaded audio file
+     *
+     * @param mixed $input
+     * @return bool
+     **/
+    public function isUploadedAudioFile($input): bool
+    {
+        if (!($input instanceof UploadedFile)) {
+            return false;
+        }
+
+        $mimeType = $input->getMimeType();
+        return str_starts_with($mimeType, 'audio/');
+    }
+}

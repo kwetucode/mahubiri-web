@@ -1,0 +1,324 @@
+<?php
+
+namespace App\Services;
+
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use InvalidArgumentException;
+
+class ImageUploadService
+{
+    /**
+     * Handle image upload from either base64 string or UploadedFile
+     *
+     * @param string|UploadedFile $image Base64 encoded image data or UploadedFile
+     * @param string $storageType Storage type (covers, logos, avatars, etc.)
+     * @return string The URL of the uploaded image file
+     * @throws InvalidArgumentException
+     */
+    public function handleImageUpload(string|UploadedFile $image, string $storageType = 'covers'): string
+    {
+        if ($image instanceof UploadedFile) {
+            return $this->handleUploadedImageFile($image, $storageType);
+        }
+
+        return $this->handleBase64Image($image, $storageType);
+    }
+
+    /**
+     * Handle base64 image upload and return the URL
+     *
+     * @param string $base64Image Base64 encoded image data
+     * @param string $storageType Storage type (covers, logos, avatars, etc.)
+     * @return string The URL of the uploaded image file
+     * @throws InvalidArgumentException
+     */
+    private function handleBase64Image(string $base64Image, string $storageType = 'covers'): string
+    {
+        // Extract the image data and extension from base64
+        if (preg_match('/^data:image\/(\w+);base64,/', $base64Image, $matches)) {
+            $extension = $this->normalizeImageExtension($matches[1]);
+            $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
+            $imageData = base64_decode($imageData);
+
+            if ($imageData === false) {
+                throw new InvalidArgumentException('Invalid base64 image data');
+            }
+
+            // Validate image file size (max 5MB)
+            if (strlen($imageData) > 5 * 1024 * 1024) {
+                throw new InvalidArgumentException('Image file too large. Maximum size is 5MB');
+            }
+
+            // Generate storage path and filename
+            $storagePath = $this->generateStoragePath($storageType, 'image');
+            $filename = $this->generateFilename($storageType, $extension);
+            $fullPath = $storagePath . $filename;
+
+            // Store the image
+            Storage::disk('public')->put($fullPath, $imageData);
+
+            // Return the URL
+            return asset('storage/' . $fullPath);
+        }
+
+        throw new InvalidArgumentException('Invalid base64 image format. Expected format: data:image/{type};base64,{data}');
+    }
+
+    /**
+     * Handle uploaded image file and return the URL
+     *
+     * @param UploadedFile $image Uploaded image file
+     * @param string $storageType Storage type (covers, logos, avatars, etc.)
+     * @return string The URL of the uploaded image file
+     * @throws InvalidArgumentException
+     */
+    private function handleUploadedImageFile(UploadedFile $image, string $storageType = 'covers'): string
+    {
+        // Validate the uploaded file
+        $this->validateUploadedImageFile($image);
+
+        // Get file extension
+        $extension = $image->getClientOriginalExtension();
+        $extension = $this->normalizeImageExtension($extension);
+
+        // Generate storage path and filename
+        $storagePath = $this->generateStoragePath($storageType, 'image');
+        $filename = $this->generateFilename($storageType, $extension);
+        $fullPath = $storagePath . $filename;
+
+        // Store the image
+        $image->storeAs('', $fullPath, 'public');
+
+        // Return the URL
+        return asset('storage/' . $fullPath);
+    }
+
+    /**
+     * Delete image file from storage
+     *
+     * @param string $fileUrl The URL of the file to delete
+     * @return bool
+     */
+    public function deleteImageFile(string $fileUrl): bool
+    {
+        try {
+            // Extract the relative path from URL
+            $relativePath = str_replace(asset('storage/'), '', $fileUrl);
+
+            // Delete if exists
+            if (Storage::disk('public')->exists($relativePath)) {
+                return Storage::disk('public')->delete($relativePath);
+            }
+
+            return true; // File doesn't exist, consider as successfully deleted
+        } catch (\Exception $e) {
+            // Log the error but don't throw exception to avoid breaking the flow
+            Log::warning("Failed to delete image file: {$fileUrl}", ['error' => $e->getMessage()]);
+            return false;
+        }
+    }
+
+    /**
+     * Delete multiple image files from storage
+     *
+     * @param array $fileUrls Array of file URLs to delete
+     * @return array Array of results ['success' => count, 'failed' => count]
+     */
+    public function deleteMultipleImageFiles(array $fileUrls): array
+    {
+        $results = ['success' => 0, 'failed' => 0];
+
+        foreach ($fileUrls as $url) {
+            if ($this->deleteImageFile($url)) {
+                $results['success']++;
+            } else {
+                $results['failed']++;
+            }
+        }
+
+        return $results;
+    }
+
+    /**
+     * Validate uploaded image file
+     *
+     * @param UploadedFile $image
+     * @throws InvalidArgumentException
+     **/
+    private function validateUploadedImageFile(UploadedFile $image): void
+    {
+        // Check if file was uploaded successfully
+        if (!$image->isValid()) {
+            throw new InvalidArgumentException('Image file upload failed: ' . $image->getErrorMessage());
+        }
+
+        // Validate file size (max 5MB)
+        if ($image->getSize() > 5 * 1024 * 1024) {
+            throw new InvalidArgumentException('Image file too large. Maximum size is 5MB');
+        }
+
+        // Validate MIME type
+        $allowedMimeTypes = [
+            'image/jpeg',
+            'image/jpg',
+            'image/png',
+            'image/webp',
+            'image/gif'
+        ];
+
+        if (!in_array($image->getMimeType(), $allowedMimeTypes)) {
+            throw new InvalidArgumentException('Invalid image file type. Allowed types: JPEG, PNG, WebP, GIF');
+        }
+    }
+
+    /**
+     * Normalize image file extension
+     *
+     * @param string $extension
+     * @return string
+     **/
+    private function normalizeImageExtension(string $extension): string
+    {
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+        $extension = strtolower($extension);
+
+        if (!in_array($extension, $allowedExtensions)) {
+            throw new InvalidArgumentException("Unsupported image format: {$extension}. Allowed formats: " . implode(', ', $allowedExtensions));
+        }
+
+        return $extension;
+    }
+
+    /**
+     * Get list of supported storage types
+     *
+     * @return array
+     */
+    public function getSupportedStorageTypes(): array
+    {
+        return [
+            'covers' => 'Sermon covers (sermons/covers/)',
+            'sermon_covers' => 'Sermon covers (sermons/covers/)',
+            'logos' => 'Church logos (churches/logos/)',
+            'church_logos' => 'Church logos (churches/logos/)',
+            'church_covers' => 'Church covers (churches/covers/)',
+            'avatars' => 'User avatars (users/avatars/)',
+            'user_avatars' => 'User avatars (users/avatars/)',
+            'profiles' => 'User profiles (users/profiles/)',
+            'images' => 'Generic images (uploads/images/)',
+            'files' => 'Generic files (uploads/files/)',
+        ];
+    }
+
+    /**
+     * Check if the input is a base64 image string
+     *
+     * @param mixed $input
+     * @return bool
+     **/
+    public function isBase64ImageString($input): bool
+    {
+        return is_string($input) && preg_match('/^data:image\/\w+;base64,/', $input);
+    }
+
+    /**
+     * Check if the input is an uploaded image file
+     *
+     * @param mixed $input
+     * @return bool
+     **/
+    public function isUploadedImageFile($input): bool
+    {
+        if (!($input instanceof UploadedFile)) {
+            return false;
+        }
+
+        $mimeType = $input->getMimeType();
+        return str_starts_with($mimeType, 'image/');
+    }
+
+    /**
+     * Generate storage path based on storage type
+     *
+     * @param string $storageType Storage type (covers, logos, avatars, etc.)
+     * @param string $fileType File type (image or audio)
+     * @return string
+     * @throws InvalidArgumentException
+     */
+    private function generateStoragePath(string $storageType, string $fileType = 'image'): string
+    {
+        $pathMappings = [
+            // Sermon related
+            'covers' => 'sermons/covers',
+            'sermon_covers' => 'sermons/covers',
+
+            // Church related
+            'logos' => 'churches/logos',
+            'church_logos' => 'churches/logos',
+            'church_covers' => 'churches/covers',
+
+            // User related
+            'avatars' => 'users/avatars',
+            'user_avatars' => 'users/avatars',
+            'profiles' => 'users/profiles',
+
+            // Generic
+            'images' => 'uploads/images',
+            'files' => 'uploads/files',
+        ];
+
+        if (!isset($pathMappings[$storageType])) {
+            throw new InvalidArgumentException("Unsupported storage type: {$storageType}. Supported types: " . implode(', ', array_keys($pathMappings)));
+        }
+
+        return $pathMappings[$storageType] . '/' . date('Y/m/d') . '/';
+    }
+
+    /**
+     * Generate filename based on storage type and extension
+     *
+     * @param string $storageType Storage type
+     * @param string $extension File extension
+     * @return string
+     */
+    private function generateFilename(string $storageType, string $extension): string
+    {
+        $prefixes = [
+            'covers' => 'cover',
+            'sermon_covers' => 'cover',
+            'logos' => 'logo',
+            'church_logos' => 'logo',
+            'church_covers' => 'church_cover',
+            'avatars' => 'avatar',
+            'user_avatars' => 'avatar',
+            'profiles' => 'profile',
+            'images' => 'image',
+            'files' => 'file',
+        ];
+
+        $prefix = $prefixes[$storageType] ?? 'file';
+        return Str::random(32) . '_' . $prefix . '.' . $extension;
+    }
+
+    /**
+     * Format file size in human readable format
+     *
+     * @param int $size Size in bytes
+     * @return string
+     **/
+    private function formatFileSize(int $size): string
+    {
+        $units = ['B', 'KB', 'MB', 'GB'];
+        $unit = 0;
+
+        while ($size >= 1024 && $unit < count($units) - 1) {
+            $size /= 1024;
+            $unit++;
+        }
+
+        return round($size, 2) . ' ' . $units[$unit];
+    }
+}
