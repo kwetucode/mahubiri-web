@@ -29,7 +29,8 @@ Route::prefix('auth')->group(function () {
 
     // Password Reset
     Route::post('/password/email', [PasswordResetController::class, 'sendResetLink']);
-    Route::post('/password/reset', [PasswordResetController::class, 'resetPassword']);
+    Route::post('/password/reset', [PasswordResetController::class, 'resetPassword'])
+        ->name('password.reset');
 
     // Email Verification (public route for clicking email link)
     Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verifyEmail'])
