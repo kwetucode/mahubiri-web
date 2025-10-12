@@ -7,8 +7,9 @@ Importez cette collection dans Postman pour tester l'API de réinitialisation de
 ### Variables d'environnement
 
 Créez un environnement Postman avec ces variables :
-- `base_url` : `http://192.168.235.97:8002/api/v1`
-- `test_email` : `user@example.com`
+
+-   `base_url` : `http://192.168.235.97:8002/api/v1`
+-   `test_email` : `user@example.com`
 
 ---
 
@@ -19,12 +20,14 @@ Créez un environnement Postman avec ces variables :
 **POST** `{{base_url}}/auth/password/email`
 
 **Headers:**
+
 ```
 Content-Type: application/json
 Accept: application/json
 ```
 
 **Body (raw JSON):**
+
 ```json
 {
     "email": "{{test_email}}"
@@ -34,6 +37,7 @@ Accept: application/json
 ### Test Cases
 
 #### ✅ Succès - Email valide
+
 ```json
 // Body
 {
@@ -48,6 +52,7 @@ Accept: application/json
 ```
 
 #### ❌ Email manquant
+
 ```json
 // Body
 {}
@@ -65,6 +70,7 @@ Accept: application/json
 ```
 
 #### ❌ Email invalide (format)
+
 ```json
 // Body
 {
@@ -84,6 +90,7 @@ Accept: application/json
 ```
 
 #### ❌ Email inexistant
+
 ```json
 // Body
 {
@@ -111,12 +118,14 @@ Accept: application/json
 **POST** `{{base_url}}/auth/password/reset`
 
 **Headers:**
+
 ```
 Content-Type: application/json
 Accept: application/json
 ```
 
 **Body (raw JSON):**
+
 ```json
 {
     "token": "OBTENU_PAR_EMAIL",
@@ -129,6 +138,7 @@ Accept: application/json
 ### Test Cases
 
 #### ✅ Succès - Token et données valides
+
 ```json
 // Body
 {
@@ -146,6 +156,7 @@ Accept: application/json
 ```
 
 #### ❌ Token manquant
+
 ```json
 // Body
 {
@@ -167,6 +178,7 @@ Accept: application/json
 ```
 
 #### ❌ Mot de passe trop court
+
 ```json
 // Body
 {
@@ -189,6 +201,7 @@ Accept: application/json
 ```
 
 #### ❌ Mots de passe ne correspondent pas
+
 ```json
 // Body
 {
@@ -211,6 +224,7 @@ Accept: application/json
 ```
 
 #### ❌ Token invalide ou expiré
+
 ```json
 // Body
 {
@@ -228,6 +242,7 @@ Accept: application/json
 ```
 
 #### ❌ Email ne correspond pas au token
+
 ```json
 // Body
 {
@@ -249,6 +264,7 @@ Accept: application/json
 ## Workflow de test complet
 
 ### 1. Préparation
+
 1. Créer un utilisateur de test si nécessaire (via l'endpoint de registration)
 2. Configurer la variable `test_email` avec l'email de test
 3. Configurer Mailtrap ou un serveur email de test
@@ -256,6 +272,7 @@ Accept: application/json
 ### 2. Test du flux complet
 
 **Étape 1 : Demander la réinitialisation**
+
 ```bash
 POST {{base_url}}/auth/password/email
 Body: { "email": "user@example.com" }
@@ -263,11 +280,13 @@ Expected: 200 OK
 ```
 
 **Étape 2 : Récupérer le token**
-- Ouvrir Mailtrap ou votre boîte email
-- Copier le token de réinitialisation depuis l'email
-- Le token est visible dans le corps de l'email
+
+-   Ouvrir Mailtrap ou votre boîte email
+-   Copier le token de réinitialisation depuis l'email
+-   Le token est visible dans le corps de l'email
 
 **Étape 3 : Réinitialiser le mot de passe**
+
 ```bash
 POST {{base_url}}/auth/password/reset
 Body: {
@@ -280,6 +299,7 @@ Expected: 200 OK
 ```
 
 **Étape 4 : Vérifier la connexion**
+
 ```bash
 POST {{base_url}}/auth/login
 Body: {
@@ -297,101 +317,101 @@ Sauvegardez ce JSON dans un fichier `.json` et importez-le dans Postman :
 
 ```json
 {
-  "info": {
-    "name": "Password Reset API",
-    "description": "API de réinitialisation de mot de passe",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-  },
-  "item": [
-    {
-      "name": "1. Request Password Reset",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          },
-          {
-            "key": "Accept",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n    \"email\": \"{{test_email}}\"\n}"
-        },
-        "url": {
-          "raw": "{{base_url}}/auth/password/email",
-          "host": ["{{base_url}}"],
-          "path": ["auth", "password", "email"]
-        },
-        "description": "Demander un lien de réinitialisation de mot de passe"
-      }
+    "info": {
+        "name": "Password Reset API",
+        "description": "API de réinitialisation de mot de passe",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
     },
-    {
-      "name": "2. Reset Password",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          },
-          {
-            "key": "Accept",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n    \"token\": \"PASTE_TOKEN_FROM_EMAIL\",\n    \"email\": \"{{test_email}}\",\n    \"password\": \"NewPassword123!\",\n    \"password_confirmation\": \"NewPassword123!\"\n}"
+    "item": [
+        {
+            "name": "1. Request Password Reset",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"email\": \"{{test_email}}\"\n}"
+                },
+                "url": {
+                    "raw": "{{base_url}}/auth/password/email",
+                    "host": ["{{base_url}}"],
+                    "path": ["auth", "password", "email"]
+                },
+                "description": "Demander un lien de réinitialisation de mot de passe"
+            }
         },
-        "url": {
-          "raw": "{{base_url}}/auth/password/reset",
-          "host": ["{{base_url}}"],
-          "path": ["auth", "password", "reset"]
+        {
+            "name": "2. Reset Password",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"token\": \"PASTE_TOKEN_FROM_EMAIL\",\n    \"email\": \"{{test_email}}\",\n    \"password\": \"NewPassword123!\",\n    \"password_confirmation\": \"NewPassword123!\"\n}"
+                },
+                "url": {
+                    "raw": "{{base_url}}/auth/password/reset",
+                    "host": ["{{base_url}}"],
+                    "path": ["auth", "password", "reset"]
+                },
+                "description": "Réinitialiser le mot de passe avec le token reçu par email"
+            }
         },
-        "description": "Réinitialiser le mot de passe avec le token reçu par email"
-      }
-    },
-    {
-      "name": "3. Login with New Password",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          },
-          {
-            "key": "Accept",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n    \"email\": \"{{test_email}}\",\n    \"password\": \"NewPassword123!\"\n}"
+        {
+            "name": "3. Login with New Password",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"email\": \"{{test_email}}\",\n    \"password\": \"NewPassword123!\"\n}"
+                },
+                "url": {
+                    "raw": "{{base_url}}/auth/login",
+                    "host": ["{{base_url}}"],
+                    "path": ["auth", "login"]
+                },
+                "description": "Tester la connexion avec le nouveau mot de passe"
+            }
+        }
+    ],
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://192.168.235.97:8002/api/v1"
         },
-        "url": {
-          "raw": "{{base_url}}/auth/login",
-          "host": ["{{base_url}}"],
-          "path": ["auth", "login"]
-        },
-        "description": "Tester la connexion avec le nouveau mot de passe"
-      }
-    }
-  ],
-  "variable": [
-    {
-      "key": "base_url",
-      "value": "http://192.168.235.97:8002/api/v1"
-    },
-    {
-      "key": "test_email",
-      "value": "user@example.com"
-    }
-  ]
+        {
+            "key": "test_email",
+            "value": "user@example.com"
+        }
+    ]
 }
 ```
 
@@ -402,6 +422,7 @@ Sauvegardez ce JSON dans un fichier `.json` et importez-le dans Postman :
 ### Pour "Request Password Reset"
 
 **Tests Tab:**
+
 ```javascript
 pm.test("Status code is 200", function () {
     pm.response.to.have.status(200);
@@ -409,24 +430,25 @@ pm.test("Status code is 200", function () {
 
 pm.test("Response has success field", function () {
     var jsonData = pm.response.json();
-    pm.expect(jsonData).to.have.property('success');
+    pm.expect(jsonData).to.have.property("success");
     pm.expect(jsonData.success).to.be.true;
 });
 
 pm.test("Response has message", function () {
     var jsonData = pm.response.json();
-    pm.expect(jsonData).to.have.property('message');
+    pm.expect(jsonData).to.have.property("message");
 });
 
 pm.test("Message confirms email sent", function () {
     var jsonData = pm.response.json();
-    pm.expect(jsonData.message).to.include('email');
+    pm.expect(jsonData.message).to.include("email");
 });
 ```
 
 ### Pour "Reset Password"
 
 **Tests Tab:**
+
 ```javascript
 pm.test("Status code is 200", function () {
     pm.response.to.have.status(200);
@@ -435,7 +457,7 @@ pm.test("Status code is 200", function () {
 pm.test("Password reset successful", function () {
     var jsonData = pm.response.json();
     pm.expect(jsonData.success).to.be.true;
-    pm.expect(jsonData.message).to.include('successfully');
+    pm.expect(jsonData.message).to.include("successfully");
 });
 ```
 
@@ -444,6 +466,7 @@ pm.test("Password reset successful", function () {
 ## Commandes cURL
 
 ### Demander la réinitialisation
+
 ```bash
 curl -X POST http://192.168.235.97:8002/api/v1/auth/password/email \
   -H "Content-Type: application/json" \
@@ -452,6 +475,7 @@ curl -X POST http://192.168.235.97:8002/api/v1/auth/password/email \
 ```
 
 ### Réinitialiser le mot de passe
+
 ```bash
 curl -X POST http://192.168.235.97:8002/api/v1/auth/password/reset \
   -H "Content-Type: application/json" \
@@ -469,17 +493,21 @@ curl -X POST http://192.168.235.97:8002/api/v1/auth/password/reset \
 ## Troubleshooting
 
 ### Erreur : "Route [password.reset] not defined"
+
 ✅ **Solution** : Cette erreur est maintenant corrigée. La route est définie avec le nom `password.reset` dans `routes/api.php`.
 
 ### Email non reçu
-- Vérifiez les logs : `storage/logs/laravel.log`
-- Vérifiez la configuration email dans `.env`
-- Vérifiez Mailtrap ou votre serveur SMTP
+
+-   Vérifiez les logs : `storage/logs/laravel.log`
+-   Vérifiez la configuration email dans `.env`
+-   Vérifiez Mailtrap ou votre serveur SMTP
 
 ### Token invalide après quelques minutes
-- Les tokens expirent après 60 minutes par défaut
-- Demandez un nouveau token
+
+-   Les tokens expirent après 60 minutes par défaut
+-   Demandez un nouveau token
 
 ### Tests échouent avec 419
-- Assurez-vous d'inclure le header `Accept: application/json`
-- Les routes API ne nécessitent pas de token CSRF
+
+-   Assurez-vous d'inclure le header `Accept: application/json`
+-   Les routes API ne nécessitent pas de token CSRF

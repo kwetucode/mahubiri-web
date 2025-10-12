@@ -30,7 +30,10 @@ class RegisterController extends Controller
                 'phone' => $request->phone,
                 'role_id' =>  1, // Default role
             ]);
-            event(new Registered($user));
+            
+            // Send verification email (Laravel sends it automatically when User implements MustVerifyEmail)
+            $user->sendEmailVerificationNotification();
+            
             // Create token for the user after registration
             $token = $user->createToken('auth_token')->plainTextToken;
             Log::info("User registered successfully", ['user' => $user]);
