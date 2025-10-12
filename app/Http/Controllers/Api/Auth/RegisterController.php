@@ -8,7 +8,6 @@ use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Log;
 
 class RegisterController extends Controller
@@ -30,10 +29,9 @@ class RegisterController extends Controller
                 'phone' => $request->phone,
                 'role_id' =>  1, // Default role
             ]);
-            event(new Registered($user));
 
-            // Send verification email (Laravel sends it automatically when User implements MustVerifyEmail)
-            //$user->sendEmailVerificationNotification();
+            // Send email verification notification (only once)
+            $user->sendEmailVerificationNotification();
 
             // Create token for the user after registration
             $token = $user->createToken('auth_token')->plainTextToken;

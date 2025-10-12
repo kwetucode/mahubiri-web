@@ -9,11 +9,13 @@ Vous receviez tous les emails SAUF l'email de réinitialisation de mot de passe.
 **Fichier :** `app/Notifications/CustomResetPasswordNotification.php`
 
 La notification implémentait `ShouldQueue` :
+
 ```php
 class CustomResetPasswordNotification extends Notification implements ShouldQueue
 ```
 
 Cela signifie que l'email était mis en **queue** et attendait que vous lanciez manuellement :
+
 ```bash
 php artisan queue:work --once
 ```
@@ -49,6 +51,7 @@ Maintenant, quand un utilisateur demande la réinitialisation :
 ## 🧪 Pour tester
 
 ### 1. Demander la réinitialisation
+
 ```bash
 POST http://192.168.235.97:8002/api/v1/auth/password/email
 {
@@ -57,19 +60,23 @@ POST http://192.168.235.97:8002/api/v1/auth/password/email
 ```
 
 **Réponse attendue :**
+
 ```json
 {
-  "success": true,
-  "message": "Password reset link sent to your email"
+    "success": true,
+    "message": "Password reset link sent to your email"
 }
 ```
 
 ### 2. Vérifier votre boîte email
+
 ✅ Vous devriez recevoir l'email **immédiatement** avec :
-- Le **token de réinitialisation** en clair
-- Un **lien cliquable** vers votre app Flutter
+
+-   Le **token de réinitialisation** en clair
+-   Un **lien cliquable** vers votre app Flutter
 
 ### 3. Utiliser le token pour réinitialiser
+
 ```bash
 POST http://192.168.235.97:8002/api/v1/auth/password/reset
 {
@@ -82,30 +89,30 @@ POST http://192.168.235.97:8002/api/v1/auth/password/reset
 
 ## 📊 Récapitulatif de tous les emails
 
-| Email | État | Envoi |
-|-------|------|-------|
-| **Vérification d'email** | ✅ Fonctionne | Immédiat |
-| **Bienvenue** (après vérification) | ✅ Fonctionne | Immédiat |
-| **Réinitialisation mot de passe** | ✅ **CORRIGÉ** | Immédiat |
+| Email                              | État           | Envoi    |
+| ---------------------------------- | -------------- | -------- |
+| **Vérification d'email**           | ✅ Fonctionne  | Immédiat |
+| **Bienvenue** (après vérification) | ✅ Fonctionne  | Immédiat |
+| **Réinitialisation mot de passe**  | ✅ **CORRIGÉ** | Immédiat |
 
 Tous les emails sont maintenant envoyés **automatiquement et immédiatement** ! 🎉
 
 ## 🔧 Toutes les notifications vérifiées
 
-| Notification | ShouldQueue | Envoi |
-|--------------|-------------|-------|
-| `CustomVerifyEmail` | ❌ Non | ✅ Synchrone |
-| `WelcomeNotification` | ❌ **Retiré** | ✅ Synchrone |
+| Notification                      | ShouldQueue   | Envoi        |
+| --------------------------------- | ------------- | ------------ |
+| `CustomVerifyEmail`               | ❌ Non        | ✅ Synchrone |
+| `WelcomeNotification`             | ❌ **Retiré** | ✅ Synchrone |
 | `CustomResetPasswordNotification` | ❌ **Retiré** | ✅ Synchrone |
 
 ## 📝 Notes importantes
 
 ### Avantages de l'envoi synchrone
 
-- ✅ **Immédiat** : L'utilisateur reçoit l'email instantanément
-- ✅ **Simple** : Pas de configuration de queue
-- ✅ **Fiable** : Pas de risque que la queue soit bloquée
-- ✅ **Parfait pour le développement** et petites/moyennes applications
+-   ✅ **Immédiat** : L'utilisateur reçoit l'email instantanément
+-   ✅ **Simple** : Pas de configuration de queue
+-   ✅ **Fiable** : Pas de risque que la queue soit bloquée
+-   ✅ **Parfait pour le développement** et petites/moyennes applications
 
 ### Si vous voulez utiliser la queue plus tard
 
@@ -120,25 +127,28 @@ Si votre application grandit et que vous avez beaucoup d'utilisateurs :
 ### L'email n'arrive toujours pas ?
 
 1. **Vérifier les logs** :
-   ```bash
-   tail -f storage/logs/laravel.log
-   ```
+
+    ```bash
+    tail -f storage/logs/laravel.log
+    ```
 
 2. **Vérifier la configuration email** dans `.env` :
-   ```env
-   MAIL_MAILER=smtp
-   MAIL_HOST=smtp.mailtrap.io
-   MAIL_PORT=2525
-   MAIL_USERNAME=your_username
-   MAIL_PASSWORD=your_password
-   ```
+
+    ```env
+    MAIL_MAILER=smtp
+    MAIL_HOST=smtp.mailtrap.io
+    MAIL_PORT=2525
+    MAIL_USERNAME=your_username
+    MAIL_PASSWORD=your_password
+    ```
 
 3. **Tester l'envoi d'email** avec Tinker :
-   ```bash
-   php artisan tinker
-   >>> $user = \App\Models\User::first();
-   >>> $user->sendPasswordResetNotification('test-token-123');
-   ```
+
+    ```bash
+    php artisan tinker
+    >>> $user = \App\Models\User::first();
+    >>> $user->sendPasswordResetNotification('test-token-123');
+    ```
 
 4. **Vérifier le dossier spam** de votre boîte email
 
@@ -161,11 +171,11 @@ Now all emails (verification, welcome, password reset) are sent immediately.
 
 ## 🎉 Conclusion
 
-Tous vos emails fonctionnent maintenant correctement ! 
+Tous vos emails fonctionnent maintenant correctement !
 
-- ✅ Email de vérification
-- ✅ Email de bienvenue
-- ✅ Email de réinitialisation de mot de passe
+-   ✅ Email de vérification
+-   ✅ Email de bienvenue
+-   ✅ Email de réinitialisation de mot de passe
 
 Tous sont envoyés **automatiquement et immédiatement** ! 🚀
 
@@ -173,7 +183,7 @@ Tous sont envoyés **automatiquement et immédiatement** ! 🚀
 
 ## 📚 Voir aussi
 
-- **Configuration queue** : `QUEUE_CONFIGURATION_GUIDE.md`
-- **Fix email double** : `EMAIL_VERIFICATION_FIX.md`
-- **Email bienvenue** : `WELCOME_EMAIL_AUTO_FIX.md`
-- **Reset password API** : `PASSWORD_RESET_API_GUIDE.md`
+-   **Configuration queue** : `QUEUE_CONFIGURATION_GUIDE.md`
+-   **Fix email double** : `EMAIL_VERIFICATION_FIX.md`
+-   **Email bienvenue** : `WELCOME_EMAIL_AUTO_FIX.md`
+-   **Reset password API** : `PASSWORD_RESET_API_GUIDE.md`
