@@ -65,7 +65,16 @@ Route::middleware('auth:sanctum')->prefix('user')->group(function () {
 //Churches routes group
 Route::middleware('auth:sanctum')->prefix('churches')->group(function () {
     Route::get('/my-church', [ChurchController::class, 'checkUserChurch']);
-    Route::apiResource('/', ChurchController::class)->parameters(['' => 'church']);
+    Route::apiResource('/', ChurchController::class, [
+        'parameters' => ['' => 'church'],
+        'names' => [
+            'index' => 'churches.index',
+            'store' => 'churches.store',
+            'show' => 'churches.show',
+            'update' => 'churches.update',
+            'destroy' => 'churches.destroy',
+        ],
+    ]);
 
     // Image management routes
     Route::patch('/{church}/logo', [ChurchController::class, 'updateLogo']);
@@ -75,5 +84,14 @@ Route::middleware('auth:sanctum')->prefix('churches')->group(function () {
 //Sermons routes group
 Route::middleware('auth:sanctum')->prefix('sermons')->group(function () {
     Route::get('/my-church-sermons', [SermonController::class, 'myChurchSermons']);
-    Route::apiResource('/', SermonController::class)->parameters(['' => 'sermon']);
+    Route::apiResource('/', SermonController::class, [
+        'parameters' => ['' => 'sermon'],
+        'names' => [
+            'index' => 'sermons.index',
+            'store' => 'sermons.store',
+            'show' => 'sermons.show',
+            'update' => 'sermons.update',
+            'destroy' => 'sermons.destroy',
+        ],
+    ]);
 });
