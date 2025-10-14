@@ -1,4 +1,5 @@
-name: 🚀 Deploy Laravel to Hostinger
+name: 🚀 Deploy Mahubir api
+
 on:
   push:
     branches:
