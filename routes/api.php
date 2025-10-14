@@ -83,15 +83,6 @@ Route::middleware('auth:sanctum')->prefix('churches')->group(function () {
 
 //Sermons routes group
 Route::middleware('auth:sanctum')->prefix('sermons')->group(function () {
-    Route::get('/my-church-sermons', [SermonController::class, 'myChurchSermons']);
-    Route::apiResource('/', SermonController::class, [
-        'parameters' => ['' => 'sermon'],
-        'names' => [
-            'index' => 'sermons.index',
-            'store' => 'sermons.store',
-            'show' => 'sermons.show',
-            'update' => 'sermons.update',
-            'destroy' => 'sermons.destroy',
-        ],
-    ]);
+    //Route::get('/my-church-sermons', [SermonController::class, 'myChurchSermons']);
+    Route::apiResource('/', SermonController::class);
 });
