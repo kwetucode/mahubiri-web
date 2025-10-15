@@ -43,7 +43,7 @@ jobs:
           script: |
             cd ${{ secrets.DEPLOY_PATH }}
             php artisan migrate:fresh  --seed
-            php artisan key:generate
+            php artisan
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
@@ -56,6 +56,6 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            cp ${{ secrets.DEPLOY_PATH }}/public/index.php ${{ secrets.DEPLOY_PATH }}/index.php
-            cp ${{ secrets.DEPLOY_PATH }}/public/robots.txt ${{ secrets.DEPLOY_PATH }}/robots.txt
-            cp ${{ secrets.DEPLOY_PATH }}/public/.htaccess ${{ secrets.DEPLOY_PATH }}/.htaccess || true
+            [ -f ${{ secrets.DEPLOY_PATH }}/index.php ] || cp ${{ secrets.DEPLOY_PATH }}/public/index.php ${{ secrets.DEPLOY_PATH }}/index.php
+            [ -f ${{ secrets.DEPLOY_PATH }}/robots.txt ] || cp ${{ secrets.DEPLOY_PATH }}/public/robots.txt ${{ secrets.DEPLOY_PATH }}/robots.txt
+            [ -f ${{ secrets.DEPLOY_PATH }}/.htaccess ] || cp ${{ secrets.DEPLOY_PATH }}/public/.htaccess ${{ secrets.DEPLOY_PATH }}/.htaccess

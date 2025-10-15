@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('sermons', function (Blueprint $table) {
             $table->id()->comment('Primary key');
             $table->foreignIdFor(Church::class)->constrained('churches')->onDelete('cascade')->comment('Foreign key to churches table');
-            $table->foreignIdFor(CategorySermon::class)->constrained('category_sermons')->onDelete('set null')->nullable()->comment('Foreign key to category_sermons table');
+            $table->foreignIdFor(CategorySermon::class)->constrained('category_sermons')->onDelete('set null')->comment('Foreign key to category_sermons table');
             $table->string('title')->comment('Title of the sermon');
             $table->string('preacher_name')->comment('Name of the preacher');
             $table->text('audio_url')->comment('URL of the audio file');
