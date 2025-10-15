@@ -1,52 +1,48 @@
-name: 🚀 Deploy Mahubir api
+name: 🚀 Deploy via SSH Mahubiri backend
 
 on:
   push:
     branches:
-      - main # ou master selon ta branche par défaut
+      - main # ou master selon ta branche
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🧩 Checkout repository
+      - name: 🧩 Checkout code
         uses: actions/checkout@v4
 
-      - name: ⚙️ Set up PHP
+      - name: ⚙️ Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: "8.2"
-          extensions: mbstring, bcmath, xml, ctype, json, curl, openssl, tokenizer, pdo, pdo_mysql
-          coverage: none
 
-      - name: 🧰 Install dependencies
+      - name: 📦 Install dependencies
         run: composer install --no-dev --optimize-autoloader
 
-      - name: ⚡ Optimize Laravel
-        run: |
-          php artisan config:cache
-          php artisan route:cache
-          php artisan view:cache
-
-      - name: 📦 Create deployment package
-        run: zip -r deploy.zip . -x ".git/*" "vendor/*" ".github/*"
-
-      - name: 📤 Upload to Hostinger via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      - name: 🚀 Deploy to Hostinger via SSH
+        uses: appleboy/scp-action@v0.1.4
         with:
-          server: ${{ secrets.FTP_HOST }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./
-          server-dir: ${{ secrets.FTP_PATH }}
-          exclude: |
-            **/.git*
-            **/.github*
-            **/node_modules/**
-            **/tests/**
-            storage/framework/cache/data/**
-            storage/logs/**
-
-      - name: 🧹 Cleanup cache
-        run: rm deploy.zip
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "./"
+          target: ${{ secrets.DEPLOY_PATH }}
+          rm: false
+          overwrite: true
+          strip_components: 0
+      - name: 🔧 Run artisan commands remotely
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd ${{ secrets.DEPLOY_PATH }}
+            php artisan migrate --force
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
