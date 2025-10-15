@@ -3,7 +3,7 @@ name: 🚀 Deploy via SSH Mahubiri backend
 on:
   push:
     branches:
-      - main # ou master selon ta branche
+      - main # Déclenche le workflow sur chaque push sur la branche main
 
 jobs:
   deploy:
@@ -12,14 +12,17 @@ jobs:
     steps:
       - name: 🧩 Checkout code
         uses: actions/checkout@v4
+        # Récupère le code source du dépôt
 
       - name: ⚙️ Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: "8.2"
+        # Installe PHP 8.2 sur l'environnement GitHub Actions
 
       - name: � Install dependencies
         run: composer install --no-dev --optimize-autoloader
+        # Installe les dépendances PHP sans les dépendances de développement
 
       - name: 🚀 Deploy to Hostinger via SSH
         uses: appleboy/scp-action@v0.1.4
@@ -33,6 +36,8 @@ jobs:
           rm: false
           overwrite: true
           strip_components: 0
+        # Transfère tous les fichiers du projet vers le serveur distant via SCP
+
       - name: 🔧 Run artisan commands remotely
         uses: appleboy/ssh-action@v1.1.0
         with:
@@ -43,7 +48,22 @@ jobs:
           script: |
             cd ${{ secrets.DEPLOY_PATH }}
             php artisan migrate:fresh  --seed
+            php artisan
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
-    
+            php artisan optimize:clear
+        # Exécute des commandes Laravel sur le serveur distant (migrations, cache, etc.)
+
+      - name: 📄 Copy index.php, .htaccess and robots.txt to root
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            [ -f ${{ secrets.DEPLOY_PATH }}/index.php ] || cp ${{ secrets.DEPLOY_PATH }}/public/index.php ${{ secrets.DEPLOY_PATH }}/index.php
+            [ -f ${{ secrets.DEPLOY_PATH }}/robots.txt ] || cp ${{ secrets.DEPLOY_PATH }}/public/robots.txt ${{ secrets.DEPLOY_PATH }}/robots.txt
+            [ -f ${{ secrets.DEPLOY_PATH }}/.htaccess ] || cp ${{ secrets.DEPLOY_PATH }}/public/.htaccess ${{ secrets.DEPLOY_PATH }}/.htaccess
+        # Copie certains fichiers du dossier public à la racine si besoin
