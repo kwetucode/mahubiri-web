@@ -21,6 +21,7 @@ class UserResource extends JsonResource
             'phone' => $this->phone,
             'email_verified_at' => $this->email_verified_at,
             'role' => new RoleResource($this->whenLoaded('role')),
+            'church' => new ChurchResource($this->whenLoaded('church')),
         ];
     }
 }

@@ -10,7 +10,10 @@ use App\Http\Controllers\Api\Auth\SocialAuthController;
 use App\Http\Controllers\Api\Auth\UserProfileController;
 use App\Http\Controllers\Api\Church\ChurchController;
 use App\Http\Controllers\Api\Church\UpdateLogoChurchController;
+use App\Http\Controllers\Api\Sermon\FavoriteSermonController;
 use App\Http\Controllers\Api\Sermon\SermonController;
+use App\Http\Controllers\Api\Sermon\SermonListController;
+use App\Models\Sermon;
 
 /*
 |--------------------------------------------------------------------------
@@ -71,5 +74,23 @@ Route::middleware('auth:sanctum')->prefix('churches')->group(function () {
 
 //Sermons routes group
 Route::middleware('auth:sanctum')->prefix('sermons')->group(function () {
+    // Get recent sermons (must be before resource routes to avoid conflict)
+    Route::get('/recent', [SermonListController::class, 'getRecentSermons']);
+
+    // Get popular sermons based on popularity score
+    Route::get('/popular', [SermonListController::class, 'getPopularSermons']);
+
+    // Record sermon play/view
+    Route::post('/{sermon}/play', [SermonListController::class, 'recordSermonPlay']);
+
     Route::apiResource('/', SermonController::class);
+
+    // Sermon Favorites routes
+    Route::prefix('favorites')->group(function () {
+        Route::get('/', [FavoriteSermonController::class, 'getFavorites']);
+        Route::post('/{sermon}/add', [FavoriteSermonController::class, 'addFavorite']);
+        Route::delete('/{sermon}/remove', [FavoriteSermonController::class, 'removeFavorite']);
+        Route::post('/{sermon}/toggle', [FavoriteSermonController::class, 'toggleFavorite']);
+        Route::get('/{sermon}/check', [FavoriteSermonController::class, 'isFavorite']);
+    });
 });

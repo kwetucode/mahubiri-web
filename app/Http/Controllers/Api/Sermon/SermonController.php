@@ -67,7 +67,6 @@ class SermonController extends Controller
             'message' => 'Sermons retrieved successfully'
         ]);
     }
-
     /**
      * Store a newly created resource in storage.
      */

@@ -26,13 +26,17 @@ class Sermon extends Model
         'duration_formatted',
         'audio_format',
         'color',
+        'popularity_score',
+        'popularity_calculated_at',
     ];
 
     protected $casts = [
         'duration' => 'integer',
         'church_id' => 'integer',
+        'popularity_score' => 'decimal:2',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'popularity_calculated_at' => 'datetime',
     ];
 
     /**
@@ -48,5 +52,45 @@ class Sermon extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(CategorySermon::class, 'category_sermon_id');
+    }
+
+    /**
+     * Get users who favorited this sermon
+     */
+    public function favoritedBy()
+    {
+        return $this->hasMany(SermonFavorite::class);
+    }
+
+    /**
+     * Get views/plays for this sermon
+     */
+    public function views()
+    {
+        return $this->hasMany(SermonView::class);
+    }
+
+    /**
+     * Check if sermon is favorited by a specific user
+     */
+    public function isFavoritedBy($userId): bool
+    {
+        return $this->favoritedBy()->where('user_id', $userId)->exists();
+    }
+
+    /**
+     * Scope to order by popularity score
+     */
+    public function scopePopular($query)
+    {
+        return $query->orderBy('popularity_score', 'desc');
+    }
+
+    /**
+     * Scope to get sermons with minimum popularity score
+     */
+    public function scopeMinimumPopularity($query, $minScore = 0)
+    {
+        return $query->where('popularity_score', '>', $minScore);
     }
 }

@@ -99,4 +99,12 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $this->update(['welcome_email_sent_at' => now()]);
     }
+
+    /**
+     * Get user's favorite sermons
+     */
+    public function favoriteSermons()
+    {
+        return $this->hasMany(SermonFavorite::class);
+    }
 }
