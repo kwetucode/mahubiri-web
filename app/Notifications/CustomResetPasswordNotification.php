@@ -65,9 +65,12 @@ class CustomResetPasswordNotification extends Notification // Removed ShouldQueu
      */
     protected function resetUrl($notifiable): string
     {
-        // Pour une API, on retourne le token dans l'URL
-        // L'application Flutter utilisera ce token avec l'endpoint /api/auth/password/reset
-        return config('app.frontend_url', config('app.url')) . '/reset-password?token=' . $this->token . '&email=' . urlencode($notifiable->getEmailForPasswordReset());
+        // Generate URL that points to the WEB route (not frontend directly)
+        // This will redirect to the Flutter app via deep link
+        return route('password.reset', [
+            'token' => $this->token,
+            'email' => urlencode($notifiable->getEmailForPasswordReset())
+        ]);
     }
 
     /**

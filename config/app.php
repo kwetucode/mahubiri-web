@@ -68,6 +68,32 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Flutter App Deep Link Scheme
+    |--------------------------------------------------------------------------
+    |
+    | This is the custom URL scheme for your Flutter application.
+    | Used for deep linking from email verification and password reset.
+    | Example: if set to 'mahubiri', deep links will be like 'mahubiri://...'
+    |
+    */
+
+    'flutter_scheme' => env('FLUTTER_APP_SCHEME', 'mahubiri'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | App Store URLs
+    |--------------------------------------------------------------------------
+    |
+    | URLs to your app in Google Play Store and Apple App Store.
+    | Used as fallback if deep linking doesn't work.
+    |
+    */
+
+    'play_store_url' => env('PLAY_STORE_URL', ''),
+    'app_store_url' => env('APP_STORE_URL', ''),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |

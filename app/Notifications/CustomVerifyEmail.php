@@ -59,12 +59,14 @@ class CustomVerifyEmail extends Notification
     }
 
     /**
-     * Générer l’URL de vérification personnalisée
+     * Générer l'URL de vérification personnalisée
      */
     protected function verificationUrl($notifiable)
     {
+        // Generate a signed URL that points to the WEB route (not API)
+        // This will redirect to the Flutter app via deep link
         return URL::temporarySignedRoute(
-            'api.v1.verification.verify',
+            'verification.verify', // This is the web route name
             Carbon::now()->addMinutes(Config::get('auth.verification.expire', 60)),
             [
                 'id'   => $notifiable->getKey(),
