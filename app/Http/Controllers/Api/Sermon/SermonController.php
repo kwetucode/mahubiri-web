@@ -51,7 +51,9 @@ class SermonController extends Controller
             });
         }
 
-        $sermons = $query->orderBy('created_at', 'desc')->paginate(15);
+        $sermons = $query->orderBy('created_at', 'desc')
+            ->where('church_id', Auth::user()->church->id)
+            ->paginate(15);
 
         return response()->json([
             'success' => true,
@@ -170,40 +172,6 @@ class SermonController extends Controller
     }
 
     /**
-     * Get sermons for the user's church
-     */
-    public function myChurchSermons(): JsonResponse
-    {
-        $church = $this->getUserChurch();
-
-        if (!$church) {
-            return $this->errorResponse(
-                'Vous devez d\'abord créer une église.',
-                [],
-                404
-            );
-        }
-
-        $sermons = Sermon::where('church_id', $church->id)
-            ->with(['church'])
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        return $this->successResponse(
-            SermonResource::collection($sermons),
-            'Church sermons retrieved successfully'
-        );
-    }
-
-    /**
-     * Get the authenticated user's church
-     */
-    private function getUserChurch(): ?Church
-    {
-        return Church::where('created_by', Auth::id())->first();
-    }
-
-    /**
      * Verify if user owns the church that contains the sermon
      */
     private function verifySermonOwnership(Sermon $sermon): bool
@@ -273,7 +241,6 @@ class SermonController extends Controller
                 Log::info('New cover image uploaded', ['cover_url' => $validated['cover_url']]);
             }
         }
-
         // Clean up cover fields if not processed
         unset($validated['cover_base64'], $validated['cover_file']);
     }

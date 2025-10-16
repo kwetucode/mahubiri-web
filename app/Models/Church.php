@@ -16,6 +16,10 @@ class Church extends Model
         'abbreviation',
         'logo_url',
         'description',
+        'country_name',
+        'country_code',
+        'city',
+        'address',
         'created_by',
     ];
 

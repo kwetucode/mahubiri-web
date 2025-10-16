@@ -20,7 +20,7 @@ class RegisterController extends Controller
      * @param RegisterRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function register(RegisterRequest $request)
+    public function __invoke(RegisterRequest $request)
     {
         // Validation is automatically handled by RegisterRequest
         try {
@@ -31,7 +31,6 @@ class RegisterController extends Controller
                 'phone' => $request->phone,
                 'role_id' => \App\Enums\RoleType::USER,
             ]);
-
             // Créer et envoyer le code de vérification email
             $codeVerification = UserCodeVerification::createForUser($user, 'email_verification', 15);
             $user->notify(new CustomVerifyEmail($codeVerification->code));

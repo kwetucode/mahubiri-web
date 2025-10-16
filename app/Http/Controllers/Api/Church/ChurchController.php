@@ -32,7 +32,50 @@ class ChurchController extends Controller
      */
     public function index(): JsonResponse
     {
-        $churches = Church::with('createdBy', 'sermons')->get();
+        // Improved query with selective columns, optional search, optional "mine" filter and pagination
+        $perPage = (int) request()->query('per_page', 15);
+        $search = request()->query('search');
+        $onlyMine = filter_var(request()->query('mine', false), FILTER_VALIDATE_BOOLEAN);
+
+        $query = Church::query()
+            ->with([
+                'createdBy:id,name,email',
+                'sermons' => function ($q) {
+                    $q->select('id', 'church_id', 'title', 'created_at')
+                        ->orderByDesc('created_at');
+                }
+            ])
+            ->select(
+                'id',
+                'name',
+                'abbreviation',
+                'slug',
+                'address',
+                'city',
+                'country_name',
+                'country_code',
+                'logo_url',
+                'description',
+                'created_by',
+                'created_at'
+            );
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('abbreviation', 'like', "%{$search}%")
+                    ->orWhere('address', 'like', "%{$search}%")
+                    ->orWhere('city', 'like', "%{$search}%")
+                    ->orWhere('country_name', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        if ($onlyMine && Auth::check()) {
+            $query->where('created_by', Auth::id());
+        }
+
+        $churches = $query->orderByDesc('created_at')->paginate($perPage);
         return response()->json([
             'success' => true,
             'data' => ChurchResource::collection($churches),
@@ -82,7 +125,6 @@ class ChurchController extends Controller
     public function show(Church $church): JsonResponse
     {
         $church->load('createdBy');
-
         return response()->json([
             'success' => true,
             'data' => new ChurchResource($church),
@@ -132,83 +174,6 @@ class ChurchController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Church deleted successfully'
-        ]);
-    }
-
-    /**
-     * Check if the authenticated user has already created a church
-     */
-    public function checkUserChurch(): JsonResponse
-    {
-        $church = Church::where('created_by', Auth::id())->with('createdBy')->first();
-
-        if ($church) {
-            return response()->json([
-                'success' => true,
-                'has_church' => true,
-                'data' => new ChurchResource($church),
-                'message' => 'Utilisateur a déjà une église'
-            ]);
-        }
-
-        return response()->json([
-            'success' => true,
-            'has_church' => false,
-            'data' => null,
-            'message' => 'Utilisateur n\'a pas encore d\'église'
-        ]);
-    }
-
-    /**
-     * Update church logo
-     */
-    public function updateLogo(Request $request, Church $church): JsonResponse
-    {
-        $request->validate([
-            'logo' => 'required|string', // Base64 image
-        ]);
-
-        try {
-            // Delete old logo if exists
-            if ($church->logo_url) {
-                $this->uploadService->deleteFile($church->logo_url);
-            }
-
-            // Upload new logo
-            $logoUrl = $this->uploadService->handleImageUpload($request->logo, 'church_logos');
-
-            // Update church with new logo URL
-            $church->update(['logo_url' => $logoUrl]);
-            $church->load('createdBy');
-
-            return response()->json([
-                'success' => true,
-                'data' => new ChurchResource($church),
-                'message' => 'Church logo updated successfully'
-            ]);
-        } catch (\InvalidArgumentException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Logo upload failed: ' . $e->getMessage()
-            ], 400);
-        }
-    }
-    /**
-     * Remove church logo
-     */
-    public function removeLogo(Church $church): JsonResponse
-    {
-        if ($church->logo_url) {
-            $this->uploadService->deleteFile($church->logo_url);
-            $church->update(['logo_url' => null]);
-        }
-
-        $church->load('createdBy');
-
-        return response()->json([
-            'success' => true,
-            'data' => new ChurchResource($church),
-            'message' => 'Church logo removed successfully'
         ]);
     }
 }

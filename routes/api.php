@@ -7,7 +7,9 @@ use App\Http\Controllers\Api\Auth\LoginController;
 use App\Http\Controllers\Api\Auth\PasswordResetController;
 use App\Http\Controllers\Api\Auth\EmailVerificationController;
 use App\Http\Controllers\Api\Auth\SocialAuthController;
+use App\Http\Controllers\Api\Auth\UserProfileController;
 use App\Http\Controllers\Api\Church\ChurchController;
+use App\Http\Controllers\Api\Church\UpdateLogoChurchController;
 use App\Http\Controllers\Api\Sermon\SermonController;
 
 /*
@@ -24,8 +26,8 @@ use App\Http\Controllers\Api\Sermon\SermonController;
 // Public authentication routes
 Route::prefix('auth')->group(function () {
     // Registration & Login
-    Route::post('/register', [RegisterController::class, 'register']);
-    Route::post('/login', [LoginController::class, 'login']);
+    Route::post('/register', RegisterController::class);
+    Route::post('/login', LoginController::class);
 
     // Password Reset with Verification Code
     Route::post('/password/send-code', [PasswordResetController::class, 'sendResetCode']);
@@ -46,8 +48,9 @@ Route::prefix('auth')->group(function () {
 
 // Protected authentication routes
 Route::middleware('auth:sanctum')->prefix('user')->group(function () {
-    Route::post('/logout', [LoginController::class, 'logout']);
-    Route::get('/profile', [LoginController::class, 'me']);
+    // User Profile Management
+    Route::get('/profile', [UserProfileController::class, 'me']);
+    Route::post('/logout', [UserProfileController::class, 'logout']);
 
     // Email Verification Status (protected routes)
     Route::get('/email/verification-status', [EmailVerificationController::class, 'checkVerificationStatus']);
@@ -60,25 +63,13 @@ Route::middleware('auth:sanctum')->prefix('user')->group(function () {
 
 //Churches routes group
 Route::middleware('auth:sanctum')->prefix('churches')->group(function () {
-    Route::get('/my-church', [ChurchController::class, 'checkUserChurch']);
-    Route::apiResource('/', ChurchController::class, [
-        'parameters' => ['' => 'church'],
-        'names' => [
-            'index' => 'churches.index',
-            'store' => 'churches.store',
-            'show' => 'churches.show',
-            'update' => 'churches.update',
-            'destroy' => 'churches.destroy',
-        ],
-    ]);
-
+    Route::apiResource('/', ChurchController::class);
     // Image management routes
-    Route::patch('/{church}/logo', [ChurchController::class, 'updateLogo']);
-    Route::delete('/{church}/logo', [ChurchController::class, 'removeLogo']);
+    Route::patch('/{church}/logo', [UpdateLogoChurchController::class, 'updateLogo']);
+    Route::delete('/{church}/logo', [UpdateLogoChurchController::class, 'removeLogo']);
 });
 
 //Sermons routes group
 Route::middleware('auth:sanctum')->prefix('sermons')->group(function () {
-    //Route::get('/my-church-sermons', [SermonController::class, 'myChurchSermons']);
     Route::apiResource('/', SermonController::class);
 });

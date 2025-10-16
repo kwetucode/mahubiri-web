@@ -15,9 +15,16 @@ class CetegorySermonController extends Controller
      */
     public function index()
     {
+        $perPage = (int) request()->query('per_page', 15);
+        $search = request()->query('q');
+        $query = CategorySermon::withCount('sermons')->orderBy('name', 'asc');
+        if ($search) {
+            $query->where('name', 'like', "%{$search}%");
+        }
+        $categories = $query->paginate($perPage);
         return response()->json([
             'success' => true,
-            'data' => CategorySermonResource::collection(CategorySermon::all()),
+            'data' => CategorySermonResource::collection($categories),
         ]);
     }
 

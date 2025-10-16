@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements MustVerifyEmail
@@ -21,18 +22,7 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @var list<string>
      */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'phone',
-        'role_id',
-        'welcome_email_sent_at',
-        'google_id',
-        'google_token',
-        'facebook_id',
-        'facebook_token',
-    ];
+    protected $guarded = [];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -58,6 +48,14 @@ class User extends Authenticatable implements MustVerifyEmail
             'welcome_email_sent_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the church that owns the user.
+     */
+    public function church(): HasOne
+    {
+        return $this->hasOne(Church::class);
     }
 
     /**

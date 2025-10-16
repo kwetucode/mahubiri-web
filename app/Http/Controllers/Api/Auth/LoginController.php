@@ -19,7 +19,7 @@ class LoginController extends Controller
      * @param LoginRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function login(LoginRequest $request)
+    public function __invoke(LoginRequest $request)
     {
         try {
             // Validation is automatically handled by LoginRequest
@@ -70,55 +70,6 @@ class LoginController extends Controller
             return ApiExceptionHandler::auto($e, 'connexion utilisateur', [
                 'user_login' => $request->input('login'),
                 'login_field' => $loginField ?? null
-            ]);
-        }
-    }
-
-    /**
-     * Logout user
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function logout(Request $request)
-    {
-        try {
-            $token = $request->user()->currentAccessToken();
-            if ($token ?? method_exists($token, 'delete')) {
-                Log::info('User logged out', ['user' => $request->user()]);
-                $token->delete();
-            }
-            Log::info('Logout successful', ['user' => $request->user()]);
-            return response()->json([
-                'success' => true,
-                'message' => 'Déconnexion réussie'
-            ]);
-        } catch (\Exception $e) {
-            return ApiExceptionHandler::auto($e, 'déconnexion utilisateur', [
-                'user_id' => $request->user()->id ?? null
-            ]);
-        }
-    }
-
-    /**
-     * Get authenticated user information
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function me(Request $request)
-    {
-        try {
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'token' => $request->bearerToken(),
-                    'user' => new UserResource($request->user()->load('role'))
-                ]
-            ]);
-        } catch (\Exception $e) {
-            return ApiExceptionHandler::auto($e, 'récupération des informations utilisateur', [
-                'user_id' => $request->user()->id ?? null
             ]);
         }
     }

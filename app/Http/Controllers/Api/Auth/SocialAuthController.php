@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Api\Auth;
 
+use App\Enums\RoleType;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Notifications\WelcomeNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Laravel\Socialite\Facades\Socialite;
@@ -15,7 +18,7 @@ class SocialAuthController extends Controller
 {
     /**
      * Authenticate user with social provider token (for Flutter app)
-     * 
+     *
      * This method is designed for mobile apps (Flutter) where the social login
      * is handled on the client side and the access token is sent to the API.
      *
@@ -48,6 +51,13 @@ class SocialAuthController extends Controller
 
             // Generate Sanctum token
             $token = $user->createToken('mobile-app-token')->plainTextToken;
+
+            //Send wellcome email
+            $user->notify(new WelcomeNotification($user));
+            Log::info("Email de bienvenue envoyé", [
+                'user_id' => $user->id,
+                'email' => $user->email
+            ]);
 
             return response()->json([
                 'success' => true,
@@ -268,6 +278,7 @@ class SocialAuthController extends Controller
             $provider . '_id' => $providerUser->getId(),
             $provider . '_token' => request('access_token'),
             'email_verified_at' => now(), // Social accounts are considered verified
+            'role_id' => RoleType::USER,
         ]);
 
         return $user;

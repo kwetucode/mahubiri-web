@@ -175,6 +175,11 @@ class PasswordResetController extends Controller
             $verification->markAsUsedAndDelete();
 
             // Déclencher l'événement
+            // Revoke all Sanctum tokens after password reset
+            if (method_exists($user, 'tokens')) {
+                $user->tokens()->delete();
+            }
+            // Déclencher l'événement PasswordReset
             event(new PasswordReset($user));
 
             Log::info('Mot de passe réinitialisé avec succès', [
