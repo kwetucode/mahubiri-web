@@ -13,18 +13,18 @@ class CustomResetPasswordNotification extends Notification // Removed ShouldQueu
     use Queueable;
 
     /**
-     * The password reset token.
+     * The verification code (6 digits).
      *
      * @var string
      */
-    public $token;
+    public $code;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct(string $token)
+    public function __construct(string $code)
     {
-        $this->token = $token;
+        $this->code = $code;
     }
 
     /**
@@ -42,35 +42,16 @@ class CustomResetPasswordNotification extends Notification // Removed ShouldQueu
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $resetUrl = $this->resetUrl($notifiable);
-
         return (new MailMessage)
-            ->subject(Lang::get('Réinitialisation de votre mot de passe'))
+            ->subject(Lang::get('Code de réinitialisation de mot de passe'))
             ->greeting(Lang::get('Bonjour !'))
             ->line(Lang::get('Vous recevez cet email car nous avons reçu une demande de réinitialisation de mot de passe pour votre compte.'))
-            ->line(Lang::get('Votre code de réinitialisation est :'))
-            ->line('**' . $this->token . '**')
-            ->line(Lang::get('Ou vous pouvez cliquer sur le bouton ci-dessous :'))
-            ->action(Lang::get('Réinitialiser le mot de passe'), $resetUrl)
-            ->line(Lang::get('Ce lien de réinitialisation expirera dans :count minutes.', ['count' => config('auth.passwords.' . config('auth.defaults.passwords') . '.expire')]))
-            ->line(Lang::get('Si vous n\'avez pas demandé de réinitialisation de mot de passe, aucune action n\'est requise.'))
+            ->line(Lang::get('Votre code de vérification est :'))
+            ->line('## **' . $this->code . '**')
+            ->line(Lang::get('Ce code est valide pendant 15 minutes.'))
+            ->line(Lang::get('Entrez ce code dans l\'application pour réinitialiser votre mot de passe.'))
+            ->line(Lang::get('Si vous n\'avez pas demandé de réinitialisation de mot de passe, ignorez cet email.'))
             ->salutation(Lang::get('Cordialement,') . "\n" . config('app.name'));
-    }
-
-    /**
-     * Get the reset URL for the given notifiable.
-     *
-     * @param  mixed  $notifiable
-     * @return string
-     */
-    protected function resetUrl($notifiable): string
-    {
-        // Generate URL that points to the WEB route (not frontend directly)
-        // This will redirect to the Flutter app via deep link
-        return route('password.reset', [
-            'token' => $this->token,
-            'email' => urlencode($notifiable->getEmailForPasswordReset())
-        ]);
     }
 
     /**
@@ -81,7 +62,7 @@ class CustomResetPasswordNotification extends Notification // Removed ShouldQueu
     public function toArray(object $notifiable): array
     {
         return [
-            'token' => $this->token,
+            'code' => $this->code,
             'email' => $notifiable->getEmailForPasswordReset(),
         ];
     }

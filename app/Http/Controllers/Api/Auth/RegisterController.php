@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Models\UserCodeVerification;
+use App\Notifications\CustomVerifyEmail;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
@@ -27,21 +29,30 @@ class RegisterController extends Controller
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'phone' => $request->phone,
-                'role_id' =>  1, // Default role
+                'role_id' => \App\Enums\RoleType::USER,
             ]);
 
-            // Send email verification notification (only once)
-            $user->sendEmailVerificationNotification();
+            // Créer et envoyer le code de vérification email
+            $codeVerification = UserCodeVerification::createForUser($user, 'email_verification', 15);
+            $user->notify(new CustomVerifyEmail($codeVerification->code));
 
             // Create token for the user after registration
             $token = $user->createToken('auth_token')->plainTextToken;
-            Log::info("User registered successfully", ['user' => $user]);
+
+            Log::info("User registered successfully with verification code", [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'code_expires_at' => $codeVerification->expires_at
+            ]);
+
             return response()->json([
                 'success' => true,
-                'message' => 'User registered successfully',
+                'message' => 'Inscription réussie. Un code de vérification a été envoyé à votre email.',
                 'data' => [
                     'user' => new UserResource($user->load('role')),
                     'token' => $token,
+                    'verification_required' => true,
+                    'code_expires_in_minutes' => 15,
                 ],
             ], 201);
         } catch (\Exception $e) {

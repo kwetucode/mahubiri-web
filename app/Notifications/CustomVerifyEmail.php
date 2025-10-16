@@ -2,24 +2,29 @@
 
 namespace App\Notifications;
 
-use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Lang;
 
 class CustomVerifyEmail extends Notification
 {
     use Queueable;
 
     /**
+     * The verification code (6 digits).
+     *
+     * @var string
+     */
+    public $code;
+
+    /**
      * Create a new notification instance.
      */
-    public function __construct()
+    public function __construct(string $code)
     {
-        //
+        $this->code = $code;
     }
 
     /**
@@ -37,13 +42,15 @@ class CustomVerifyEmail extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $verificationUrl = $this->verificationUrl($notifiable);
-
         return (new MailMessage)
-            ->subject('Vérification de votre adresse email')
-            ->line('Merci de vous être inscrit ! Veuillez vérifier votre adresse email en cliquant sur le bouton ci-dessous.')
-            ->action('Vérifier mon email', $verificationUrl)
-            ->line("Si vous n'avez pas créé de compte, aucune action n'est requise.");
+            ->subject(Lang::get('Code de vérification email'))
+            ->greeting(Lang::get('Bonjour !'))
+            ->line(Lang::get('Merci de vous être inscrit ! Pour vérifier votre adresse email, utilisez le code ci-dessous :'))
+            ->line('## **' . $this->code . '**')
+            ->line(Lang::get('Ce code est valide pendant 15 minutes.'))
+            ->line(Lang::get('Entrez ce code dans l\'application pour activer votre compte.'))
+            ->line(Lang::get('Si vous n\'avez pas créé de compte, ignorez cet email.'))
+            ->salutation(Lang::get('Cordialement,') . "\n" . config('app.name'));
     }
 
     /**
@@ -54,24 +61,8 @@ class CustomVerifyEmail extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            //
+            'code' => $this->code,
+            'email' => $notifiable->getEmailForVerification(),
         ];
-    }
-
-    /**
-     * Générer l'URL de vérification personnalisée
-     */
-    protected function verificationUrl($notifiable)
-    {
-        // Generate a signed URL that points to the WEB route (not API)
-        // This will redirect to the Flutter app via deep link
-        return URL::temporarySignedRoute(
-            'verification.verify', // This is the web route name
-            Carbon::now()->addMinutes(Config::get('auth.verification.expire', 60)),
-            [
-                'id'   => $notifiable->getKey(),
-                'hash' => sha1($notifiable->getEmailForVerification()),
-            ]
-        );
     }
 }

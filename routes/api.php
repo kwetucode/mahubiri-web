@@ -27,20 +27,17 @@ Route::prefix('auth')->group(function () {
     Route::post('/register', [RegisterController::class, 'register']);
     Route::post('/login', [LoginController::class, 'login']);
 
-    // Password Reset
-    Route::post('/password/email', [PasswordResetController::class, 'sendResetLink']);
+    // Password Reset with Verification Code
+    Route::post('/password/send-code', [PasswordResetController::class, 'sendResetCode']);
+    Route::post('/password/verify-code', [PasswordResetController::class, 'verifyCode']);
     Route::post('/password/reset', [PasswordResetController::class, 'resetPassword'])
         ->name('password.reset');
 
-    // Email Verification (public route for clicking email link)
-    Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verifyEmail'])
-        ->middleware(['signed', 'throttle:6,1'])
-        ->name('verification.verify');
-
-    // Resend verification email (authenticated user)
-    Route::post('/email/resend', [EmailVerificationController::class, 'sendVerificationEmail'])
-        ->middleware(['auth:sanctum', 'throttle:6,1'])
-        ->name('verification.send');
+    // Email Verification with Code
+    Route::post('/email/send-code', [EmailVerificationController::class, 'sendVerificationCode'])
+        ->middleware(['auth:sanctum', 'throttle:6,1']);
+    Route::post('/email/verify-code', [EmailVerificationController::class, 'verifyEmailWithCode'])
+        ->middleware(['auth:sanctum']);
 
     // Social Authentication (for Flutter app)
     Route::post('/social/login', [SocialAuthController::class, 'socialLogin'])
@@ -52,8 +49,7 @@ Route::middleware('auth:sanctum')->prefix('user')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout']);
     Route::get('/profile', [LoginController::class, 'me']);
 
-    // Email Verification (protected routes)
-    Route::post('/email/verification-notification', [EmailVerificationController::class, 'sendVerificationEmail']);
+    // Email Verification Status (protected routes)
     Route::get('/email/verification-status', [EmailVerificationController::class, 'checkVerificationStatus']);
 
     // Social Account Management (protected routes)

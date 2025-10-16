@@ -14,10 +14,10 @@ use BenSampo\Enum\Enum;
  */
 final class RoleType extends Enum
 {
-    const USER = 'user';
-    const ADMIN = 'admin';
-    const CHURCH_ADMIN = 'church_admin';
-    const MODERATOR = 'moderator';
+    const USER = 1;
+    const ADMIN = 2;
+    const CHURCH_ADMIN = 3;
+    const MODERATOR = 4;
 
     /**
      * Get the description for display
