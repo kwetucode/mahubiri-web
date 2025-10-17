@@ -7,12 +7,13 @@ use App\Http\Controllers\Api\Auth\LoginController;
 use App\Http\Controllers\Api\Auth\PasswordResetController;
 use App\Http\Controllers\Api\Auth\EmailVerificationController;
 use App\Http\Controllers\Api\Auth\SocialAuthController;
-use App\Http\Controllers\Api\Auth\UserProfileController;
 use App\Http\Controllers\Api\Church\ChurchController;
 use App\Http\Controllers\Api\Church\UpdateLogoChurchController;
 use App\Http\Controllers\Api\Sermon\FavoriteSermonController;
 use App\Http\Controllers\Api\Sermon\SermonController;
 use App\Http\Controllers\Api\Sermon\SermonListController;
+use App\Http\Controllers\Api\User\UserAvatarController;
+use App\Http\Controllers\Api\User\UserProfileController;
 use App\Models\Sermon;
 
 /*
@@ -53,7 +54,12 @@ Route::prefix('auth')->group(function () {
 Route::middleware('auth:sanctum')->prefix('user')->group(function () {
     // User Profile Management
     Route::get('/profile', [UserProfileController::class, 'me']);
+    Route::put('/profile/update', [UserProfileController::class, 'updateProfile']);
     Route::post('/logout', [UserProfileController::class, 'logout']);
+
+    // Avatar Management
+    Route::post('/avatar', [UserAvatarController::class, 'updateAvatar']);
+    Route::delete('/avatar', [UserAvatarController::class, 'removeAvatar']);
 
     // Email Verification Status (protected routes)
     Route::get('/email/verification-status', [EmailVerificationController::class, 'checkVerificationStatus']);

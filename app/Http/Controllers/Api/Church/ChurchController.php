@@ -112,6 +112,11 @@ class ChurchController extends Controller
         $church = Church::create($validated);
         $church->load('createdBy');
 
+        //Update role of the user to 'church_admin'
+        $user = Auth::user();
+        $user->role_id = \App\Enums\RoleType::CHURCH_ADMIN;
+        $user->save();
+
         return response()->json([
             'success' => true,
             'data' => new ChurchResource($church),
@@ -170,6 +175,10 @@ class ChurchController extends Controller
         }
 
         $church->delete();
+        // Optionally, you might want to downgrade the user's role here
+        $user = Auth::user();
+        $user->role_id = \App\Enums\RoleType::USER;
+        $user->save();
 
         return response()->json([
             'success' => true,

@@ -21,6 +21,10 @@ class ChurchResource extends JsonResource
             'abbreviation' => $this->abbreviation,
             'logo_url' => $this->logo_url,
             'description' => $this->description,
+            'country_name' => $this->country_name,
+            'country_code' => $this->country_code,
+            'city' => $this->city,
+            'address' => $this->address,
             'creator' => [
                 'id' => $this->createdBy->id,
                 'name' => $this->createdBy->name,

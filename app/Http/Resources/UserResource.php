@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Church;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -21,7 +22,7 @@ class UserResource extends JsonResource
             'phone' => $this->phone,
             'email_verified_at' => $this->email_verified_at,
             'role' => new RoleResource($this->whenLoaded('role')),
-            'church' => new ChurchResource($this->whenLoaded('church')),
+            'church' => new ChurchResource(Church::where('created_by', $this->id)->first()),
         ];
     }
 }

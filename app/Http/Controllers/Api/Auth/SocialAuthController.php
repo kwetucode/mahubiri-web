@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Auth;
 
 use App\Enums\RoleType;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Notifications\WelcomeNotification;
 use Illuminate\Http\Request;
@@ -61,19 +62,11 @@ class SocialAuthController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Successfully authenticated with ' . ucfirst($provider),
+                'message' => 'Login successful',
                 'data' => [
-                    'user' => [
-                        'id' => $user->id,
-                        'name' => $user->name,
-                        'email' => $user->email,
-                        'email_verified_at' => $user->email_verified_at,
-                        'role_type' => $user->role_type,
-                        'created_at' => $user->created_at,
-                    ],
-                    'token' => $token,
-                    'token_type' => 'Bearer',
-                ],
+                    'user' => new UserResource($user->load('role')),
+                    'token' => $token
+                ]
             ], 200);
         } catch (ValidationException $e) {
             return response()->json([

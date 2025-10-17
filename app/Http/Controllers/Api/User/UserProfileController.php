@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Auth;
+namespace App\Http\Controllers\Api\User;
 
 use App\Exceptions\ApiExceptionHandler;
 use App\Http\Controllers\Controller;
@@ -25,12 +25,45 @@ class UserProfileController extends Controller
                 'success' => true,
                 'data' => [
                     'token' => $request->bearerToken(),
-                    'user' => new UserResource($request->user()->load('role'))
+                    'user' => new UserResource($request->user()->load('role')),
+
                 ]
             ]);
         } catch (\Exception $e) {
             return ApiExceptionHandler::auto($e, 'récupération des informations utilisateur', [
                 'user_id' => $request->user()->id ?? null
+            ]);
+        }
+    }
+
+    // Update user profile
+    public function updateProfile(Request $request)
+    {
+        try {
+            $user = $request->user();
+            $validated = $request->validate([
+                'name' => 'sometimes|string|max:255',
+                'phone' => 'sometimes|string|max:20',
+            ]);
+
+            $user->update($validated);
+
+            Log::info('User profile updated', [
+                'user_id' => $user->id,
+                'updated_fields' => array_keys($validated),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Profil mis à jour avec succès',
+                'data' => [
+                    'user' => new UserResource($user->load('role')),
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return ApiExceptionHandler::auto($e, 'mise à jour du profil utilisateur', [
+                'user_id' => $request->user()->id ?? null,
+                'request_data' => $request->except(['password'])
             ]);
         }
     }
