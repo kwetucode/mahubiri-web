@@ -58,8 +58,8 @@ Route::middleware('auth:sanctum')->prefix('user')->group(function () {
     Route::post('/logout', [UserProfileController::class, 'logout']);
 
     // Avatar Management
-    Route::post('/avatar', [UserAvatarController::class, 'updateAvatar']);
-    Route::delete('/avatar', [UserAvatarController::class, 'removeAvatar']);
+    Route::post('/avatar/update', [UserAvatarController::class, 'updateAvatar']);
+    Route::delete('/avatar/delete', [UserAvatarController::class, 'removeAvatar']);
 
     // Email Verification Status (protected routes)
     Route::get('/email/verification-status', [EmailVerificationController::class, 'checkVerificationStatus']);

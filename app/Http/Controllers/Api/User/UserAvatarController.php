@@ -35,10 +35,11 @@ class UserAvatarController extends Controller
     {
         try {
             $validated = $request->validate([
-                'avatar_base64' => 'required_without:avatar_file|string',
-                'avatar_file' => 'required_without:avatar_base64|file|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'avatar_base64' => 'nullable|required_without:avatar_file|string',
+                'avatar_file'   => 'nullable|required_without:avatar_base64|file|image|mimes:jpeg,png,jpg,gif|max:2048',
             ], [
                 'avatar_base64.required_without' => 'Veuillez fournir une image en base64 ou un fichier.',
+                'avatar_base64.string' => 'Le contenu base64 doit être une chaîne de caractères.',
                 'avatar_file.required_without' => 'Veuillez fournir un fichier ou une image en base64.',
                 'avatar_file.image' => 'Le fichier doit être une image.',
                 'avatar_file.mimes' => 'L\'image doit être au format: jpeg, png, jpg ou gif.',
@@ -59,7 +60,21 @@ class UserAvatarController extends Controller
             // Upload new avatar
             $avatarUrl = null;
             if (!empty($validated['avatar_base64'])) {
-                $avatarUrl = $this->uploadService->handleImageUpload($validated['avatar_base64'], 'avatars');
+                // Add data URI prefix if not present
+                $base64Data = $validated['avatar_base64'];
+                if (!preg_match('/^data:image\/\w+;base64,/', $base64Data)) {
+                    // Detect image type from base64 data or default to jpeg
+                    $imageType = 'jpeg';
+                    if (str_starts_with($base64Data, '/9j/')) {
+                        $imageType = 'jpeg';
+                    } elseif (str_starts_with($base64Data, 'iVBORw0KGgo')) {
+                        $imageType = 'png';
+                    } elseif (str_starts_with($base64Data, 'R0lGOD')) {
+                        $imageType = 'gif';
+                    }
+                    $base64Data = "data:image/{$imageType};base64,{$base64Data}";
+                }
+                $avatarUrl = $this->uploadService->handleImageUpload($base64Data, 'avatars');
             } elseif (!empty($validated['avatar_file'])) {
                 $avatarUrl = $this->uploadService->handleImageUpload($validated['avatar_file'], 'avatars');
             }
