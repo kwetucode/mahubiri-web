@@ -55,8 +55,8 @@ class AudioUploadService
             // Store the audio file
             Storage::disk('public')->put($filename, $audioData);
 
-            // Return the URL
-            return asset('storage/' . $filename);
+            // Return the relative path (not full URL)
+            return 'storage/' . $filename;
         }
 
         throw new InvalidArgumentException('Invalid base64 audio format. Expected format: data:audio/{type};base64,{data}');
@@ -78,27 +78,33 @@ class AudioUploadService
         $extension = $audio->getClientOriginalExtension();
         $extension = $this->normalizeAudioExtension($extension);
 
-        // Generate unique filename with timestamp
-        $filename = 'sermons/audio/' . date('Y/m/d') . '/' . Str::random(32) . '_sermon.' . $extension;
+        // Generate unique filename with timestamp (use only year for folder structure)
+        $filename = 'sermons/audio/' . date('Y') . '/' . Str::random(32) . '_sermon.' . $extension;
 
         // Store the audio file
         $audio->storeAs('', $filename, 'public');
 
-        // Return the URL
-        return asset('storage/' . $filename);
+        // Return the relative path (not full URL)
+        return 'storage/' . $filename;
     }
 
     /**
      * Delete audio file from storage
      *
-     * @param string $fileUrl The URL of the file to delete
+     * @param string $fileUrl The path of the file to delete (e.g., storage/sermons/audio/2025/file.mp3)
      * @return bool
      */
     public function deleteAudioFile(string $fileUrl): bool
     {
         try {
-            // Extract the relative path from URL
-            $relativePath = str_replace(asset('storage/'), '', $fileUrl);
+            // Remove 'storage/' prefix if present to get the actual disk path
+            $relativePath = str_replace('storage/', '', $fileUrl);
+            
+            // Also handle full URLs (legacy support)
+            if (str_contains($fileUrl, '://')) {
+                $relativePath = str_replace(asset('storage/'), '', $fileUrl);
+                $relativePath = str_replace('storage/', '', $relativePath);
+            }
 
             // Delete if exists
             if (Storage::disk('public')->exists($relativePath)) {

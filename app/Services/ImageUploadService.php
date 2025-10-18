@@ -60,8 +60,8 @@ class ImageUploadService
             // Store the image
             Storage::disk('public')->put($fullPath, $imageData);
 
-            // Return the URL
-            return asset('storage/' . $fullPath);
+            // Return the relative path (not full URL)
+            return 'storage/' . $fullPath;
         }
 
         throw new InvalidArgumentException('Invalid base64 image format. Expected format: data:image/{type};base64,{data}');
@@ -92,21 +92,27 @@ class ImageUploadService
         // Store the image
         $image->storeAs('', $fullPath, 'public');
 
-        // Return the URL
-        return asset('storage/' . $fullPath);
+        // Return the relative path (not full URL)
+        return 'storage/' . $fullPath;
     }
 
     /**
      * Delete image file from storage
      *
-     * @param string $fileUrl The URL of the file to delete
+     * @param string $fileUrl The path of the file to delete (e.g., storage/users/avatars/2025/file.jpg)
      * @return bool
      */
     public function deleteImageFile(string $fileUrl): bool
     {
         try {
-            // Extract the relative path from URL
-            $relativePath = str_replace(asset('storage/'), '', $fileUrl);
+            // Remove 'storage/' prefix if present to get the actual disk path
+            $relativePath = str_replace('storage/', '', $fileUrl);
+            
+            // Also handle full URLs (legacy support)
+            if (str_contains($fileUrl, '://')) {
+                $relativePath = str_replace(asset('storage/'), '', $fileUrl);
+                $relativePath = str_replace('storage/', '', $relativePath);
+            }
 
             // Delete if exists
             if (Storage::disk('public')->exists($relativePath)) {
@@ -274,7 +280,8 @@ class ImageUploadService
             throw new InvalidArgumentException("Unsupported storage type: {$storageType}. Supported types: " . implode(', ', array_keys($pathMappings)));
         }
 
-        return $pathMappings[$storageType] . '/' . date('Y/m/d') . '/';
+        // Use only year for folder structure: avatars/2025/
+        return $pathMappings[$storageType] . '/' . date('Y') . '/';
     }
 
     /**
