@@ -20,6 +20,7 @@ class UserResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'phone' => $this->phone,
+            'avatar_url' => $this->avatar_url ? asset($this->avatar_url) : null,
             'email_verified_at' => $this->email_verified_at,
             'role' => new RoleResource($this->whenLoaded('role')),
             'church' => new ChurchResource(Church::where('created_by', $this->id)->first()),

@@ -48,6 +48,7 @@ jobs:
           script: |
             cd ${{ secrets.DEPLOY_PATH }}
             php artisan migrate
+            php artisan storage:link
             php artisan key:generate
             php artisan config:cache
             php artisan route:cache

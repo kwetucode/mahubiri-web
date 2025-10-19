@@ -99,7 +99,7 @@ class AudioUploadService
         try {
             // Remove 'storage/' prefix if present to get the actual disk path
             $relativePath = str_replace('storage/', '', $fileUrl);
-            
+
             // Also handle full URLs (legacy support)
             if (str_contains($fileUrl, '://')) {
                 $relativePath = str_replace(asset('storage/'), '', $fileUrl);
