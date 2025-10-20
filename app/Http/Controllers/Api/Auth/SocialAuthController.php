@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Laravel\Socialite\Facades\Socialite;
@@ -52,13 +53,6 @@ class SocialAuthController extends Controller
 
             // Generate Sanctum token
             $token = $user->createToken('mobile-app-token')->plainTextToken;
-
-            //Send wellcome email
-            $user->notify(new WelcomeNotification($user));
-            Log::info("Email de bienvenue envoyé", [
-                'user_id' => $user->id,
-                'email' => $user->email
-            ]);
 
             return response()->json([
                 'success' => true,
@@ -263,17 +257,46 @@ class SocialAuthController extends Controller
             return $user;
         }
 
-        // Create new user
-        $user = User::create([
-            'name' => $providerUser->getName() ?? $providerUser->getNickname() ?? 'User',
-            'email' => $providerUser->getEmail(),
-            'password' => Hash::make(Str::random(24)), // Random password for social users
-            $provider . '_id' => $providerUser->getId(),
-            $provider . '_token' => request('access_token'),
-            'email_verified_at' => now(), // Social accounts are considered verified
-            'role_id' => RoleType::USER,
-        ]);
+        // Create new user with transaction for atomicity
+        return DB::transaction(function () use ($providerUser, $provider) {
+            // Create new user
+            $user = User::create([
+                'name' => $providerUser->getName() ?? $providerUser->getNickname() ?? 'User',
+                'email' => $providerUser->getEmail(),
+                'password' => Hash::make(Str::random(24)), // Random password for social users
+                $provider . '_id' => $providerUser->getId(),
+                $provider . '_token' => request('access_token'),
+                'email_verified_at' => now(), // Social accounts are considered verified
+                'role_id' => RoleType::USER,
+            ]);
 
-        return $user;
+            // Verify user creation
+            if (!$user || !$user->id) {
+                throw new \Exception("Échec de la création de l'utilisateur via " . ucfirst($provider));
+            }
+
+            // Send welcome email and handle potential failure
+            try {
+                $user->notify(new WelcomeNotification($user));
+
+                Log::info("User created via social auth and welcome email sent", [
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                    'provider' => $provider
+                ]);
+            } catch (\Exception $emailException) {
+                Log::error("Failed to send welcome email for social auth user", [
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                    'provider' => $provider,
+                    'error' => $emailException->getMessage()
+                ]);
+
+                // Lever une exception pour forcer le rollback de la transaction
+                throw new \Exception("Échec de l'envoi de l'email de bienvenue: " . $emailException->getMessage());
+            }
+
+            return $user;
+        });
     }
 }
