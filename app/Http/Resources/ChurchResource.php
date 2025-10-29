@@ -19,7 +19,7 @@ class ChurchResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'abbreviation' => $this->abbreviation,
-            'logo_url' => $this->logo_url,
+            'logo_url' => $this->logo_url ? asset($this->logo_url) : null,
             'description' => $this->description,
             'country_name' => $this->country_name,
             'country_code' => $this->country_code,

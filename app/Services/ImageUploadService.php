@@ -37,34 +37,56 @@ class ImageUploadService
      */
     private function handleBase64Image(string $base64Image, string $storageType = 'covers'): string
     {
-        // Extract the image data and extension from base64
+        $imageData = null;
+        $extension = null;
+
+        // Case 1: Extract the image data and extension from base64 with data URL prefix
         if (preg_match('/^data:image\/(\w+);base64,/', $base64Image, $matches)) {
             $extension = $this->normalizeImageExtension($matches[1]);
             $imageData = substr($base64Image, strpos($base64Image, ',') + 1);
             $imageData = base64_decode($imageData);
+        }
+        // Case 2: Handle raw base64 string (without data URL prefix)
+        elseif (preg_match('/^[A-Za-z0-9+\/]*={0,2}$/', $base64Image)) {
+            $imageData = base64_decode($base64Image, true);
 
-            if ($imageData === false) {
-                throw new InvalidArgumentException('Invalid base64 image data');
+            if ($imageData !== false) {
+                // Try to detect image type from the binary data
+                $imageInfo = @getimagesizefromstring($imageData);
+                if ($imageInfo !== false) {
+                    // Map IMAGETYPE constants to extensions
+                    $extension = match ($imageInfo[2]) {
+                        IMAGETYPE_JPEG => 'jpg',
+                        IMAGETYPE_PNG => 'png',
+                        IMAGETYPE_GIF => 'gif',
+                        IMAGETYPE_WEBP => 'webp',
+                        default => 'jpg' // fallback to jpg
+                    };
+                } else {
+                    $imageData = false; // Not a valid image
+                }
             }
-
-            // Validate image file size (max 5MB)
-            if (strlen($imageData) > 5 * 1024 * 1024) {
-                throw new InvalidArgumentException('Image file too large. Maximum size is 5MB');
-            }
-
-            // Generate storage path and filename
-            $storagePath = $this->generateStoragePath($storageType, 'image');
-            $filename = $this->generateFilename($storageType, $extension);
-            $fullPath = $storagePath . $filename;
-
-            // Store the image
-            Storage::disk('public')->put($fullPath, $imageData);
-
-            // Return the relative path (not full URL)
-            return 'storage/' . $fullPath;
         }
 
-        throw new InvalidArgumentException('Invalid base64 image format. Expected format: data:image/{type};base64,{data}');
+        if ($imageData === false || $imageData === null) {
+            throw new InvalidArgumentException('Invalid base64 image data or format');
+        }
+
+        // Validate image file size (max 5MB)
+        if (strlen($imageData) > 5 * 1024 * 1024) {
+            throw new InvalidArgumentException('Image file too large. Maximum size is 5MB');
+        }
+
+        // Generate storage path and filename
+        $storagePath = $this->generateStoragePath($storageType, 'image');
+        $filename = $this->generateFilename($storageType, $extension);
+        $fullPath = $storagePath . $filename;
+
+        // Store the image
+        Storage::disk('public')->put($fullPath, $imageData);
+
+        // Return the relative path (not full URL)
+        return 'storage/' . $fullPath;
     }
 
     /**

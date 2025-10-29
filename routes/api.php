@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\Auth\EmailVerificationController;
 use App\Http\Controllers\Api\Auth\SocialAuthController;
 use App\Http\Controllers\Api\Church\ChurchController;
 use App\Http\Controllers\Api\Church\UpdateLogoChurchController;
+use App\Http\Controllers\Api\Church\ChurchStatisticsController;
 use App\Http\Controllers\Api\Sermon\FavoriteSermonController;
 use App\Http\Controllers\Api\Sermon\SermonController;
 use App\Http\Controllers\Api\Sermon\SermonListController;
@@ -71,11 +72,16 @@ Route::middleware('auth:sanctum')->prefix('user')->group(function () {
 });
 
 //Churches routes group
-Route::middleware('auth:sanctum')->prefix('churches')->group(function () {
-    Route::apiResource('/', ChurchController::class);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('/churches', ChurchController::class);
     // Image management routes
-    Route::patch('/{church}/logo', [UpdateLogoChurchController::class, 'updateLogo']);
-    Route::delete('/{church}/logo', [UpdateLogoChurchController::class, 'removeLogo']);
+    Route::patch('/churches/{church}/logo', [UpdateLogoChurchController::class, 'updateLogo']);
+    Route::delete('/churches/{church}/logo', [UpdateLogoChurchController::class, 'removeLogo']);
+
+    // Church statistics routes
+    Route::get('/churches/statistics/test', [ChurchStatisticsController::class, 'testStats']);
+    Route::get('/churches/statistics/quick', [ChurchStatisticsController::class, 'getQuickStats']);
+    Route::get('/churches/statistics/full', [ChurchStatisticsController::class, 'getChurchStatistics']);
 });
 
 //Sermons routes group
@@ -89,7 +95,7 @@ Route::middleware('auth:sanctum')->prefix('sermons')->group(function () {
     // Record sermon play/view
     Route::post('/{sermon}/play', [SermonListController::class, 'recordSermonPlay']);
 
-    Route::apiResource('/', SermonController::class);
+    Route::apiResource('/sermons', SermonController::class);
 
     // Sermon Favorites routes
     Route::prefix('favorites')->group(function () {

@@ -27,13 +27,38 @@ class StoreChurchRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'abbreviation' => ['nullable', 'string', 'max:10'],
             'description' => ['nullable', 'string'],
+            'country_name' => ['nullable', 'string'],
+            'country_code' => ['nullable', 'string'],
+            'city' => ['nullable', 'string'],
+            'address' => ['nullable', 'string'],
             'logo' => [
                 'nullable',
                 function ($attribute, $value, $fail) {
-                    // Check if it's a valid base64 string
+                    // Check if it's a valid base64 string with data URL prefix
                     if (is_string($value) && preg_match('/^data:image\/(png|jpg|jpeg|gif);base64,/', $value)) {
+                        // Validate that the base64 data is valid
+                        $base64Data = substr($value, strpos($value, ',') + 1);
+                        if (base64_decode($base64Data, true) === false) {
+                            $fail('Le logo contient des données base64 invalides.');
+                        }
                         return;
                     }
+
+                    // Check if it's a valid base64 string without prefix (for mobile apps)
+                    if (is_string($value) && !empty($value)) {
+                        // Validate base64 format
+                        if (preg_match('/^[A-Za-z0-9+\/]*={0,2}$/', $value)) {
+                            $decodedData = base64_decode($value, true);
+                            if ($decodedData !== false) {
+                                // Additional check: verify it's actually an image by checking file signature
+                                $imageInfo = @getimagesizefromstring($decodedData);
+                                if ($imageInfo !== false) {
+                                    return; // Valid base64 image
+                                }
+                            }
+                        }
+                    }
+
                     // Check if it's an uploaded file image
                     if (request()->hasFile($attribute) && request()->file($attribute)->isValid()) {
                         if (!in_array(request()->file($attribute)->extension(), ['jpg', 'jpeg', 'png', 'gif'])) {
@@ -41,9 +66,10 @@ class StoreChurchRequest extends FormRequest
                         }
                         return;
                     }
+
                     // If neither, fail
                     if (!empty($value)) {
-                        $fail('Le logo doit être une image valide ou une chaîne base64.');
+                        $fail('Le logo doit être une image valide (base64, data URL, ou fichier uploadé).');
                     }
                 },
             ],
@@ -75,8 +101,7 @@ class StoreChurchRequest extends FormRequest
             'name.required' => 'Le nom de l\'église est requis.',
             'name.max' => 'Le nom de l\'église ne peut pas dépasser 255 caractères.',
             'abbreviation.max' => 'L\'abréviation ne peut pas dépasser 10 caractères.',
-            'logo.regex' => 'Le format de l\'image logo n\'est pas valide (doit être en base64 ou un fichier image).',
-            'logo.image' => 'Le logo doit être une image valide.',
+            'logo' => 'Le logo doit être une image valide (base64, data URL, ou fichier uploadé).',
         ];
     }
 }
