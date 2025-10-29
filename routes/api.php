@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\Church\ChurchStatisticsController;
 use App\Http\Controllers\Api\Sermon\FavoriteSermonController;
 use App\Http\Controllers\Api\Sermon\SermonController;
 use App\Http\Controllers\Api\Sermon\SermonListController;
+use App\Http\Controllers\Api\Sermon\SermonSearchController;
 use App\Http\Controllers\Api\User\UserAvatarController;
 use App\Http\Controllers\Api\User\UserProfileController;
 use App\Models\Sermon;
@@ -75,7 +76,7 @@ Route::middleware('auth:sanctum')->prefix('user')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('/churches', ChurchController::class);
     // Image management routes
-    Route::patch('/churches/{church}/logo', [UpdateLogoChurchController::class, 'updateLogo']);
+    Route::post('/churches/{church}/logo', [UpdateLogoChurchController::class, 'updateLogo']);
     Route::delete('/churches/{church}/logo', [UpdateLogoChurchController::class, 'removeLogo']);
 
     // Church statistics routes
@@ -94,6 +95,11 @@ Route::middleware('auth:sanctum')->prefix('sermons')->group(function () {
 
     // Record sermon play/view
     Route::post('/{sermon}/play', [SermonListController::class, 'recordSermonPlay']);
+
+    // Sermon search routes
+    Route::get('/search', [SermonSearchController::class, 'search']);
+    Route::post('/search/advanced', [SermonSearchController::class, 'advancedSearch']);
+    Route::get('/search/suggestions', [SermonSearchController::class, 'suggestions']);
 
     Route::apiResource('/sermons', SermonController::class);
 
