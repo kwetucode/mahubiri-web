@@ -32,6 +32,7 @@ class SermonResource extends JsonResource
             'audio_format' => $this->audio_format,
             'color' => $this->color,
             'church' => $this->whenLoaded('church', fn() => new ChurchResource($this->church)),
+            'category' => $this->whenLoaded('category', fn() => new CategorySermonResource($this->category)),
             'moment' => DateHelper::timeAgo($this->created_at),
             'created_at' => DateHelper::formatFrench($this->created_at, 'd/m/Y H:i:s'),
             'created_at_full' => DateHelper::formatFullFrench($this->created_at),

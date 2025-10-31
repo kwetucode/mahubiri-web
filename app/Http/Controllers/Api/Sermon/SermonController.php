@@ -36,7 +36,7 @@ class SermonController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Sermon::with(['church']);
+        $query = Sermon::with(['church', 'category']);
         // Filter by church if provided
         if ($request->has('church_id')) {
             $query->where('church_id', $request->church_id);
@@ -53,7 +53,7 @@ class SermonController extends Controller
 
         $sermons = $query->orderBy('created_at', 'desc')
             ->where('church_id', Auth::user()->church->id)
-            ->paginate(15);
+            ->paginate(5);
 
         return response()->json([
             'success' => true,
@@ -246,21 +246,14 @@ class SermonController extends Controller
                 Log::info('Old cover image deleted', ['cover_url' => $existingSermon->cover_url]);
             }
 
-            // Handle base64 cover image
-            if (!empty($validated['cover_base64'])) {
-                $validated['cover_url'] = $this->uploadService->handleImageUpload($validated['cover_base64'], 'covers');
-                unset($validated['cover_base64']);
-                Log::info('New cover image uploaded', ['cover_url' => $validated['cover_url']]);
-            }
-            // Handle uploaded cover image file
-            elseif (!empty($validated['cover_file'])) {
-                $validated['cover_url'] = $this->uploadService->handleImageUpload($validated['cover_file'], 'covers');
-                unset($validated['cover_file']);
-                Log::info('New cover image uploaded', ['cover_url' => $validated['cover_url']]);
-            }
+            // Upload the cover image directly (base64 or file)
+            $validated['cover_url'] = $this->uploadService->handleImageUpload($validated['cover'], 'covers');
+            unset($validated['cover']);
+            Log::info('New cover image uploaded', ['cover_url' => $validated['cover_url']]);
         }
-        // Clean up cover fields if not processed
-        unset($validated['cover_base64'], $validated['cover_file']);
+
+        // Clean up cover field if not processed
+        unset($validated['cover']);
     }
 
     /**
