@@ -122,25 +122,21 @@ class StoreSermonRequest extends FormRequest
     {
         return [
             'title.required' => 'Le titre du sermon est requis.',
+            'title.string' => 'Le titre doit être une chaîne de caractères.',
             'title.max' => 'Le titre ne peut pas dépasser 255 caractères.',
+
+            'category_sermon_id.required' => 'La catégorie du sermon est requise.',
+            'category_sermon_id.numeric' => 'La catégorie doit être un nombre.',
+            'category_sermon_id.exists' => 'La catégorie sélectionnée n\'existe pas.',
+
             'preacher_name.required' => 'Le nom du prédicateur est requis.',
+            'preacher_name.string' => 'Le nom du prédicateur doit être une chaîne de caractères.',
             'preacher_name.max' => 'Le nom du prédicateur ne peut pas dépasser 255 caractères.',
-            'duration.integer' => 'La durée doit être un nombre entier.',
-            'duration.min' => 'La durée doit être au moins 1 seconde.',
-            'church_id.required' => 'L\'église est requise.',
-            'church_id.exists' => 'L\'église sélectionnée n\'existe pas.',
 
-            // Audio messages
-            'audio_base64.regex' => 'Le format de l\'audio n\'est pas valide (doit être en base64).',
-            'audio_file.file' => 'Le fichier audio doit être un fichier valide.',
-            'audio_file.mimes' => 'Le fichier audio doit être au format: mp3, wav, m4a, aac ou ogg.',
-            'audio_file.max' => 'Le fichier audio ne peut pas dépasser 50 MB.',
+            'description.string' => 'La description doit être une chaîne de caractères.',
 
-            // Cover messages
-            'cover_base64.regex' => 'Le format de l\'image de couverture n\'est pas valide (doit être en base64).',
-            'cover_file.file' => 'Le fichier de couverture doit être un fichier valide.',
-            'cover_file.mimes' => 'L\'image de couverture doit être au format: jpeg, jpg, png, gif ou webp.',
-            'cover_file.max' => 'L\'image de couverture ne peut pas dépasser 10 MB.',
+            'color.integer' => 'La couleur doit être un nombre entier.',
+            'color.min' => 'La couleur doit être au moins 1.',
         ];
     }
 }

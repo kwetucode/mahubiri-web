@@ -128,7 +128,7 @@ class SermonController extends Controller
 
         // Handle file uploads (with existing sermon for cleanup)
         $this->handleFileUploads($validated, $sermon);
-
+        Log::info('Updating sermon with data', ['sermon_id' => $sermon->id, 'data' => $validated]);
         $sermon->update($validated);
         $sermon->load(['church']);
 
