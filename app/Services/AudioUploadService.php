@@ -49,8 +49,8 @@ class AudioUploadService
                 throw new InvalidArgumentException('Audio file too large. Maximum size is 50MB');
             }
 
-            // Generate unique filename with timestamp
-            $filename = 'sermons/audio/' . Str::random(32) . '.' . $extension;
+            // Generate unique filename with year folder structure
+            $filename = 'sermons/audio/' . date('Y') . '/' . Str::random(32) . '_sermon.' . $extension;
 
             // Store the audio file
             Storage::disk('public')->put($filename, $audioData);
