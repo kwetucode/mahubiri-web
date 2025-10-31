@@ -55,7 +55,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function church(): HasOne
     {
-        return $this->hasOne(Church::class);
+        return $this->hasOne(Church::class, 'created_by');
     }
 
     /**

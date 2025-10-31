@@ -101,6 +101,9 @@ Route::middleware('auth:sanctum')->prefix('sermons')->group(function () {
     Route::post('/search/advanced', [SermonSearchController::class, 'advancedSearch']);
     Route::get('/search/suggestions', [SermonSearchController::class, 'suggestions']);
 
+    // CategorySermon CRUD
+    Route::apiResource('/categories', \App\Http\Controllers\Api\Sermon\CategorySermonController::class);
+
     Route::apiResource('/sermons', SermonController::class);
 
     // Sermon Favorites routes
