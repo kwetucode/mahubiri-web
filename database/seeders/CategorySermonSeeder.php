@@ -14,13 +14,30 @@ class CategorySermonSeeder extends Seeder
     public function run(): void
     {
         $categories = [
-            ['name' => 'Edification'],
-            ['name' => 'Etude Biblique'],
-            ['name' => 'Mariage'],
-            ['name' => 'Sanctification'],
-            ['name' => 'Meditation'],
-            ['name' => 'Autres'],
+            'Doctrine',
+            'Foi',
+            'Espérance',
+            'Amour',
+            'Prière',
+            'Louange',
+            'Saint-Esprit',
+            'Guérison',
+            'Famille',
+            'Jeunesse',
+            'Finances',
+            'Leadership',
+            'Évangélisation',
+            'Discipulat',
+            'Mariage',
+            'Sainteté',
+            'Mission',
+            'Bénédiction',
+            'Paix',
+            'Courage',
         ];
-        CategorySermon::insert($categories);
+
+        foreach ($categories as $name) {
+            CategorySermon::firstOrCreate(['name' => $name]);
+        }
     }
 }

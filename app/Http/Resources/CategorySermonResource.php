@@ -16,8 +16,7 @@ class CategorySermonResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
-            'sermons' => SermonResource::collection($this->whenLoaded('sermons')),
+            'name' => $this->name
         ];
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Sermon;
 
 use App\Http\Controllers\Controller;
 use App\Models\CategorySermon;
+use App\Http\Resources\CategorySermonResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -17,7 +18,7 @@ class CategorySermonController extends Controller
         $categories = CategorySermon::orderBy('name')->get();
         return response()->json([
             'success' => true,
-            'data' => $categories,
+            'data' => CategorySermonResource::collection($categories),
             'message' => 'Liste des catégories récupérée avec succès.'
         ]);
     }
@@ -33,7 +34,7 @@ class CategorySermonController extends Controller
         $category = CategorySermon::create($validated);
         return response()->json([
             'success' => true,
-            'data' => $category,
+            'data' => new CategorySermonResource($category),
             'message' => 'Catégorie créée avec succès.'
         ], 201);
     }
@@ -45,7 +46,7 @@ class CategorySermonController extends Controller
     {
         return response()->json([
             'success' => true,
-            'data' => $categorySermon,
+            'data' => new CategorySermonResource($categorySermon),
             'message' => 'Catégorie récupérée avec succès.'
         ]);
     }
@@ -61,7 +62,7 @@ class CategorySermonController extends Controller
         $categorySermon->update($validated);
         return response()->json([
             'success' => true,
-            'data' => $categorySermon,
+            'data' => new CategorySermonResource($categorySermon),
             'message' => 'Catégorie mise à jour avec succès.'
         ]);
     }

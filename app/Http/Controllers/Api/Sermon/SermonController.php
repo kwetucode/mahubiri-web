@@ -74,19 +74,12 @@ class SermonController extends Controller
     {
         $validated = $request->validated();
         try {
-            // Verify that the church belongs to the user
-            if (!$this->verifyChurchOwnership($validated['church_id'])) {
-                Log::warning('Unauthorized sermon creation attempt', ['user_id' => Auth::id(), 'church_id' => $validated['church_id']]);
-                return $this->errorResponse(
-                    'Vous ne pouvez ajouter des sermons qu\'à votre propre église.',
-                    ['church' => ['Ajout non autorisé.']],
-                    403
-                );
-            }
+            // Toujours rattacher le sermon à l'église de l'utilisateur connecté
+            $validated['church_id'] = Auth::user()->church->id;
 
             // Handle file uploads
             $this->handleFileUploads($validated);
-
+            Log::info('Creating sermon with data', ['data' => $validated]);
             $sermon = Sermon::create($validated);
             $sermon->load(['church']);
             Log::info('Sermon created successfully', ['sermon' => $sermon]);
@@ -196,31 +189,57 @@ class SermonController extends Controller
     private function handleFileUploads(array &$validated, ?Sermon $existingSermon = null): void
     {
         // Handle audio upload (base64 or file)
-        if (!empty($validated['audio_base64']) || !empty($validated['audio_file'])) {
+        if (!empty($validated['audio'])) {
             // Delete old audio if updating
             if ($existingSermon && $existingSermon->audio_url) {
                 $this->uploadService->deleteFile($existingSermon->audio_url, 'audio');
                 Log::info('Old audio file deleted', ['audio_url' => $existingSermon->audio_url]);
             }
-            // Handle base64 audio
-            if (!empty($validated['audio_base64'])) {
-                $validated['audio_url'] = $this->uploadService->handleAudioUpload($validated['audio_base64'], 'sermons');
-                unset($validated['audio_base64']);
-                Log::info('New audio file uploaded', ['audio_url' => $validated['audio_url']]);
+            // Handle base64 or file audio and extract meta
+            $audioMeta = $this->uploadService->handleAudioUploadWithMeta($validated['audio']);
+            foreach (
+                [
+                    'audio_url',
+                    'duration',
+                    'mime_type',
+                    'size',
+                    'audio_bitrate',
+                    'duration_formatted',
+                    'audio_format'
+                ] as $field
+            ) {
+                if (isset($audioMeta[$field])) {
+                    $validated[$field] = $audioMeta[$field];
+                }
             }
-            // Handle uploaded audio file
-            elseif (!empty($validated['audio_file'])) {
-                $validated['audio_url'] = $this->uploadService->handleAudioUpload($validated['audio_file'], 'sermons');
-                unset($validated['audio_file']);
-                Log::info('New audio file uploaded', ['audio_url' => $validated['audio_url']]);
+            unset($validated['audio']);
+            Log::info('New audio file uploaded', ['audio_url' => $validated['audio_url'], 'meta' => $audioMeta]);
+        } elseif (!empty($validated['audio_file'])) {
+            $audioMeta = $this->uploadService->handleAudioUploadWithMeta($validated['audio_file']);
+            foreach (
+                [
+                    'audio_url',
+                    'duration',
+                    'mime_type',
+                    'size',
+                    'audio_bitrate',
+                    'duration_formatted',
+                    'audio_format'
+                ] as $field
+            ) {
+                if (isset($audioMeta[$field])) {
+                    $validated[$field] = $audioMeta[$field];
+                }
             }
+            unset($validated['audio_file']);
+            Log::info('New audio file uploaded', ['audio_url' => $validated['audio_url'], 'meta' => $audioMeta]);
         }
 
         // Clean up audio fields if not processed
-        unset($validated['audio_base64'], $validated['audio_file']);
+        unset($validated['audio'], $validated['audio_file']);
 
         // Handle cover image upload (base64 or file)
-        if (!empty($validated['cover_base64']) || !empty($validated['cover_file'])) {
+        if (!empty($validated['cover'])) {
             // Delete old cover if updating
             if ($existingSermon && $existingSermon->cover_url) {
                 $this->uploadService->deleteFile($existingSermon->cover_url, 'images');

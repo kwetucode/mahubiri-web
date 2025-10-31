@@ -23,18 +23,93 @@ class StoreSermonRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:255'],
+            'category_sermon_id' => ['required', 'numeric', 'exists:category_sermons,id'],
             'preacher_name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'duration' => ['nullable', 'integer', 'min:1'],
-            'church_id' => ['required', 'exists:churches,id'],
-
+            'color' => ['nullable', 'integer', 'min:1'],
             // Audio: base64 ou fichier uploadé (optionnel)
-            'audio_base64' => ['nullable', 'string', 'regex:/^data:audio\/[a-zA-Z0-9]+;base64,/'],
-            'audio_file' => ['nullable', 'file', 'mimes:mp3,wav,m4a,aac,ogg', 'max:51200'], // 50MB max
+            'audio' => [
+                'nullable',
+                function ($attribute, $value, $fail) {
+                    // Check if it's a valid base64 string with data URL prefix
+                    if (is_string($value) && preg_match('/^data:audio\/(mp3|wav|m4a|aac|ogg|mpeg|webm);base64,/', $value)) {
+                        // Validate that the base64 data is valid
+                        $base64Data = substr($value, strpos($value, ',') + 1);
+                        if (base64_decode($base64Data, true) === false) {
+                            $fail('L\'audio contient des données base64 invalides.');
+                        }
+                        return;
+                    }
+
+                    // Check if it's a valid base64 string without prefix (for mobile apps)
+                    if (is_string($value) && !empty($value)) {
+                        // Validate base64 format
+                        if (preg_match('/^[A-Za-z0-9+\/]*={0,2}$/', $value)) {
+                            $decodedData = base64_decode($value, true);
+                            if ($decodedData !== false) {
+                                return; // Valid base64 audio
+                            }
+                        }
+                    }
+
+                    // Check if it's an uploaded file audio
+                    if (request()->hasFile($attribute) && request()->file($attribute)->isValid()) {
+                        if (!in_array(request()->file($attribute)->extension(), ['mp3', 'wav', 'm4a', 'aac', 'ogg'])) {
+                            $fail('L\'audio doit être un fichier valide (mp3, wav, m4a, aac, ogg).');
+                        }
+                        return;
+                    }
+
+                    // If neither, fail
+                    if (!empty($value)) {
+                        $fail('L\'audio doit être un fichier valide (base64, data URL, ou fichier uploadé).');
+                    }
+                },
+            ],
 
             // Cover: base64 ou fichier uploadé (optionnel)
-            'cover_base64' => ['nullable', 'string', 'regex:/^data:image\/[a-zA-Z]+;base64,/'],
-            'cover_file' => ['nullable', 'file', 'mimes:jpeg,jpg,png,gif,webp', 'max:10240'], // 10MB max
+            'cover' => [
+                'nullable',
+                function ($attribute, $value, $fail) {
+                    // Check if it's a valid base64 string with data URL prefix
+                    if (is_string($value) && preg_match('/^data:image\/(png|jpg|jpeg|gif|webp);base64,/', $value)) {
+                        // Validate that the base64 data is valid
+                        $base64Data = substr($value, strpos($value, ',') + 1);
+                        if (base64_decode($base64Data, true) === false) {
+                            $fail('L\'image de couverture contient des données base64 invalides.');
+                        }
+                        return;
+                    }
+
+                    // Check if it's a valid base64 string without prefix (for mobile apps)
+                    if (is_string($value) && !empty($value)) {
+                        // Validate base64 format
+                        if (preg_match('/^[A-Za-z0-9+\/]*={0,2}$/', $value)) {
+                            $decodedData = base64_decode($value, true);
+                            if ($decodedData !== false) {
+                                // Additional check: verify it's actually an image by checking file signature
+                                $imageInfo = @getimagesizefromstring($decodedData);
+                                if ($imageInfo !== false) {
+                                    return; // Valid base64 image
+                                }
+                            }
+                        }
+                    }
+
+                    // Check if it's an uploaded file image
+                    if (request()->hasFile($attribute) && request()->file($attribute)->isValid()) {
+                        if (!in_array(request()->file($attribute)->extension(), ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+                            $fail('L\'image de couverture doit être une image valide (jpg, jpeg, png, gif, webp).');
+                        }
+                        return;
+                    }
+
+                    // If neither, fail
+                    if (!empty($value)) {
+                        $fail('L\'image de couverture doit être une image valide (base64, data URL, ou fichier uploadé).');
+                    }
+                },
+            ],
         ];
     }
 

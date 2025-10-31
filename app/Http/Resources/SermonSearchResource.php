@@ -31,7 +31,7 @@ class SermonSearchResource extends JsonResource
             'popularity_score' => $this->popularity_score,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            
+
             // Related data
             'church' => [
                 'id' => $this->church->id,
@@ -41,12 +41,12 @@ class SermonSearchResource extends JsonResource
                 'city' => $this->church->city,
                 'country_name' => $this->church->country_name,
             ],
-            
+
             'category' => [
                 'id' => $this->category->id,
                 'name' => $this->category->name,
             ],
-            
+
             // Search relevance data
             'match_type' => $this->when(isset($this->match_type), $this->match_type),
             'relevance_score' => $this->when(isset($this->relevance_score), $this->relevance_score),

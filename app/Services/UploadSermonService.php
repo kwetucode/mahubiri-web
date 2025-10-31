@@ -4,21 +4,37 @@ namespace App\Services;
 
 use Illuminate\Http\UploadedFile;
 use InvalidArgumentException;
+use App\Services\AudioMetaService;
 
 class UploadSermonService
 {
     private AudioUploadService $audioUploadService;
     private ImageUploadService $imageUploadService;
+    private AudioMetaService $audioMetaService;
 
-    public function __construct(AudioUploadService $audioUploadService, ImageUploadService $imageUploadService)
-    {
+    public function __construct(
+        AudioUploadService $audioUploadService,
+        ImageUploadService $imageUploadService,
+        AudioMetaService $audioMetaService
+    ) {
         $this->audioUploadService = $audioUploadService;
         $this->imageUploadService = $imageUploadService;
+        $this->audioMetaService = $audioMetaService;
     }
 
-    public function handleAudioUpload(string|UploadedFile $audio): string
+    /**
+     * Upload audio and extract meta info
+     * @param string|UploadedFile $audio
+     * @return array ['audio_url' => string, ...meta]
+     */
+    public function handleAudioUploadWithMeta(string|UploadedFile $audio): array
     {
-        return $this->audioUploadService->handleAudioUpload($audio);
+        $audioUrl = $this->audioUploadService->handleAudioUpload($audio);
+        // Get absolute path for getID3
+        $absolutePath = public_path($audioUrl);
+        $meta = $this->audioMetaService->extractMeta($absolutePath) ?? [];
+        $meta['audio_url'] = $audioUrl;
+        return $meta;
     }
 
     public function handleImageUpload(string|UploadedFile $image, string $storageType = 'covers'): string
