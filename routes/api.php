@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Auth\PasswordResetController;
 use App\Http\Controllers\Api\Auth\EmailVerificationController;
 use App\Http\Controllers\Api\Auth\SocialAuthController;
 use App\Http\Controllers\Api\Church\ChurchController;
+use App\Http\Controllers\Api\Church\ChurchListController;
 use App\Http\Controllers\Api\Church\UpdateLogoChurchController;
 use App\Http\Controllers\Api\Church\ChurchStatisticsController;
 use App\Http\Controllers\Api\Sermon\FavoriteSermonController;
@@ -74,6 +75,11 @@ Route::middleware('auth:sanctum')->prefix('user')->group(function () {
 
 //Churches routes group
 Route::middleware('auth:sanctum')->group(function () {
+    // Church list routes (must be before apiResource routes)
+    Route::get('/churches/list', [ChurchListController::class, 'index']);
+    Route::get('/churches/list/country/{country}', [ChurchListController::class, 'byCountry']);
+    Route::get('/churches/list/city/{city}', [ChurchListController::class, 'byCity']);
+
     Route::apiResource('/churches', ChurchController::class);
     // Image management routes
     Route::post('/churches/{church}/logo', [UpdateLogoChurchController::class, 'updateLogo']);
@@ -86,23 +92,23 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 //Sermons routes group
-Route::middleware('auth:sanctum')->prefix('sermons')->group(function () {
+Route::middleware('auth:sanctum')->group(function () {
     // Get recent sermons (must be before resource routes to avoid conflict)
-    Route::get('/recent', [SermonListController::class, 'getRecentSermons']);
+    Route::get('/sermons/recent', [SermonListController::class, 'getRecentSermons']);
 
     // Get popular sermons based on popularity score
-    Route::get('/popular', [SermonListController::class, 'getPopularSermons']);
+    Route::get('/sermons/popular', [SermonListController::class, 'getPopularSermons']);
 
     // Record sermon play/view
-    Route::post('/{sermon}/play', [SermonListController::class, 'recordSermonPlay']);
+    Route::post('/sermons/{sermon}/play', [SermonListController::class, 'recordSermonPlay']);
 
     // Sermon search routes
-    Route::get('/search', [SermonSearchController::class, 'search']);
-    Route::post('/search/advanced', [SermonSearchController::class, 'advancedSearch']);
-    Route::get('/search/suggestions', [SermonSearchController::class, 'suggestions']);
+    Route::get('/sermons/search', [SermonSearchController::class, 'search']);
+    Route::post('/sermons/search/advanced', [SermonSearchController::class, 'advancedSearch']);
+    Route::get('/sermons/search/suggestions', [SermonSearchController::class, 'suggestions']);
 
     // CategorySermon CRUD
-    Route::apiResource('/categories', \App\Http\Controllers\Api\Sermon\CategorySermonController::class);
+    Route::apiResource('/sermons/categories', \App\Http\Controllers\Api\Sermon\CategorySermonController::class);
 
     Route::apiResource('/sermons', SermonController::class);
 
