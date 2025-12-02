@@ -107,4 +107,20 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(SermonFavorite::class);
     }
+
+    /**
+     * Get user's FCM tokens for push notifications
+     */
+    public function fcmTokens()
+    {
+        return $this->hasMany(UserFcmToken::class);
+    }
+
+    /**
+     * Get user's notification settings
+     */
+    public function notificationSettings()
+    {
+        return $this->hasOne(UserNotificationSettings::class);
+    }
 }

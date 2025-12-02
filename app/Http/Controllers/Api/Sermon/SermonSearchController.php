@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Sermon;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\SermonResource;
 use App\Http\Resources\SermonSearchResource;
 use App\Models\Sermon;
 use Illuminate\Http\Request;
@@ -31,13 +32,16 @@ class SermonSearchController extends Controller
 
             $query = Sermon::with(['church', 'category']);
 
-            // General search query (searches across title, preacher_name, description)
+            // General search query (searches across title, preacher_name, description, category name)
             if ($request->filled('query')) {
                 $searchTerm = $request->input('query');
                 $query->where(function ($q) use ($searchTerm) {
                     $q->where('title', 'LIKE', "%{$searchTerm}%")
                         ->orWhere('preacher_name', 'LIKE', "%{$searchTerm}%")
-                        ->orWhere('description', 'LIKE', "%{$searchTerm}%");
+                        ->orWhere('description', 'LIKE', "%{$searchTerm}%")
+                        ->orWhereHas('category', function ($catQuery) use ($searchTerm) {
+                            $catQuery->where('name', 'LIKE', "%{$searchTerm}%");
+                        });
                 });
             }
 
@@ -77,7 +81,7 @@ class SermonSearchController extends Controller
                 'success' => true,
                 'message' => 'Sermons retrieved successfully',
                 'data' => [
-                    'sermons' => SermonSearchResource::collection($sermons->items()),
+                    'sermons' => SermonResource::collection($sermons->items()),
                     'pagination' => [
                         'current_page' => $sermons->currentPage(),
                         'last_page' => $sermons->lastPage(),
@@ -164,7 +168,7 @@ class SermonSearchController extends Controller
                 'success' => true,
                 'message' => 'Advanced search completed successfully',
                 'data' => [
-                    'sermons' => SermonSearchResource::collection($sermons->items()),
+                    'sermons' => SermonResource::collection($sermons->items()),
                     'pagination' => [
                         'current_page' => $sermons->currentPage(),
                         'last_page' => $sermons->lastPage(),

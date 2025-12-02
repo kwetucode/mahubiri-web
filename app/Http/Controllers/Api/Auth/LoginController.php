@@ -65,12 +65,12 @@ class LoginController extends Controller
                     'user' => new UserResource($user->load('role')),
                     'token' => $token
                 ]
-            ]);
+            ], 200);
         } catch (\Exception $e) {
             return ApiExceptionHandler::auto($e, 'connexion utilisateur', [
                 'user_login' => $request->input('login'),
                 'login_field' => $loginField ?? null
-            ]);
+            ], 500);
         }
     }
 }

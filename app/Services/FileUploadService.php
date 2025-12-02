@@ -6,7 +6,7 @@ use Illuminate\Http\UploadedFile;
 use InvalidArgumentException;
 use App\Services\AudioMetaService;
 
-class UploadSermonService
+class FileUploadService
 {
     private AudioUploadService $audioUploadService;
     private ImageUploadService $imageUploadService;

@@ -24,6 +24,7 @@ class UpdateChurchRequest extends FormRequest
         return [
             'name' => ['required', 'required', 'string', 'max:255'],
             'abbreviation' => ['required', 'string', 'max:10'],
+            'visionary_name' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string'],
             'logo' => [
                 'nullable',
@@ -41,6 +42,7 @@ class UpdateChurchRequest extends FormRequest
     {
         return [
             'name.required' => 'Le nom de l\'église est requis.',
+            'visionary_name.required' => 'Le nom du visionnaire est requis.',
             'name.max' => 'Le nom de l\'église ne peut pas dépasser 255 caractères.',
             'abbreviation.max' => 'L\'abréviation ne peut pas dépasser 10 caractères.',
             'logo.regex' => 'Le format de l\'image logo n\'est pas valide (doit être en base64).',

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Sermon;
 
 use App\Exceptions\ApiExceptionHandler;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\SermonResource;
 use App\Models\Sermon;
 use App\Models\SermonFavorite;
 use Illuminate\Http\JsonResponse;
@@ -150,7 +151,10 @@ class FavoriteSermonController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->get();
 
-            $sermons = $favorites->map(fn($favorite) => $this->formatFavoriteData($favorite));
+            // Format each favorite using formatFavoriteData helper method
+            $sermons = $favorites->map(function ($favorite) {
+                return $this->formatFavoriteData($favorite);
+            });
 
             return $this->successResponse(
                 'Liste des favoris récupérée avec succès',
@@ -248,23 +252,7 @@ class FavoriteSermonController extends Controller
         return [
             'favorite_id' => $favorite->id,
             'favorited_at' => $favorite->created_at,
-            'sermon' => [
-                'id' => $favorite->sermon->id,
-                'title' => $favorite->sermon->title,
-                'description' => $favorite->sermon->description,
-                'audio_url' => $favorite->sermon->audio_url,
-                'cover_url' => $favorite->sermon->cover_url,
-                'duration' => $favorite->sermon->duration,
-                'church' => [
-                    'id' => $favorite->sermon->church->id,
-                    'name' => $favorite->sermon->church->name,
-                ],
-                'category' => $favorite->sermon->category ? [
-                    'id' => $favorite->sermon->category->id,
-                    'name' => $favorite->sermon->category->name,
-                ] : null,
-                'created_at' => $favorite->sermon->created_at,
-            ],
+            'sermon' => new SermonResource($favorite->sermon),
         ];
     }
 

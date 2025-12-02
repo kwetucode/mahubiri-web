@@ -6,6 +6,7 @@ use App\Helpers\DateHelper;
 use App\Http\Resources\ChurchResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Auth;
 
 class SermonResource extends JsonResource
 {
@@ -33,10 +34,25 @@ class SermonResource extends JsonResource
             'color' => $this->color,
             'church' => $this->whenLoaded('church', fn() => new ChurchResource($this->church)),
             'category' => $this->whenLoaded('category', fn() => new CategorySermonResource($this->category)),
+            'is_favorite' => $this->checkIfFavorite(),
             'moment' => DateHelper::timeAgo($this->created_at),
             'created_at' => DateHelper::formatFrench($this->created_at, 'd/m/Y H:i:s'),
             'created_at_full' => DateHelper::formatFullFrench($this->created_at),
         ];
+    }
+
+    /**
+     * Check if sermon is favorited by authenticated user
+     *
+     * @return bool
+     */
+    private function checkIfFavorite(): bool
+    {
+        if (!Auth::check()) {
+            return false;
+        }
+
+        return $this->isFavoritedBy(Auth::id());
     }
 
     private function formatSize($sizeInBytes)

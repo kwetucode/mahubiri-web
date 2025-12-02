@@ -15,16 +15,17 @@ class DatabaseSeeder extends Seeder
     {
         // Seed roles first
         $this->call([
-            //RoleSeeder::class,
+            RoleSeeder::class,
             CategorySermonSeeder::class,
         ]);
 
         // User::factory(10)->create();
-
+        /*
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
             'role_id' => 1, // Default user role
         ]);
+        */
     }
 }

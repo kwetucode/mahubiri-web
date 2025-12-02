@@ -6,7 +6,7 @@ use App\Exceptions\ApiExceptionHandler;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ChurchResource;
 use App\Models\Church;
-use App\Services\UploadSermonService;
+use App\Services\FileUploadService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -15,12 +15,12 @@ class UpdateLogoChurchController extends Controller
     /**
      * Upload service for handling file uploads
      */
-    private UploadSermonService $uploadService;
+    private FileUploadService $uploadService;
 
     /**
      * Create a new controller instance.
      */
-    public function __construct(UploadSermonService $uploadService)
+    public function __construct(FileUploadService $uploadService)
     {
         $this->uploadService = $uploadService;
     }

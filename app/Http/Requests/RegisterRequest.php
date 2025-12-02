@@ -26,7 +26,7 @@ class RegisterRequest extends FormRequest
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'phone' => 'nullable|string|max:20',
-            'role_id' => 'nullable|exists:roles,id'
+            'is_church_admin' => 'nullable|boolean'
         ];
     }
 
@@ -47,7 +47,7 @@ class RegisterRequest extends FormRequest
             'password.min' => 'Le mot de passe doit contenir au moins 8 caractères.',
             'password.confirmed' => 'La confirmation du mot de passe ne correspond pas.',
             'phone.max' => 'Le numéro de téléphone ne doit pas dépasser 20 caractères.',
-            'role_id.exists' => 'Le rôle sélectionné n\'existe pas.'
+            'is_church_admin.boolean' => 'Le champ administrateur d\'église doit être un booléen.'
         ];
     }
 
@@ -63,7 +63,7 @@ class RegisterRequest extends FormRequest
             'email' => 'adresse email',
             'password' => 'mot de passe',
             'phone' => 'téléphone',
-            'role_id' => 'rôle'
+            'is_church_admin' => 'administrateur d\'église'
         ];
     }
 }

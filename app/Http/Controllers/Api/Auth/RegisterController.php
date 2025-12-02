@@ -26,12 +26,17 @@ class RegisterController extends Controller
         // Validation is automatically handled by RegisterRequest
         try {
             return DB::transaction(function () use ($request) {
+                // Déterminer le role_id en fonction du champ is_church_admin
+                $roleId = $request->boolean('is_church_admin', false)
+                    ? \App\Enums\RoleType::CHURCH_ADMIN
+                    : \App\Enums\RoleType::USER;
+
                 $user = User::create([
                     'name' => $request->name,
                     'email' => $request->email,
                     'password' => Hash::make($request->password),
                     'phone' => $request->phone,
-                    'role_id' => \App\Enums\RoleType::USER,
+                    'role_id' => $roleId,
                 ]);
 
                 // Créer et envoyer le code de vérification email

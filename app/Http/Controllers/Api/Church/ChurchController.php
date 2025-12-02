@@ -7,24 +7,35 @@ use App\Http\Requests\StoreChurchRequest;
 use App\Http\Requests\UpdateChurchRequest;
 use App\Http\Resources\ChurchResource;
 use App\Models\Church;
-use App\Services\UploadSermonService;
+use App\Services\FileUploadService;
+use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ChurchController extends Controller
 {
     /**
      * Upload service for handling file uploads
      */
-    private UploadSermonService $uploadService;
+    private FileUploadService $uploadService;
+
+    /**
+     * Notification service for sending push notifications
+     */
+    private NotificationService $notificationService;
 
     /**
      * Create a new controller instance.
      */
-    public function __construct(UploadSermonService $uploadService)
-    {
+    public function __construct(
+        FileUploadService $uploadService,
+        NotificationService $notificationService
+    ) {
         $this->uploadService = $uploadService;
+        $this->notificationService = $notificationService;
     }
 
     /**
@@ -45,11 +56,14 @@ class ChurchController extends Controller
                         ->orderByDesc('created_at');
                 }
             ])
+            ->withCount('sermons')
+            ->withCount(['sermonViews' => function ($q) {
+                $q->where('completed', true);
+            }])
             ->select(
                 'id',
                 'name',
                 'abbreviation',
-                'slug',
                 'address',
                 'city',
                 'country_name',
@@ -117,6 +131,33 @@ class ChurchController extends Controller
         $user->role_id = \App\Enums\RoleType::CHURCH_ADMIN;
         $user->save();
 
+        // Send push notification to all users about new church
+        try {
+            $result = $this->notificationService->sendToAllUsers(
+                'new_church',
+                [
+                    'title' => 'Nouvelle église disponible',
+                    'body' => "{$church->name} vient de rejoindre Mahubiri",
+                    'data' => [
+                        'church_id' => $church->id,
+                        'church_name' => $church->name,
+                        'type' => 'new_church'
+                    ]
+                ]
+            );
+
+            Log::info('Push notification sent for new church', [
+                'church_id' => $church->id,
+                'result' => $result
+            ]);
+        } catch (\Exception $notifException) {
+            // Log notification error but don't fail the church creation
+            Log::error('Failed to send push notification for new church', [
+                'church_id' => $church->id,
+                'error' => $notifException->getMessage()
+            ]);
+        }
+
         return response()->json([
             'success' => true,
             'data' => new ChurchResource($church),
@@ -129,7 +170,11 @@ class ChurchController extends Controller
      */
     public function show(Church $church): JsonResponse
     {
-        $church->load('createdBy');
+        $church->loadCount('sermons')
+            ->loadCount(['sermonViews' => function ($q) {
+                $q->where('completed', true);
+            }])
+            ->load('createdBy');
         return response()->json([
             'success' => true,
             'data' => new ChurchResource($church),

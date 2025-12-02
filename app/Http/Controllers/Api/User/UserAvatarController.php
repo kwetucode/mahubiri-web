@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\User;
 
 use App\Exceptions\ApiExceptionHandler;
 use App\Http\Controllers\Controller;
-use App\Services\UploadSermonService;
+use App\Services\FileUploadService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,14 +13,14 @@ use Illuminate\Support\Facades\Log;
 class UserAvatarController extends Controller
 {
     /**
-     * @var UploadSermonService
+     * @var FileUploadService
      */
-    private UploadSermonService $uploadService;
+    private FileUploadService $uploadService;
 
     /**
-     * UserAvatarController constructor.
+     * UserAvatarController Constructor
      */
-    public function __construct(UploadSermonService $uploadService)
+    public function __construct(FileUploadService $uploadService)
     {
         $this->uploadService = $uploadService;
     }

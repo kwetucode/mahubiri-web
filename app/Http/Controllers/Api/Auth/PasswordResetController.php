@@ -30,9 +30,13 @@ class PasswordResetController extends Controller
             ]);
 
             if ($validator->fails()) {
+                Log::warning('Validation failed for password reset code request', [
+                    'errors' => $validator->errors(),
+                    'email' => $request->input('email')
+                ]);
                 return response()->json([
                     'success' => false,
-                    'message' => 'Validation errors',
+                    'message' => 'Vérifier votre adresse email',
                     'errors' => $validator->errors()
                 ], 422);
             }

@@ -26,6 +26,7 @@ class StoreChurchRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'abbreviation' => ['nullable', 'string', 'max:10'],
+            'visionary_name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'country_name' => ['nullable', 'string'],
             'country_code' => ['nullable', 'string'],
@@ -99,6 +100,7 @@ class StoreChurchRequest extends FormRequest
     {
         return [
             'name.required' => 'Le nom de l\'église est requis.',
+            'visionary_name.required' => 'Le nom du visionnaire est requis.',
             'name.max' => 'Le nom de l\'église ne peut pas dépasser 255 caractères.',
             'abbreviation.max' => 'L\'abréviation ne peut pas dépasser 10 caractères.',
             'logo' => 'Le logo doit être une image valide (base64, data URL, ou fichier uploadé).',

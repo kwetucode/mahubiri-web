@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Auth\RegisterController;
 use App\Http\Controllers\Api\Auth\LoginController;
+use App\Http\Controllers\Api\Auth\RefreshTokenController;
 use App\Http\Controllers\Api\Auth\PasswordResetController;
 use App\Http\Controllers\Api\Auth\EmailVerificationController;
 use App\Http\Controllers\Api\Auth\SocialAuthController;
@@ -17,6 +18,10 @@ use App\Http\Controllers\Api\Sermon\SermonListController;
 use App\Http\Controllers\Api\Sermon\SermonSearchController;
 use App\Http\Controllers\Api\User\UserAvatarController;
 use App\Http\Controllers\Api\User\UserProfileController;
+use App\Http\Controllers\Api\User\UserSecurityController;
+use App\Http\Controllers\Api\User\UserStatsController;
+use App\Http\Controllers\Api\Notification\NotificationSettingsController;
+use App\Http\Controllers\Api\Notification\FcmTokenController;
 use App\Models\Sermon;
 
 /*
@@ -55,6 +60,9 @@ Route::prefix('auth')->group(function () {
 
 // Protected authentication routes
 Route::middleware('auth:sanctum')->prefix('user')->group(function () {
+    // Token Management
+    Route::post('/refresh-token', RefreshTokenController::class);
+
     // User Profile Management
     Route::get('/profile', [UserProfileController::class, 'me']);
     Route::put('/profile/update', [UserProfileController::class, 'updateProfile']);
@@ -64,6 +72,10 @@ Route::middleware('auth:sanctum')->prefix('user')->group(function () {
     Route::post('/avatar/update', [UserAvatarController::class, 'updateAvatar']);
     Route::delete('/avatar/delete', [UserAvatarController::class, 'removeAvatar']);
 
+    // User Statistics for Dashboard Widget
+    Route::get('/stats', [UserStatsController::class, 'getUserStats']);
+    Route::get('/stats/detailed', [UserStatsController::class, 'getDetailedStats']);
+
     // Email Verification Status (protected routes)
     Route::get('/email/verification-status', [EmailVerificationController::class, 'checkVerificationStatus']);
 
@@ -71,6 +83,28 @@ Route::middleware('auth:sanctum')->prefix('user')->group(function () {
     Route::post('/social/link', [SocialAuthController::class, 'linkSocialAccount']);
     Route::post('/social/unlink', [SocialAuthController::class, 'unlinkSocialAccount']);
     Route::get('/social/status', [SocialAuthController::class, 'getSocialAccountsStatus']);
+
+    // Security Settings (Password & Email Change)
+    Route::prefix('security')->group(function () {
+        Route::get('/settings', [UserSecurityController::class, 'getSecuritySettings']);
+        Route::post('/change-password', [UserSecurityController::class, 'changePassword']);
+        Route::post('/request-email-change', [UserSecurityController::class, 'requestEmailChange']);
+        Route::post('/verify-email-change', [UserSecurityController::class, 'verifyEmailChange']);
+    });
+
+    // Notification Settings Management
+    Route::prefix('notification-settings')->group(function () {
+        Route::get('/', [NotificationSettingsController::class, 'index']);
+        Route::post('/', [NotificationSettingsController::class, 'store']);
+        Route::patch('/', [NotificationSettingsController::class, 'update']);
+    });
+
+    // FCM Token Management
+    Route::prefix('fcm-token')->group(function () {
+        Route::get('/', [FcmTokenController::class, 'index']);
+        Route::post('/', [FcmTokenController::class, 'store']);
+        Route::delete('/', [FcmTokenController::class, 'destroy']);
+    });
 });
 
 //Churches routes group
@@ -99,6 +133,15 @@ Route::middleware('auth:sanctum')->group(function () {
     // Get popular sermons based on popularity score
     Route::get('/sermons/popular', [SermonListController::class, 'getPopularSermons']);
 
+    // Get all sermons by category (paginated)
+    Route::get('/sermons/category/{categoryId}', [SermonListController::class, 'getSermonsByCategory']);
+
+    // Get all sermons by church (paginated)
+    Route::get('/sermons/church/{churchId}', [SermonListController::class, 'getSermonsByChurch']);
+
+    // Get sermon with related sermons from same category (paginated)
+    Route::get('/sermons/{sermon}/related', [SermonListController::class, 'getSermonWithRelated']);
+
     // Record sermon play/view
     Route::post('/sermons/{sermon}/play', [SermonListController::class, 'recordSermonPlay']);
 
@@ -119,5 +162,45 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/{sermon}/remove', [FavoriteSermonController::class, 'removeFavorite']);
         Route::post('/{sermon}/toggle', [FavoriteSermonController::class, 'toggleFavorite']);
         Route::get('/{sermon}/check', [FavoriteSermonController::class, 'isFavorite']);
+    });
+
+    // Test notification route
+    Route::post('/test-notification', function (Request $request) {
+        $notificationService = app(\App\Services\NotificationService::class);
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'User not authenticated'], 401);
+        }
+
+        try {
+            $result = $notificationService->sendToUser(
+                $user,
+                'new_sermon',
+                [
+                    'title' => 'Test de Notification',
+                    'body' => 'Ceci est une notification de test',
+                    'data' => [
+                        'test' => true,
+                        'type' => 'test',
+                        'timestamp' => now()->toISOString()
+                    ]
+                ]
+            );
+
+            return response()->json([
+                'success' => $result['success'] > 0,
+                'message' => $result['success'] > 0
+                    ? "Notification envoyée avec succès à {$result['success']} appareil(s)"
+                    : 'Échec de l\'envoi de la notification',
+                'details' => $result
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de l\'envoi de la notification',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     });
 });

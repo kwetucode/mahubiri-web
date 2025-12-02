@@ -8,7 +8,8 @@ use App\Http\Requests\UpdateSermonRequest;
 use App\Http\Resources\SermonResource;
 use App\Models\Church;
 use App\Models\Sermon;
-use App\Services\UploadSermonService;
+use App\Services\FileUploadService;
+use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,18 +18,26 @@ use Illuminate\Support\Facades\Log;
 class SermonController extends Controller
 {
     /**
-     * @var UploadSermonService
+     * @var FileUploadService
      */
-    private UploadSermonService $uploadService;
+    private FileUploadService $uploadService;
 
     /**
-     * SermonController constructor.
-     *
-     * @param UploadSermonService $uploadService
+     * @var NotificationService
      */
-    public function __construct(UploadSermonService $uploadService)
-    {
+    private NotificationService $notificationService;
+
+    /**
+     * SermonController Constructor
+     * @param FileUploadService $uploadService
+     * @param NotificationService $notificationService
+     */
+    public function __construct(
+        FileUploadService $uploadService,
+        NotificationService $notificationService
+    ) {
         $this->uploadService = $uploadService;
+        $this->notificationService = $notificationService;
     }
 
     /**
@@ -83,6 +92,31 @@ class SermonController extends Controller
             $sermon = Sermon::create($validated);
             $sermon->load(['church']);
             Log::info('Sermon created successfully', ['sermon' => $sermon]);
+
+            // Send push notification to all church members
+            try {
+                $this->notificationService->sendToChurch(
+                    $sermon->church_id,
+                    'new_sermon',
+                    [
+                        'title' => 'Nouvelle prédication disponible',
+                        'body' => "« {$sermon->title} » par {$sermon->preacher_name}",
+                        'data' => [
+                            'sermon_id' => $sermon->id,
+                            'church_id' => $sermon->church_id,
+                            'type' => 'new_sermon'
+                        ]
+                    ]
+                );
+                Log::info('Push notification sent for new sermon', ['sermon_id' => $sermon->id]);
+            } catch (\Exception $notifException) {
+                // Log notification error but don't fail the sermon creation
+                Log::error('Failed to send push notification for new sermon', [
+                    'sermon_id' => $sermon->id,
+                    'error' => $notifException->getMessage()
+                ]);
+            }
+
             return $this->successResponse(
                 new SermonResource($sermon),
                 'Sermon created successfully',

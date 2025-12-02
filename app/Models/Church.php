@@ -14,6 +14,7 @@ class Church extends Model
     protected $fillable = [
         'name',
         'abbreviation',
+        'visionary_name',
         'logo_url',
         'description',
         'country_name',
@@ -21,10 +22,12 @@ class Church extends Model
         'city',
         'address',
         'created_by',
+        'is_active',
     ];
 
     protected $casts = [
         'created_by' => 'integer',
+        'is_active' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -43,5 +46,13 @@ class Church extends Model
     public function sermons(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Sermon::class);
+    }
+
+    /**
+     * Get all sermon views for sermons from this church.
+     */
+    public function sermonViews(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
+    {
+        return $this->hasManyThrough(SermonView::class, Sermon::class);
     }
 }
