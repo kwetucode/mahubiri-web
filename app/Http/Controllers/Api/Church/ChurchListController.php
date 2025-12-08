@@ -17,7 +17,9 @@ class ChurchListController extends Controller
     public function index(Request $request): JsonResponse
     {
         $query = Church::with(['createdBy'])
-            ->withCount('sermons')
+            ->withCount(['sermons' => function ($q) {
+                $q->where('is_published', true);
+            }])
             ->withCount(['sermonViews' => function ($q) {
                 $q->where('completed', true);
             }]);
@@ -68,7 +70,9 @@ class ChurchListController extends Controller
     {
         $query = Church::with(['createdBy'])
             ->where('country_name', 'like', "%{$country}%")
-            ->withCount('sermons')
+            ->withCount(['sermons' => function ($q) {
+                $q->where('is_published', true);
+            }])
             ->withCount(['sermonViews' => function ($q) {
                 $q->where('completed', true);
             }]);
@@ -107,7 +111,9 @@ class ChurchListController extends Controller
     {
         $query = Church::with(['createdBy'])
             ->where('city', 'like', "%{$city}%")
-            ->withCount('sermons')
+            ->withCount(['sermons' => function ($q) {
+                $q->where('is_published', true);
+            }])
             ->withCount(['sermonViews' => function ($q) {
                 $q->where('completed', true);
             }]);

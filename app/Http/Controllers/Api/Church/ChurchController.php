@@ -52,11 +52,14 @@ class ChurchController extends Controller
             ->with([
                 'createdBy:id,name,email',
                 'sermons' => function ($q) {
-                    $q->select('id', 'church_id', 'title', 'created_at')
+                    $q->where('is_published', true)
+                        ->select('id', 'church_id', 'title', 'created_at')
                         ->orderByDesc('created_at');
                 }
             ])
-            ->withCount('sermons')
+            ->withCount(['sermons' => function ($q) {
+                $q->where('is_published', true);
+            }])
             ->withCount(['sermonViews' => function ($q) {
                 $q->where('completed', true);
             }])

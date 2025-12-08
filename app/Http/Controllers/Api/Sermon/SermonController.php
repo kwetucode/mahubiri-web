@@ -7,7 +7,9 @@ use App\Http\Requests\StoreSermonRequest;
 use App\Http\Requests\UpdateSermonRequest;
 use App\Http\Resources\SermonResource;
 use App\Models\Church;
+use App\Models\PreacherProfile;
 use App\Models\Sermon;
+use App\Enums\RoleType;
 use App\Services\FileUploadService;
 use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
@@ -45,10 +47,24 @@ class SermonController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Sermon::with(['church', 'category']);
+        $query = Sermon::with(['church', 'preacherProfile', 'category']);
+        $user = Auth::user();
+
+        // Filter sermons based on user role
+        if ($user->role_id === RoleType::CHURCH_ADMIN && $user->church) {
+            $query->where('church_id', $user->church->id);
+        } elseif ($user->role_id === RoleType::INDEPENDENT_PREACHER && $user->preacherProfile) {
+            $query->where('preacher_profile_id', $user->preacherProfile->id);
+        }
+
         // Filter by church if provided
         if ($request->has('church_id')) {
             $query->where('church_id', $request->church_id);
+        }
+
+        // Filter by preacher profile if provided
+        if ($request->has('preacher_profile_id')) {
+            $query->where('preacher_profile_id', $request->preacher_profile_id);
         }
 
         // Search by title or preacher name
@@ -60,9 +76,7 @@ class SermonController extends Controller
             });
         }
 
-        $sermons = $query->orderBy('created_at', 'desc')
-            ->where('church_id', Auth::user()->church->id)
-            ->paginate(5);
+        $sermons = $query->orderBy('created_at', 'desc')->paginate(5);
 
         return response()->json([
             'success' => true,
@@ -83,38 +97,54 @@ class SermonController extends Controller
     {
         $validated = $request->validated();
         try {
-            // Toujours rattacher le sermon à l'église de l'utilisateur connecté
-            $validated['church_id'] = Auth::user()->church->id;
+            $user = Auth::user();
+
+            // Determine if sermon belongs to church or preacher
+            if ($user->role_id === RoleType::CHURCH_ADMIN && $user->church) {
+                $validated['church_id'] = $user->church->id;
+                $validated['preacher_profile_id'] = null;
+            } elseif ($user->role_id === RoleType::INDEPENDENT_PREACHER && $user->preacherProfile) {
+                $validated['preacher_profile_id'] = $user->preacherProfile->id;
+                $validated['church_id'] = null;
+            } else {
+                return $this->errorResponse(
+                    'Vous devez avoir un profil d\'église ou de prédicateur pour publier un sermon.',
+                    [],
+                    403
+                );
+            }
 
             // Handle file uploads
             $this->handleFileUploads($validated);
             Log::info('Creating sermon with data', ['data' => $validated]);
             $sermon = Sermon::create($validated);
-            $sermon->load(['church']);
+            $sermon->load(['church', 'preacherProfile']);
             Log::info('Sermon created successfully', ['sermon' => $sermon]);
 
-            // Send push notification to all church members
-            try {
-                $this->notificationService->sendToChurch(
-                    $sermon->church_id,
-                    'new_sermon',
-                    [
-                        'title' => 'Nouvelle prédication disponible',
-                        'body' => "« {$sermon->title} » par {$sermon->preacher_name}",
-                        'data' => [
-                            'sermon_id' => $sermon->id,
-                            'church_id' => $sermon->church_id,
-                            'type' => 'new_sermon'
+            // Send push notification only if sermon is published and from a church
+            if ($sermon->is_published && $sermon->church_id) {
+                try {
+                    $this->notificationService->sendToChurch(
+                        $sermon->church_id,
+                        'new_sermon',
+                        [
+                            'title' => 'Nouvelle prédication disponible',
+                            'body' => "« {$sermon->title} » par {$sermon->preacher_name}",
+                            'data' => [
+                                'sermon_id' => $sermon->id,
+                                'church_id' => $sermon->church_id,
+                                'type' => 'new_sermon'
+                            ]
                         ]
-                    ]
-                );
-                Log::info('Push notification sent for new sermon', ['sermon_id' => $sermon->id]);
-            } catch (\Exception $notifException) {
-                // Log notification error but don't fail the sermon creation
-                Log::error('Failed to send push notification for new sermon', [
-                    'sermon_id' => $sermon->id,
-                    'error' => $notifException->getMessage()
-                ]);
+                    );
+                    Log::info('Push notification sent for published sermon', ['sermon_id' => $sermon->id]);
+                } catch (\Exception $notifException) {
+                    // Log notification error but don't fail the sermon creation
+                    Log::error('Failed to send push notification for published sermon', [
+                        'sermon_id' => $sermon->id,
+                        'error' => $notifException->getMessage()
+                    ]);
+                }
             }
 
             return $this->successResponse(
@@ -137,7 +167,7 @@ class SermonController extends Controller
      */
     public function show(Sermon $sermon): JsonResponse
     {
-        $sermon->load(['church']);
+        $sermon->load(['church', 'preacherProfile']);
         return $this->successResponse(
             new SermonResource($sermon),
             'Sermon retrieved successfully'
@@ -164,7 +194,7 @@ class SermonController extends Controller
         $this->handleFileUploads($validated, $sermon);
         Log::info('Updating sermon with data', ['sermon_id' => $sermon->id, 'data' => $validated]);
         $sermon->update($validated);
-        $sermon->load(['church']);
+        $sermon->load(['church', 'preacherProfile']);
 
         return $this->successResponse(
             new SermonResource($sermon),
@@ -198,13 +228,82 @@ class SermonController extends Controller
     }
 
     /**
-     * Verify if user owns the church that contains the sermon
+     * Toggle the publication status of a sermon
+     */
+    public function togglePublish(Sermon $sermon): JsonResponse
+    {
+        // Verify that the sermon belongs to user's church
+        if (!$this->verifySermonOwnership($sermon)) {
+            return $this->errorResponse(
+                'Vous ne pouvez modifier que les sermons de votre église.',
+                ['sermon' => ['Modification non autorisée.']],
+                403
+            );
+        }
+
+        // Toggle the publication status
+        $sermon->is_published = !$sermon->is_published;
+        $sermon->save();
+
+        $message = $sermon->is_published
+            ? 'Sermon publié avec succès'
+            : 'Sermon mis en brouillon';
+
+        // Send push notification only when publishing and from a church
+        if ($sermon->is_published && $sermon->church_id) {
+            try {
+                $this->notificationService->sendToChurch(
+                    $sermon->church_id,
+                    'new_sermon',
+                    [
+                        'title' => 'Nouvelle prédication disponible',
+                        'body' => "« {$sermon->title} » par {$sermon->preacher_name}",
+                        'data' => [
+                            'sermon_id' => $sermon->id,
+                            'church_id' => $sermon->church_id,
+                            'type' => 'new_sermon'
+                        ]
+                    ]
+                );
+                Log::info('Push notification sent for published sermon', ['sermon_id' => $sermon->id]);
+            } catch (\Exception $notifException) {
+                Log::error('Failed to send push notification for published sermon', [
+                    'sermon_id' => $sermon->id,
+                    'error' => $notifException->getMessage()
+                ]);
+            }
+        }
+
+        $sermon->load(['church', 'preacherProfile', 'category']);
+
+        return $this->successResponse(
+            new SermonResource($sermon),
+            $message
+        );
+    }
+
+    /**
+     * Verify if user owns the church or preacher profile that contains the sermon
      */
     private function verifySermonOwnership(Sermon $sermon): bool
     {
-        return Church::where('id', $sermon->church_id)
-            ->where('created_by', Auth::id())
-            ->exists();
+        $user = Auth::user();
+
+        // Check if sermon belongs to user's church
+        if ($sermon->church_id) {
+            return Church::where('id', $sermon->church_id)
+                ->where('created_by', $user->id)
+                ->exists();
+        }
+
+        // Check if sermon belongs to user's preacher profile
+        if ($sermon->preacher_profile_id) {
+            return PreacherProfile::where('id', $sermon->preacher_profile_id)
+                ->where('user_id', $user->id)
+                ->exists();
+        }
+
+        return false;
     }
 
     /**

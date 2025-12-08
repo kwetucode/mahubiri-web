@@ -25,6 +25,11 @@ class FavoriteSermonController extends Controller
             $user = Auth::user();
             $sermon = Sermon::findOrFail($sermonId);
 
+            // Only allow favoriting published sermons
+            if (!$sermon->is_published) {
+                return $this->errorResponse('Ce sermon n\'est pas disponible', 404);
+            }
+
             // Check if already favorited
             if ($this->isFavoritedByUser($user->id, $sermonId)) {
                 return $this->errorResponse('Ce sermon est déjà dans vos favoris', 400);

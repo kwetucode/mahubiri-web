@@ -21,6 +21,7 @@ class SermonListController extends Controller
     {
         try {
             $recentSermons = Sermon::with(['church', 'category'])
+                ->published()
                 ->orderBy('created_at', 'desc')
                 ->take(5)
                 ->get();
@@ -60,6 +61,7 @@ class SermonListController extends Controller
 
             // Get sermons with at least X unique users who completed listening
             $popularSermons = Sermon::with(['church', 'category'])
+                ->published()
                 ->withCount(['favoritedBy', 'views'])
                 ->addSelect([
                     'completed_unique_users' => SermonView::selectRaw('COUNT(DISTINCT user_id)')
@@ -106,6 +108,7 @@ class SermonListController extends Controller
         try {
             // Get sermons from the specified category (paginated, 10 per page)
             $sermons = Sermon::with(['church', 'category'])
+                ->published()
                 ->where('category_sermon_id', $categoryId)
                 ->orderBy('created_at', 'desc')
                 ->paginate(10);
@@ -158,6 +161,7 @@ class SermonListController extends Controller
 
             // Get related sermons from the same category (paginated, 10 per page)
             $relatedSermons = Sermon::with(['church', 'category'])
+                ->published()
                 ->where('category_sermon_id', $sermon->category_sermon_id)
                 ->where('id', '!=', $sermon->id) // Exclude current sermon
                 ->orderBy('created_at', 'desc')
@@ -211,6 +215,7 @@ class SermonListController extends Controller
         try {
             // Get sermons from the specified church (paginated, 10 per page)
             $sermons = Sermon::with(['church', 'category'])
+                ->published()
                 ->where('church_id', $churchId)
                 ->orderBy('created_at', 'desc')
                 ->paginate(10);

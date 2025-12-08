@@ -72,12 +72,13 @@ class ChurchStatisticsController extends Controller
     private function getSermonStatistics(int $churchId): array
     {
         $totalSermons = Sermon::where('church_id', $churchId)->count();
-        // Tous les sermons sont considérés comme publiés dans cette structure
-        $publishedSermons = $totalSermons;
-        $draftSermons = 0;
+        $publishedSermons = Sermon::where('church_id', $churchId)
+            ->where('is_published', true)->count();
+        $draftSermons = $totalSermons - $publishedSermons;
 
-        // Sermons par mois (12 derniers mois)
+        // Sermons par mois (12 derniers mois) - only published
         $monthlySermons = Sermon::where('church_id', $churchId)
+            ->where('is_published', true)
             ->where('created_at', '>=', Carbon::now()->subMonths(12))
             ->selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, COUNT(*) as count')
             ->groupBy('year', 'month')
@@ -140,8 +141,9 @@ class ChurchStatisticsController extends Controller
             })
             ->toArray();
 
-        // Moyenne d'écoutes par sermon
-        $publishedSermons = Sermon::where('church_id', $churchId)->count();
+        // Moyenne d'écoutes par sermon - only published sermons
+        $publishedSermons = Sermon::where('church_id', $churchId)
+            ->where('is_published', true)->count();
         $avgListensPerSermon = $totalListens > 0 && $publishedSermons > 0
             ? round($totalListens / $publishedSermons, 2)
             : 0;
@@ -219,8 +221,9 @@ class ChurchStatisticsController extends Controller
      */
     private function getPublicationAnalysis(int $churchId): array
     {
-        // Analyse annuelle (5 dernières années)
+        // Analyse annuelle (5 dernières années) - only published sermons
         $yearlyAnalysis = Sermon::where('church_id', $churchId)
+            ->where('is_published', true)
             ->where('created_at', '>=', Carbon::now()->subYears(5))
             ->selectRaw('YEAR(created_at) as year, COUNT(*) as sermon_count')
             ->groupBy('year')
@@ -260,8 +263,9 @@ class ChurchStatisticsController extends Controller
             })
             ->toArray();
 
-        // Jour de la semaine le plus actif pour les publications
+        // Jour de la semaine le plus actif pour les publications - only published sermons
         $weekdayAnalysis = Sermon::where('church_id', $churchId)
+            ->where('is_published', true)
             ->selectRaw('DAYOFWEEK(created_at) as day_of_week, COUNT(*) as count')
             ->groupBy('day_of_week')
             ->orderBy('day_of_week')
@@ -292,6 +296,7 @@ class ChurchStatisticsController extends Controller
     private function getTopSermons(int $churchId): array
     {
         $topSermons = Sermon::where('church_id', $churchId)
+            ->where('is_published', true)
             ->withCount(['views', 'favoritedBy'])
             ->orderBy('views_count', 'desc')
             ->limit(10)
@@ -318,8 +323,9 @@ class ChurchStatisticsController extends Controller
      */
     private function getRecentActivity(int $churchId): array
     {
-        // Derniers sermons créés
+        // Derniers sermons créés - only published sermons
         $recentSermons = Sermon::where('church_id', $churchId)
+            ->where('is_published', true)
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->select('id', 'title', 'created_at')
@@ -370,6 +376,8 @@ class ChurchStatisticsController extends Controller
 
             $quickStats = [
                 'total_sermons' => Sermon::where('church_id', $church->id)->count(),
+                'published_sermons' => Sermon::where('church_id', $church->id)
+                    ->where('is_published', true)->count(),
                 'total_listens' => SermonView::whereHas('sermon', function ($query) use ($church) {
                     $query->where('church_id', $church->id);
                 })->count(),

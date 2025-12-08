@@ -11,6 +11,7 @@ use BenSampo\Enum\Enum;
  * @method static static ADMIN()
  * @method static static CHURCH_ADMIN()
  * @method static static MODERATOR()
+ * @method static static INDEPENDENT_PREACHER()
  */
 final class RoleType extends Enum
 {
@@ -18,6 +19,7 @@ final class RoleType extends Enum
     const ADMIN = 2;
     const CHURCH_ADMIN = 3;
     const MODERATOR = 4;
+    const INDEPENDENT_PREACHER = 5;
 
     /**
      * Get the description for display
@@ -33,6 +35,8 @@ final class RoleType extends Enum
                 return 'Administrateur d\'église';
             case self::MODERATOR:
                 return 'Modérateur';
+            case self::INDEPENDENT_PREACHER:
+                return 'Prédicateur indépendant';
             default:
                 return parent::getDescription($value);
         }
@@ -48,6 +52,7 @@ final class RoleType extends Enum
             self::ADMIN => self::getDescription(self::ADMIN),
             self::CHURCH_ADMIN => self::getDescription(self::CHURCH_ADMIN),
             self::MODERATOR => self::getDescription(self::MODERATOR),
+            self::INDEPENDENT_PREACHER => self::getDescription(self::INDEPENDENT_PREACHER),
         ];
     }
 
@@ -73,5 +78,13 @@ final class RoleType extends Enum
     public static function canManageChurch($role): bool
     {
         return in_array($role, [self::ADMIN, self::CHURCH_ADMIN]);
+    }
+
+    /**
+     * Check if the role can publish sermons
+     */
+    public static function canPublishSermons($role): bool
+    {
+        return in_array($role, [self::ADMIN, self::CHURCH_ADMIN, self::INDEPENDENT_PREACHER]);
     }
 }

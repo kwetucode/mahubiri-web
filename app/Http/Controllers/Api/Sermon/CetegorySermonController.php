@@ -17,7 +17,9 @@ class CetegorySermonController extends Controller
     {
         $perPage = (int) request()->query('per_page', 15);
         $search = request()->query('q');
-        $query = CategorySermon::withCount('sermons')->orderBy('name', 'asc');
+        $query = CategorySermon::withCount(['sermons' => function ($q) {
+            $q->where('is_published', true);
+        }])->orderBy('name', 'asc');
         if ($search) {
             $query->where('name', 'like', "%{$search}%");
         }
@@ -89,10 +91,10 @@ class CetegorySermonController extends Controller
     public function destroy(string $id)
     {
         $category = $this->chekExistCategory($id);
-        if ($category->sermons()->count() > 0) {
+        if ($category->sermons()->where('is_published', true)->count() > 0) {
             return response()->json([
                 'success' => false,
-                'message' => 'Cannot delete category with associated sermons',
+                'message' => 'Cannot delete category with associated published sermons',
             ], 400);
         }
         $category->delete();
@@ -105,7 +107,9 @@ class CetegorySermonController extends Controller
     //Make get sermon reusable
     protected function chekExistCategory($id)
     {
-        $category = CategorySermon::with('sermons')->find($id);
+        $category = CategorySermon::with(['sermons' => function ($query) {
+            $query->where('is_published', true);
+        }])->find($id);
         if (!$category) {
             return response()->json([
                 'success' => false,

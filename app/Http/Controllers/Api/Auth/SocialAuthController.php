@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Laravel\Socialite\Facades\Socialite;
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\Auth as FirebaseAuth;
 
 class SocialAuthController extends Controller
 {
@@ -22,7 +24,8 @@ class SocialAuthController extends Controller
      * Authenticate user with social provider token (for Flutter app)
      *
      * This method is designed for mobile apps (Flutter) where the social login
-     * is handled on the client side and the access token is sent to the API.
+     * is handled on the client side. It handles both Firebase JWT tokens (Google)
+     * and OAuth access tokens (Facebook).
      *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
@@ -38,10 +41,10 @@ class SocialAuthController extends Controller
             $provider = $request->provider;
             $accessToken = $request->access_token;
 
-            // Get user info from provider using the access token
-            $providerUser = Socialite::driver($provider)->stateless()->userFromToken($accessToken);
+            // Determine token type and verify accordingly
+            $providerUser = $this->verifyProviderToken($accessToken, $provider);
 
-            if (!$providerUser || !$providerUser->getEmail()) {
+            if (!$providerUser || !isset($providerUser['email'])) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Unable to retrieve user information from ' . ucfirst($provider),
@@ -49,7 +52,7 @@ class SocialAuthController extends Controller
             }
 
             // Find or create user
-            $user = $this->findOrCreateUser($providerUser, $provider);
+            $user = $this->findOrCreateUserFromSocial($providerUser, $provider);
 
             // Generate Sanctum token
             $token = $user->createToken('mobile-app-token')->plainTextToken;
@@ -77,6 +80,168 @@ class SocialAuthController extends Controller
     }
 
     /**
+     * Verify provider token (Firebase JWT or OAuth Access Token)
+     *
+     * @param string $token
+     * @param string $provider
+     * @return array|null
+     */
+    private function verifyProviderToken(string $token, string $provider): ?array
+    {
+        // Check if it's a JWT token (has 2 dots) - Firebase token
+        if (substr_count($token, '.') === 2) {
+            return $this->verifyFirebaseToken($token, $provider);
+        }
+
+        // Otherwise, it's an OAuth access token - use Socialite
+        return $this->verifyOAuthToken($token, $provider);
+    }
+
+    /**
+     * Verify OAuth access token using Socialite (for Facebook)
+     *
+     * @param string $token
+     * @param string $provider
+     * @return array|null
+     */
+    private function verifyOAuthToken(string $token, string $provider): ?array
+    {
+        try {
+            // Use Socialite to get user from access token
+            $socialUser = Socialite::driver($provider)->userFromToken($token);
+
+            if (!$socialUser) {
+                throw new \Exception("Unable to retrieve user from {$provider}");
+            }
+
+            return [
+                'id' => $socialUser->getId(),
+                'email' => $socialUser->getEmail(),
+                'name' => $socialUser->getName() ?? $socialUser->getNickname() ?? $socialUser->getEmail(),
+                'avatar' => $socialUser->getAvatar() ?? null,
+                'email_verified' => true, // OAuth providers verify emails
+            ];
+        } catch (\Exception $e) {
+            Log::error('Failed to verify OAuth token', [
+                'provider' => $provider,
+                'error' => $e->getMessage(),
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Verify Firebase JWT token and extract user info
+     *
+     * @param string $token
+     * @param string $provider
+     * @return array|null
+     */
+    private function verifyFirebaseToken(string $token, string $provider): ?array
+    {
+        try {
+            $credentialsPath = config('firebase.credentials');
+
+            if (!file_exists($credentialsPath)) {
+                Log::error('Firebase credentials file not found', ['path' => $credentialsPath]);
+                throw new \Exception('Firebase configuration error');
+            }
+
+            $factory = (new Factory)->withServiceAccount($credentialsPath);
+            $auth = $factory->createAuth();
+
+            // Verify the token
+            $verifiedIdToken = $auth->verifyIdToken($token);
+            $uid = $verifiedIdToken->claims()->get('sub');
+
+            // Get user from Firebase
+            $firebaseUser = $auth->getUser($uid);
+
+            // Extract user information
+            return [
+                'id' => $firebaseUser->uid,
+                'email' => $firebaseUser->email,
+                'name' => $firebaseUser->displayName ?? $firebaseUser->email,
+                'avatar' => $firebaseUser->photoUrl ?? null,
+                'email_verified' => $firebaseUser->emailVerified,
+            ];
+        } catch (\Exception $e) {
+            Log::error('Failed to verify Firebase token', [
+                'provider' => $provider,
+                'error' => $e->getMessage(),
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Find or create user from social provider data
+     *
+     * @param array $providerUser
+     * @param string $provider
+     * @return User
+     */
+    private function findOrCreateUserFromSocial(array $providerUser, string $provider): User
+    {
+        // Check if user exists with this provider ID
+        $user = User::where($provider . '_id', $providerUser['id'])->first();
+
+        if ($user) {
+            return $user;
+        }
+
+        // Check if user exists with this email
+        $user = User::where('email', $providerUser['email'])->first();
+
+        if ($user) {
+            // Link the social account to existing user
+            $user->update([
+                $provider . '_id' => $providerUser['id'],
+            ]);
+            return $user;
+        }
+
+        // Create new user with transaction for atomicity
+        return DB::transaction(function () use ($providerUser, $provider) {
+            // Create new user
+            $user = User::create([
+                'name' => $providerUser['name'],
+                'email' => $providerUser['email'],
+                'password' => Hash::make(Str::random(24)), // Random password for social users
+                $provider . '_id' => $providerUser['id'],
+                'email_verified_at' => $providerUser['email_verified'] ? now() : null,
+                'role_id' => RoleType::USER,
+            ]);
+
+            // Verify user creation
+            if (!$user || !$user->id) {
+                throw new \Exception("Échec de la création de l'utilisateur via " . ucfirst($provider));
+            }
+
+            // Send welcome email and handle potential failure
+            try {
+                $user->notify(new WelcomeNotification($user));
+
+                Log::info("User created via social auth", [
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                    'provider' => $provider
+                ]);
+            } catch (\Exception $emailException) {
+                Log::warning("Failed to send welcome email for social auth user", [
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                    'provider' => $provider,
+                    'error' => $emailException->getMessage()
+                ]);
+                // Don't throw exception, user creation is more important than welcome email
+            }
+
+            return $user;
+        });
+    }
+
+    /**
      * Link social account to existing authenticated user
      *
      * @param Request $request
@@ -94,10 +259,10 @@ class SocialAuthController extends Controller
             $provider = $request->provider;
             $accessToken = $request->access_token;
 
-            // Get user info from provider
-            $providerUser = Socialite::driver($provider)->stateless()->userFromToken($accessToken);
+            // Verify provider token and get user info
+            $providerUser = $this->verifyProviderToken($accessToken, $provider);
 
-            if (!$providerUser || !$providerUser->getEmail()) {
+            if (!$providerUser || !isset($providerUser['email'])) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Unable to retrieve user information from ' . ucfirst($provider),
@@ -105,7 +270,7 @@ class SocialAuthController extends Controller
             }
 
             // Check if this social account is already linked to another user
-            $existingUser = User::where($provider . '_id', $providerUser->getId())
+            $existingUser = User::where($provider . '_id', $providerUser['id'])
                 ->where('id', '!=', $user->id)
                 ->first();
 
@@ -118,8 +283,7 @@ class SocialAuthController extends Controller
 
             // Link the social account
             $user->update([
-                $provider . '_id' => $providerUser->getId(),
-                $provider . '_token' => $accessToken,
+                $provider . '_id' => $providerUser['id'],
             ]);
 
             return response()->json([
@@ -176,7 +340,6 @@ class SocialAuthController extends Controller
             // Unlink the social account
             $user->update([
                 $provider . '_id' => null,
-                $provider . '_token' => null,
             ]);
 
             return response()->json([
@@ -223,80 +386,5 @@ class SocialAuthController extends Controller
                 'facebook_linked' => !empty($user->facebook_id),
             ],
         ], 200);
-    }
-
-    /**
-     * Find or create user from social provider data
-     *
-     * @param \Laravel\Socialite\Contracts\User $providerUser
-     * @param string $provider
-     * @return User
-     */
-    private function findOrCreateUser($providerUser, $provider)
-    {
-        // Check if user exists with this provider ID
-        $user = User::where($provider . '_id', $providerUser->getId())->first();
-
-        if ($user) {
-            // Update the access token
-            $user->update([
-                $provider . '_token' => request('access_token'),
-            ]);
-            return $user;
-        }
-
-        // Check if user exists with this email
-        $user = User::where('email', $providerUser->getEmail())->first();
-
-        if ($user) {
-            // Link the social account to existing user
-            $user->update([
-                $provider . '_id' => $providerUser->getId(),
-                $provider . '_token' => request('access_token'),
-            ]);
-            return $user;
-        }
-
-        // Create new user with transaction for atomicity
-        return DB::transaction(function () use ($providerUser, $provider) {
-            // Create new user
-            $user = User::create([
-                'name' => $providerUser->getName() ?? $providerUser->getNickname() ?? 'User',
-                'email' => $providerUser->getEmail(),
-                'password' => Hash::make(Str::random(24)), // Random password for social users
-                $provider . '_id' => $providerUser->getId(),
-                $provider . '_token' => request('access_token'),
-                'email_verified_at' => now(), // Social accounts are considered verified
-                'role_id' => RoleType::USER,
-            ]);
-
-            // Verify user creation
-            if (!$user || !$user->id) {
-                throw new \Exception("Échec de la création de l'utilisateur via " . ucfirst($provider));
-            }
-
-            // Send welcome email and handle potential failure
-            try {
-                $user->notify(new WelcomeNotification($user));
-
-                Log::info("User created via social auth and welcome email sent", [
-                    'user_id' => $user->id,
-                    'email' => $user->email,
-                    'provider' => $provider
-                ]);
-            } catch (\Exception $emailException) {
-                Log::error("Failed to send welcome email for social auth user", [
-                    'user_id' => $user->id,
-                    'email' => $user->email,
-                    'provider' => $provider,
-                    'error' => $emailException->getMessage()
-                ]);
-
-                // Lever une exception pour forcer le rollback de la transaction
-                throw new \Exception("Échec de l'envoi de l'email de bienvenue: " . $emailException->getMessage());
-            }
-
-            return $user;
-        });
     }
 }

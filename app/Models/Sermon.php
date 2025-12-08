@@ -13,11 +13,13 @@ class Sermon extends Model
 
     protected $fillable = [
         'church_id',
+        'preacher_profile_id',
         'category_sermon_id',
         'title',
         'preacher_name',
         'audio_url',
         'description',
+        'is_published',
         'cover_url',
         'duration',
         'mime_type',
@@ -33,6 +35,8 @@ class Sermon extends Model
     protected $casts = [
         'duration' => 'integer',
         'church_id' => 'integer',
+        'preacher_profile_id' => 'integer',
+        'is_published' => 'boolean',
         'popularity_score' => 'decimal:2',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -46,6 +50,71 @@ class Sermon extends Model
     {
         return $this->belongsTo(Church::class);
     }
+
+    /**
+     * Get the preacher profile that owns this sermon.
+     */
+    public function preacherProfile(): BelongsTo
+    {
+        return $this->belongsTo(PreacherProfile::class);
+    }
+
+    /**
+     * Get the publisher (church or preacher profile) of this sermon.
+     * Returns the church if church_id is set, otherwise returns preacher profile.
+     */
+    public function getPublisher()
+    {
+        if ($this->church_id) {
+            return $this->church;
+        }
+        return $this->preacherProfile;
+    }
+
+    /**
+     * Get the publisher name (church name or ministry name).
+     */
+    public function getPublisherNameAttribute(): string
+    {
+        if ($this->church_id && $this->church) {
+            return $this->church->name;
+        }
+        if ($this->preacher_profile_id && $this->preacherProfile) {
+            return $this->preacherProfile->ministry_name;
+        }
+        return 'Unknown';
+    }
+
+    /**
+     * Get the publisher logo/avatar URL.
+     */
+    public function getPublisherLogoAttribute(): ?string
+    {
+        if ($this->church_id && $this->church) {
+            return $this->church->logo_url;
+        }
+        if ($this->preacher_profile_id && $this->preacherProfile) {
+            return $this->preacherProfile->avatar_url;
+        }
+        return null;
+    }
+
+    /**
+     * Check if sermon is published by a church.
+     */
+    public function isPublishedByChurch(): bool
+    {
+        return !is_null($this->church_id);
+    }
+
+    /**
+     * Check if sermon is published by an independent preacher.
+     */
+    public function isPublishedByPreacher(): bool
+    {
+        return !is_null($this->preacher_profile_id);
+    }
+
     /**
      * Get the category that owns this sermon.
      */
@@ -92,5 +161,21 @@ class Sermon extends Model
     public function scopeMinimumPopularity($query, $minScore = 0)
     {
         return $query->where('popularity_score', '>', $minScore);
+    }
+
+    /**
+     * Scope to get only published sermons
+     */
+    public function scopePublished($query)
+    {
+        return $query->where('is_published', true);
+    }
+
+    /**
+     * Scope to get only draft sermons
+     */
+    public function scopeDraft($query)
+    {
+        return $query->where('is_published', false);
     }
 }

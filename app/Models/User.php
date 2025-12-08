@@ -59,6 +59,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Get the preacher profile that owns the user.
+     */
+    public function preacherProfile(): HasOne
+    {
+        return $this->hasOne(PreacherProfile::class);
+    }
+
+    /**
      * Get the role that owns the user.
      */
     public function role(): BelongsTo

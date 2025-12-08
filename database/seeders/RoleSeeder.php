@@ -18,7 +18,10 @@ class RoleSeeder extends Seeder
             ['name' => 'admin'],
             ['name' => 'church_admin'],
             ['name' => 'moderator'],
+            ['name' => 'independent_preacher'],
         ];
-        Role::insert($roles);
+        foreach ($roles as $role) {
+            Role::updateOrInsert(['name' => $role['name']], $role);
+        }
     }
 }

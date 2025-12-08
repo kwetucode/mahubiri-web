@@ -22,6 +22,10 @@ use App\Http\Controllers\Api\User\UserSecurityController;
 use App\Http\Controllers\Api\User\UserStatsController;
 use App\Http\Controllers\Api\Notification\NotificationSettingsController;
 use App\Http\Controllers\Api\Notification\FcmTokenController;
+use App\Http\Controllers\Api\Preacher\DashboardPreacherController;
+use App\Http\Controllers\Api\Preacher\PreacherProfileController;
+use App\Http\Controllers\Api\Preacher\PreacherListController;
+use App\Http\Controllers\Api\Sermon\CategorySermonController;
 use App\Models\Sermon;
 
 /*
@@ -125,6 +129,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/churches/statistics/full', [ChurchStatisticsController::class, 'getChurchStatistics']);
 });
 
+
 //Sermons routes group
 Route::middleware('auth:sanctum')->group(function () {
     // Get recent sermons (must be before resource routes to avoid conflict)
@@ -151,9 +156,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/sermons/search/suggestions', [SermonSearchController::class, 'suggestions']);
 
     // CategorySermon CRUD
-    Route::apiResource('/sermons/categories', \App\Http\Controllers\Api\Sermon\CategorySermonController::class);
+    Route::apiResource('/sermons/categories', CategorySermonController::class);
 
     Route::apiResource('/sermons', SermonController::class);
+
+    // Sermon publication route
+    Route::post('/sermons/{sermon}/toggle-publish', [SermonController::class, 'togglePublish']);
 
     // Sermon Favorites routes
     Route::prefix('favorites')->group(function () {
@@ -163,44 +171,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/{sermon}/toggle', [FavoriteSermonController::class, 'toggleFavorite']);
         Route::get('/{sermon}/check', [FavoriteSermonController::class, 'isFavorite']);
     });
+});
 
-    // Test notification route
-    Route::post('/test-notification', function (Request $request) {
-        $notificationService = app(\App\Services\NotificationService::class);
-        $user = $request->user();
-
-        if (!$user) {
-            return response()->json(['success' => false, 'message' => 'User not authenticated'], 401);
-        }
-
-        try {
-            $result = $notificationService->sendToUser(
-                $user,
-                'new_sermon',
-                [
-                    'title' => 'Test de Notification',
-                    'body' => 'Ceci est une notification de test',
-                    'data' => [
-                        'test' => true,
-                        'type' => 'test',
-                        'timestamp' => now()->toISOString()
-                    ]
-                ]
-            );
-
-            return response()->json([
-                'success' => $result['success'] > 0,
-                'message' => $result['success'] > 0
-                    ? "Notification envoyée avec succès à {$result['success']} appareil(s)"
-                    : 'Échec de l\'envoi de la notification',
-                'details' => $result
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erreur lors de l\'envoi de la notification',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    });
+//Preachers routes group
+Route::middleware('auth:sanctum')->group(function () {
+    // Preacher profile routes
+    Route::apiResource('/preachers/profiles', PreacherProfileController::class);
+    Route::get('/preachers/latest', [PreacherListController::class, 'getLatestPreachers']);
+    Route::get('/preachers/{preacherId}/sermons', [PreacherListController::class, 'getSermonsByPreacher']);
+    //Dashboard preacher routes group in DashboardPreacherController
+    Route::get('/preachers/dashboard', [DashboardPreacherController::class, 'dashboard']);
+    Route::get('/preachers/dashboard/{id}', [DashboardPreacherController::class, 'dashboardById']);
 });

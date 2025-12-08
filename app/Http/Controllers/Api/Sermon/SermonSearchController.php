@@ -30,7 +30,8 @@ class SermonSearchController extends Controller
                 'page' => 'nullable|integer|min:1'
             ]);
 
-            $query = Sermon::with(['church', 'category']);
+            $query = Sermon::with(['church', 'category'])
+                ->published();
 
             // General search query (searches across title, preacher_name, description, category name)
             if ($request->filled('query')) {
@@ -120,7 +121,8 @@ class SermonSearchController extends Controller
                 'limit' => 'nullable|integer|min:1|max:100',
             ]);
 
-            $query = Sermon::with(['church', 'category']);
+            $query = Sermon::with(['church', 'category'])
+                ->published();
 
             // Apply filters
             foreach ($request->input('filters', []) as $filter) {
@@ -211,7 +213,8 @@ class SermonSearchController extends Controller
 
             switch ($field) {
                 case 'title':
-                    $suggestions = Sermon::where('title', 'LIKE', "%{$searchQuery}%")
+                    $suggestions = Sermon::published()
+                        ->where('title', 'LIKE', "%{$searchQuery}%")
                         ->select('title as suggestion')
                         ->distinct()
                         ->limit($limit)
@@ -220,7 +223,8 @@ class SermonSearchController extends Controller
                     break;
 
                 case 'preacher_name':
-                    $suggestions = Sermon::where('preacher_name', 'LIKE', "%{$searchQuery}%")
+                    $suggestions = Sermon::published()
+                        ->where('preacher_name', 'LIKE', "%{$searchQuery}%")
                         ->select('preacher_name as suggestion')
                         ->distinct()
                         ->limit($limit)

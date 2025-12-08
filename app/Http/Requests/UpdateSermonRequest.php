@@ -27,6 +27,7 @@ class UpdateSermonRequest extends FormRequest
             'preacher_name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'color' => ['nullable', 'integer', 'min:1'],
+            'is_published' => ['nullable', 'boolean'],
             // Audio: base64 ou fichier uploadé (optionnel)
             'audio' => [
                 'nullable',
