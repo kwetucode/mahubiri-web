@@ -171,6 +171,40 @@ class NotificationService
     }
 
     /**
+     * Send notification to all followers of a preacher
+     *
+     * @param int $preacherProfileId
+     * @param string $notificationType
+     * @param array $payload
+     * @return array ['total_users' => int, 'success' => int, 'failed' => int]
+     */
+    public function sendToPreacher(int $preacherProfileId, string $notificationType, array $payload): array
+    {
+        $result = ['total_users' => 0, 'success' => 0, 'failed' => 0];
+
+        // Get all users who have tokens (send to all users for now)
+        // TODO: Implement preacher followers functionality later
+        $users = User::whereHas('fcmTokens')
+            ->get();
+
+        $result['total_users'] = $users->count();
+
+        foreach ($users as $user) {
+            $userResult = $this->sendToUser($user, $notificationType, $payload);
+            $result['success'] += $userResult['success'];
+            $result['failed'] += $userResult['failed'];
+        }
+
+        Log::info('Notification sent to preacher followers', [
+            'preacher_profile_id' => $preacherProfileId,
+            'notification_type' => $notificationType,
+            'result' => $result
+        ]);
+
+        return $result;
+    }
+
+    /**
      * Check if the exception indicates an invalid token
      *
      * @param \Kreait\Firebase\Exception\MessagingException $e

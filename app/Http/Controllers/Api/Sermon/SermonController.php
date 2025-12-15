@@ -121,23 +121,42 @@ class SermonController extends Controller
             $sermon->load(['church', 'preacherProfile']);
             Log::info('Sermon created successfully', ['sermon' => $sermon]);
 
-            // Send push notification only if sermon is published and from a church
-            if ($sermon->is_published && $sermon->church_id) {
+            // Send push notification only if sermon is published
+            if ($sermon->is_published) {
                 try {
-                    $this->notificationService->sendToChurch(
-                        $sermon->church_id,
-                        'new_sermon',
-                        [
-                            'title' => 'Nouvelle prédication disponible',
-                            'body' => "« {$sermon->title} » par {$sermon->preacher_name}",
-                            'data' => [
-                                'sermon_id' => $sermon->id,
-                                'church_id' => $sermon->church_id,
-                                'type' => 'new_sermon'
+                    if ($sermon->church_id) {
+                        // Notification for church sermon
+                        $this->notificationService->sendToChurch(
+                            $sermon->church_id,
+                            'new_sermon',
+                            [
+                                'title' => 'Nouvelle prédication disponible',
+                                'body' => "« {$sermon->title} » par {$sermon->preacher_name}",
+                                'data' => [
+                                    'sermon_id' => $sermon->id,
+                                    'church_id' => $sermon->church_id,
+                                    'type' => 'new_sermon'
+                                ]
                             ]
-                        ]
-                    );
-                    Log::info('Push notification sent for published sermon', ['sermon_id' => $sermon->id]);
+                        );
+                        Log::info('Push notification sent for published church sermon', ['sermon_id' => $sermon->id]);
+                    } elseif ($sermon->preacher_profile_id) {
+                        // Notification for preacher sermon
+                        $this->notificationService->sendToPreacher(
+                            $sermon->preacher_profile_id,
+                            'new_sermon',
+                            [
+                                'title' => 'Nouvelle prédication disponible',
+                                'body' => "« {$sermon->title} » par {$sermon->preacher_name}",
+                                'data' => [
+                                    'sermon_id' => $sermon->id,
+                                    'preacher_profile_id' => $sermon->preacher_profile_id,
+                                    'type' => 'new_sermon'
+                                ]
+                            ]
+                        );
+                        Log::info('Push notification sent for published preacher sermon', ['sermon_id' => $sermon->id]);
+                    }
                 } catch (\Exception $notifException) {
                     // Log notification error but don't fail the sermon creation
                     Log::error('Failed to send push notification for published sermon', [
@@ -249,23 +268,42 @@ class SermonController extends Controller
             ? 'Sermon publié avec succès'
             : 'Sermon mis en brouillon';
 
-        // Send push notification only when publishing and from a church
-        if ($sermon->is_published && $sermon->church_id) {
+        // Send push notification only when publishing
+        if ($sermon->is_published) {
             try {
-                $this->notificationService->sendToChurch(
-                    $sermon->church_id,
-                    'new_sermon',
-                    [
-                        'title' => 'Nouvelle prédication disponible',
-                        'body' => "« {$sermon->title} » par {$sermon->preacher_name}",
-                        'data' => [
-                            'sermon_id' => $sermon->id,
-                            'church_id' => $sermon->church_id,
-                            'type' => 'new_sermon'
+                if ($sermon->church_id) {
+                    // Notification for church sermon
+                    $this->notificationService->sendToChurch(
+                        $sermon->church_id,
+                        'new_sermon',
+                        [
+                            'title' => 'Nouvelle prédication disponible',
+                            'body' => "« {$sermon->title} » par {$sermon->preacher_name}",
+                            'data' => [
+                                'sermon_id' => $sermon->id,
+                                'church_id' => $sermon->church_id,
+                                'type' => 'new_sermon'
+                            ]
                         ]
-                    ]
-                );
-                Log::info('Push notification sent for published sermon', ['sermon_id' => $sermon->id]);
+                    );
+                    Log::info('Push notification sent for published church sermon', ['sermon_id' => $sermon->id]);
+                } elseif ($sermon->preacher_profile_id) {
+                    // Notification for preacher sermon
+                    $this->notificationService->sendToPreacher(
+                        $sermon->preacher_profile_id,
+                        'new_sermon',
+                        [
+                            'title' => 'Nouvelle prédication disponible',
+                            'body' => "« {$sermon->title} » par {$sermon->preacher_name}",
+                            'data' => [
+                                'sermon_id' => $sermon->id,
+                                'preacher_profile_id' => $sermon->preacher_profile_id,
+                                'type' => 'new_sermon'
+                            ]
+                        ]
+                    );
+                    Log::info('Push notification sent for published preacher sermon', ['sermon_id' => $sermon->id]);
+                }
             } catch (\Exception $notifException) {
                 Log::error('Failed to send push notification for published sermon', [
                     'sermon_id' => $sermon->id,

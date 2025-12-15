@@ -44,9 +44,9 @@ class AudioUploadService
                 throw new InvalidArgumentException('Invalid base64 audio data');
             }
 
-            // Validate audio file size (max 50MB)
-            if (strlen($audioData) > 50 * 1024 * 1024) {
-                throw new InvalidArgumentException('Audio file too large. Maximum size is 50MB');
+            // Validate audio file size (max 100MB)
+            if (strlen($audioData) > 100 * 1024 * 1024) {
+                throw new InvalidArgumentException('Audio file too large. Maximum size is 100MB');
             }
 
             // Generate unique filename with year folder structure
@@ -162,9 +162,9 @@ class AudioUploadService
             throw new InvalidArgumentException('Audio file upload failed: ' . $audio->getErrorMessage());
         }
 
-        // Validate file size (max 50MB)
-        if ($audio->getSize() > 50 * 1024 * 1024) {
-            throw new InvalidArgumentException('Audio file too large. Maximum size is 50MB');
+        // Validate file size (max 100MB)
+        if ($audio->getSize() > 100 * 1024 * 1024) {
+            throw new InvalidArgumentException('Audio file too large. Maximum size is 100MB');
         }
 
         // Validate MIME type
