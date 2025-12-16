@@ -16,7 +16,8 @@ class CategorySermonResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name
+            'name' => $this->name,
+            'sermons_count' => $this->when(isset($this->sermons_count), $this->sermons_count),
         ];
     }
 }

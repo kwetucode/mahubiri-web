@@ -15,7 +15,9 @@ class CategorySermonController extends Controller
      */
     public function index(): JsonResponse
     {
-        $categories = CategorySermon::orderBy('name')->get();
+        $categories = CategorySermon::withCount(['sermons' => function ($q) {
+            $q->where('is_published', true);
+        }])->orderBy('name')->get();
         return response()->json([
             'success' => true,
             'data' => CategorySermonResource::collection($categories),
@@ -44,6 +46,9 @@ class CategorySermonController extends Controller
      */
     public function show(CategorySermon $categorySermon): JsonResponse
     {
+        $categorySermon->loadCount(['sermons' => function ($q) {
+            $q->where('is_published', true);
+        }]);
         return response()->json([
             'success' => true,
             'data' => new CategorySermonResource($categorySermon),
