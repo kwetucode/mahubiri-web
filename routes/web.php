@@ -9,11 +9,10 @@ Route::get('/', function () {
         ->version());
 })->name('welcome');
 
-// Email Verification - Web route for email link clicks
-Route::get('/email/verify/{id}/{hash}', [EmailVerificationWebController::class, 'verify'])
-    ->middleware(['signed', 'throttle:6,1'])
-    ->name('verification.verify');
+Route::get('/privacy-policy', function () {
+    return view('privacy-policy');
+})->name('privacy.policy');
 
-// Password Reset - Web route for email link clicks
-Route::get('/reset-password', [PasswordResetWebController::class, 'showResetForm'])
-    ->name('password.reset');
+Route::get('/terms-of-service', function () {
+    return view('terms-of-service');
+})->name('terms.service');
