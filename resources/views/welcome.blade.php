@@ -21,9 +21,14 @@
                         },
                         colors: {
                             primary: {
-                                DEFAULT: '#3456EF',
-                                light: '#5B7EF5',
-                                dark: '#1E3AC7',
+                                DEFAULT: '#6B4EAF',
+                                light: '#9C7DC7',
+                                dark: '#5A3D94',
+                            },
+                            accent: {
+                                DEFAULT: '#2C3E50',
+                                warm: '#E8B77D',
+                                lavender: '#E6E3F5',
                             }
                         }
                     }
@@ -119,14 +124,14 @@
             .animate-delay-600 { animation-delay: 0.6s; }
 
             .gradient-text {
-                background: linear-gradient(135deg, #3456EF 0%, #5B7EF5 100%);
+                background: linear-gradient(135deg, #6B4EAF 0%, #9C7DC7 100%);
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
                 background-clip: text;
             }
             @media (prefers-color-scheme: dark) {
                 .gradient-text {
-                    background: linear-gradient(135deg, #5B7EF5 0%, #7A9BF7 100%);
+                    background: linear-gradient(135deg, #9C7DC7 0%, #E6E3F5 100%);
                     -webkit-background-clip: text;
                     -webkit-text-fill-color: transparent;
                     background-clip: text;
@@ -140,7 +145,7 @@
     </head>
     <body class="font-sans bg-gradient-to-br from-gray-50 to-gray-200 dark:from-gray-950 dark:to-gray-900 min-h-screen text-gray-900 dark:text-gray-100">
         <!-- Banner de test -->
-        <div class="bg-gradient-to-r from-primary to-primary-light dark:from-blue-600 dark:to-blue-500 text-white text-center py-4 px-4 font-bold text-sm md:text-base tracking-widest uppercase shadow-lg animate-pulse-custom">
+        <div class="bg-gradient-to-r from-primary to-primary-light dark:from-primary dark:to-primary-light text-white text-center py-4 px-4 font-bold text-sm md:text-base tracking-widest uppercase shadow-lg animate-pulse-custom">
             ⚠️ Application en Mode Test - Version Bêta ⚠️
         </div>
 
@@ -165,15 +170,15 @@
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 max-w-5xl mx-auto">
                     <!-- Screenshot 1 -->
-                    <div class="group bg-white dark:bg-gray-800 rounded-3xl p-6 md:p-8 shadow-2xl hover:shadow-primary/30 dark:hover:shadow-blue-500/30 transition-all duration-300 transform hover:-translate-y-3 hover:scale-[1.02] border-t-4 border-primary dark:border-blue-500 md:rotate-[-3deg] animate-slideInLeft animate-float">
+                    <div class="group bg-white dark:bg-gray-800 rounded-3xl p-6 md:p-8 shadow-2xl hover:shadow-primary/30 dark:hover:shadow-primary-light/30 transition-all duration-300 transform hover:-translate-y-3 hover:scale-[1.02] border-t-4 border-primary dark:border-primary-light md:rotate-[-3deg] animate-slideInLeft animate-float">
                         <div class="relative overflow-hidden rounded-2xl mb-6" style="perspective: 1000px;">
                             <img src="{{ asset('home.png') }}"
                                  alt="Page d'accueil Mahubiri"
                                  class="w-full h-auto rounded-xl shadow-2xl group-hover:scale-105 transition-transform duration-300"
                                  style="transform: rotateY(8deg);"
-                                 onerror="this.parentElement.innerHTML='<div class=\'flex items-center justify-center h-96 bg-gradient-to-br from-primary/10 to-primary-light/10 dark:from-blue-600/20 dark:to-blue-500/20 rounded-xl\'><div class=\'text-center\'><svg class=\'w-20 h-20 mx-auto mb-4 text-primary dark:text-blue-400\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z\'></path></svg><p class=\'text-gray-600 dark:text-gray-400 font-medium\'>Image en cours de chargement</p></div></div>'">
+                                 onerror="this.parentElement.innerHTML='<div class=\'flex items-center justify-center h-96 bg-gradient-to-br from-primary/10 to-primary-light/10 dark:from-primary/20 dark:to-primary-light/20 rounded-xl\'><div class=\'text-center\'><svg class=\'w-20 h-20 mx-auto mb-4 text-primary dark:text-primary-light\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z\'></path></svg><p class=\'text-gray-600 dark:text-gray-400 font-medium\'>Image en cours de chargement</p></div></div>'">
                         </div>
-                        <h3 class="text-2xl font-bold text-center text-primary dark:text-blue-400">
+                        <h3 class="text-2xl font-bold text-center text-primary dark:text-primary-light">
                             🏠 Page d'Accueil
                         </h3>
                         <p class="text-center text-gray-600 dark:text-gray-400 mt-2">
@@ -182,15 +187,15 @@
                     </div>
 
                     <!-- Screenshot 2 -->
-                    <div class="group bg-white dark:bg-gray-800 rounded-3xl p-6 md:p-8 shadow-2xl hover:shadow-primary/30 dark:hover:shadow-blue-500/30 transition-all duration-300 transform hover:-translate-y-3 hover:scale-[1.02] border-t-4 border-primary dark:border-blue-500 md:rotate-[3deg] animate-slideInRight animate-float">
+                    <div class="group bg-white dark:bg-gray-800 rounded-3xl p-6 md:p-8 shadow-2xl hover:shadow-primary/30 dark:hover:shadow-primary-light/30 transition-all duration-300 transform hover:-translate-y-3 hover:scale-[1.02] border-t-4 border-primary dark:border-primary-light md:rotate-[3deg] animate-slideInRight animate-float">
                         <div class="relative overflow-hidden rounded-2xl mb-6" style="perspective: 1000px;">
                             <img src="{{ asset('login.png') }}"
                                  alt="Page de connexion Mahubiri"
                                  class="w-full h-auto rounded-xl shadow-2xl group-hover:scale-105 transition-transform duration-300"
                                  style="transform: rotateY(-8deg);"
-                                 onerror="this.parentElement.innerHTML='<div class=\'flex items-center justify-center h-96 bg-gradient-to-br from-primary/10 to-primary-light/10 dark:from-blue-600/20 dark:to-blue-500/20 rounded-xl\'><div class=\'text-center\'><svg class=\'w-20 h-20 mx-auto mb-4 text-primary dark:text-blue-400\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z\'></path></svg><p class=\'text-gray-600 dark:text-gray-400 font-medium\'>Image en cours de chargement</p></div></div>'">
+                                 onerror="this.parentElement.innerHTML='<div class=\'flex items-center justify-center h-96 bg-gradient-to-br from-primary/10 to-primary-light/10 dark:from-primary/20 dark:to-primary-light/20 rounded-xl\'><div class=\'text-center\'><svg class=\'w-20 h-20 mx-auto mb-4 text-primary dark:text-primary-light\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z\'></path></svg><p class=\'text-gray-600 dark:text-gray-400 font-medium\'>Image en cours de chargement</p></div></div>'">
                         </div>
-                        <h3 class="text-2xl font-bold text-center text-primary dark:text-blue-400">
+                        <h3 class="text-2xl font-bold text-center text-primary dark:text-primary-light">
                             🔐 Connexion
                         </h3>
                         <p class="text-center text-gray-600 dark:text-gray-400 mt-2">
@@ -204,7 +209,7 @@
             <div class="max-w-4xl mx-auto mb-16">
                 <div class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl shadow-2xl p-8 md:p-12 border border-gray-200 dark:border-gray-700 animate-fadeInUp">
                     <p class="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
-                        <strong class="text-primary dark:text-blue-400">Mahubiri</strong> est votre application mobile de référence pour découvrir, écouter et partager
+                        <strong class="text-primary dark:text-primary-light">Mahubiri</strong> est votre application mobile de référence pour découvrir, écouter et partager
                         des sermons et enseignements spirituels inspirants. Connectez-vous avec des prédicateurs du monde entier
                         et enrichissez votre vie spirituelle quotidienne.
                     </p>
@@ -222,9 +227,9 @@
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
                     <!-- Feature 1 -->
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border-2 border-gray-200 dark:border-gray-700 hover:border-primary dark:hover:border-blue-500 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl animate-fadeInUp animate-delay-100">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border-2 border-gray-200 dark:border-gray-700 hover:border-primary dark:hover:border-primary-light transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl animate-fadeInUp animate-delay-100">
                         <div class="text-4xl mb-4 hover-bounce">🎧</div>
-                        <h4 class="text-xl font-bold mb-3 text-primary dark:text-blue-400">
+                        <h4 class="text-xl font-bold mb-3 text-primary dark:text-primary-light">
                             Écoute Illimitée
                         </h4>
                         <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
@@ -233,9 +238,9 @@
                     </div>
 
                     <!-- Feature 2 -->
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border-2 border-gray-200 dark:border-gray-700 hover:border-primary dark:hover:border-blue-500 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl animate-fadeInUp animate-delay-200">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border-2 border-gray-200 dark:border-gray-700 hover:border-primary dark:hover:border-primary-light transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl animate-fadeInUp animate-delay-200">
                         <div class="text-4xl mb-4 hover-bounce">⭐</div>
-                        <h4 class="text-xl font-bold mb-3 text-primary dark:text-blue-400">
+                        <h4 class="text-xl font-bold mb-3 text-primary dark:text-primary-light">
                             Favoris & Playlists
                         </h4>
                         <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
@@ -244,9 +249,9 @@
                     </div>
 
                     <!-- Feature 3 -->
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border-2 border-gray-200 dark:border-gray-700 hover:border-primary dark:hover:border-blue-500 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl animate-fadeInUp animate-delay-300">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border-2 border-gray-200 dark:border-gray-700 hover:border-primary dark:hover:border-primary-light transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl animate-fadeInUp animate-delay-300">
                         <div class="text-4xl mb-4 hover-bounce">👤</div>
-                        <h4 class="text-xl font-bold mb-3 text-primary dark:text-blue-400">
+                        <h4 class="text-xl font-bold mb-3 text-primary dark:text-primary-light">
                             Profils de Prédicateurs
                         </h4>
                         <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
@@ -255,9 +260,9 @@
                     </div>
 
                     <!-- Feature 4 -->
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border-2 border-gray-200 dark:border-gray-700 hover:border-primary dark:hover:border-blue-500 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl animate-fadeInUp animate-delay-400">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border-2 border-gray-200 dark:border-gray-700 hover:border-primary dark:hover:border-primary-light transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl animate-fadeInUp animate-delay-400">
                         <div class="text-4xl mb-4 hover-bounce">🔔</div>
-                        <h4 class="text-xl font-bold mb-3 text-primary dark:text-blue-400">
+                        <h4 class="text-xl font-bold mb-3 text-primary dark:text-primary-light">
                             Notifications
                         </h4>
                         <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
@@ -266,9 +271,9 @@
                     </div>
 
                     <!-- Feature 5 -->
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border-2 border-gray-200 dark:border-gray-700 hover:border-primary dark:hover:border-blue-500 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl animate-fadeInUp animate-delay-500">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border-2 border-gray-200 dark:border-gray-700 hover:border-primary dark:hover:border-primary-light transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl animate-fadeInUp animate-delay-500">
                         <div class="text-4xl mb-4 hover-bounce">🔍</div>
-                        <h4 class="text-xl font-bold mb-3 text-primary dark:text-blue-400">
+                        <h4 class="text-xl font-bold mb-3 text-primary dark:text-primary-light">
                             Recherche Avancée
                         </h4>
                         <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
@@ -277,9 +282,9 @@
                     </div>
 
                     <!-- Feature 6 -->
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border-2 border-gray-200 dark:border-gray-700 hover:border-primary dark:hover:border-blue-500 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl animate-fadeInUp animate-delay-600">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border-2 border-gray-200 dark:border-gray-700 hover:border-primary dark:hover:border-primary-light transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl animate-fadeInUp animate-delay-600">
                         <div class="text-4xl mb-4 hover-bounce">🌐</div>
-                        <h4 class="text-xl font-bold mb-3 text-primary dark:text-blue-400">
+                        <h4 class="text-xl font-bold mb-3 text-primary dark:text-primary-light">
                             Multi-langues
                         </h4>
                         <p class="text-gray-600 dark:text-gray-400 leading-relaxed">
@@ -291,7 +296,7 @@
 
             <!-- Section Contact -->
             <section class="mb-16">
-                <div class="max-w-4xl mx-auto bg-gradient-to-br from-primary/10 to-primary-light/10 dark:from-blue-600/20 dark:to-blue-500/20 rounded-3xl shadow-2xl p-8 md:p-12 border-2 border-primary/30 dark:border-blue-500/30 animate-scaleIn">
+                <div class="max-w-4xl mx-auto bg-gradient-to-br from-primary/10 to-primary-light/10 dark:from-primary/20 dark:to-primary-light/20 rounded-3xl shadow-2xl p-8 md:p-12 border-2 border-primary/30 dark:border-primary-light/30 animate-scaleIn">
                     <h2 class="text-3xl md:text-4xl font-bold text-center mb-8 text-gray-800 dark:text-gray-100">
                         Contactez-nous
                     </h2>
@@ -299,13 +304,13 @@
                         <!-- Email -->
                         <div class="flex items-center justify-center gap-4 bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
                             <div class="flex-shrink-0">
-                                <svg class="w-8 h-8 text-primary dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-8 h-8 text-primary dark:text-primary-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                                 </svg>
                             </div>
                             <div class="text-left">
                                 <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">Email</p>
-                                <a href="mailto:kwetucode@gmail.com" class="text-lg font-semibold text-primary dark:text-blue-400 hover:underline">
+                                <a href="mailto:kwetucode@gmail.com" class="text-lg font-semibold text-primary dark:text-primary-light hover:underline">
                                     kwetucode@gmail.com
                                 </a>
                             </div>
@@ -314,13 +319,13 @@
                         <!-- Téléphone -->
                         <div class="flex items-center justify-center gap-4 bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
                             <div class="flex-shrink-0">
-                                <svg class="w-8 h-8 text-primary dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-8 h-8 text-primary dark:text-primary-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
                                 </svg>
                             </div>
                             <div class="text-left">
                                 <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">Téléphone</p>
-                                <a href="tel:+243971330007" class="text-lg font-semibold text-primary dark:text-blue-400 hover:underline">
+                                <a href="tel:+243971330007" class="text-lg font-semibold text-primary dark:text-primary-light hover:underline">
                                     +243 971 330 007
                                 </a>
                             </div>
@@ -332,7 +337,7 @@
             <!-- Pied de page -->
             <footer class="text-center py-12 mt-16 bg-white/50 dark:bg-gray-800/50 backdrop-blur-md rounded-2xl border border-gray-200 dark:border-gray-700">
                 <p class="text-gray-600 dark:text-gray-400 mb-2">
-                    &copy; {{ date('Y') }} <span class="font-semibold text-primary dark:text-blue-400">Mahubiri</span>. Tous droits réservés.
+                    &copy; {{ date('Y') }} <span class="font-semibold text-primary dark:text-primary-light">Mahubiri</span>. Tous droits réservés.
                 </p>
                 <p class="text-sm text-gray-500 dark:text-gray-500 mt-2">
                     Cette application est actuellement en phase de test. Certaines fonctionnalités peuvent être instables.
