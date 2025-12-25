@@ -32,7 +32,6 @@ class PreacherListController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => PreacherProfileResource::collection($preachers),
-                'count' => $preachers->count(),
             ]);
         } catch (\Exception $e) {
             return ApiExceptionHandler::auto($e, 'de la récupération des derniers prédicateurs');

@@ -24,7 +24,6 @@ class PreacherProfileResource extends JsonResource
             'country_code' => $this->country_code,
             'city' => $this->city,
             'social_links' => $this->social_links,
-            'created_at' => $this->created_at?->toIso8601String(),
             'user' => $this->whenLoaded('user', function () {
                 return [
                     'id' => $this->user->id,
@@ -32,9 +31,7 @@ class PreacherProfileResource extends JsonResource
                     'email' => $this->user->email,
                 ];
             }),
-            'sermons_count' => $this->whenLoaded('sermons', function () {
-                return $this->sermons->count();
-            }),
+            'sermons_count' => $this->sermons_count ?? 0,
         ];
     }
 }
