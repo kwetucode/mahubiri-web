@@ -269,16 +269,20 @@ class SermonListController extends Controller
                 'completed' => 'nullable|boolean',
             ]);
 
-            // Create sermon view record
-            $view = SermonView::create([
-                'sermon_id' => $sermon->id,
-                'user_id' => Auth::id(), // Can be null for anonymous users
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent(),
-                'duration_played' => $validated['duration_played'] ?? null,
-                'completed' => $validated['completed'] ?? false,
-                'played_at' => now(),
-            ]);
+            // Update or create sermon view record
+            $view = SermonView::updateOrCreate(
+                [
+                    'sermon_id' => $sermon->id,
+                    'user_id' => Auth::id(), // Can be null for anonymous users
+                ],
+                [
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                    'duration_played' => $validated['duration_played'] ?? null,
+                    'completed' => $validated['completed'] ?? false,
+                    'played_at' => now(),
+                ]
+            );
 
             Log::info('Sermon view recorded', [
                 'sermon_id' => $sermon->id,
