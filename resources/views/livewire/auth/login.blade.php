@@ -4,7 +4,7 @@
         <div class="w-full max-w-md">
             <!-- Logo -->
             <div class="text-center mb-8">
-                <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-[#6B4EAF] to-[#9C7DC7] rounded-2xl mb-4 p-3 shadow-lg">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-linear-to-r from-[#6B4EAF] to-[#9C7DC7] rounded-2xl mb-4 p-3 shadow-lg">
                     <img src="{{ asset('logo.png') }}" alt="Mahubiri Logo" class="w-full h-full object-contain">
                 </div>
                 <h2 class="text-3xl font-bold text-gray-900">
@@ -19,7 +19,7 @@
             @if (session('error'))
                 <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
                     <div class="flex items-center">
-                        <x-icon name="x" class="w-5 h-5 text-red-500 mr-2 flex-shrink-0" />
+                        <x-icon name="x" class="w-5 h-5 text-red-500 mr-2 shrink-0" />
                         <p class="text-sm text-red-700">{{ session('error') }}</p>
                     </div>
                 </div>
@@ -28,7 +28,7 @@
             @if (session('message'))
                 <div class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-lg">
                     <div class="flex items-center">
-                        <x-icon name="check" class="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
+                        <x-icon name="check" class="w-5 h-5 text-green-500 mr-2 shrink-0" />
                         <p class="text-sm text-green-700">{{ session('message') }}</p>
                     </div>
                 </div>
@@ -49,10 +49,10 @@
                             type="email"
                             id="email"
                             wire:model="email"
-                            class="pl-12 pr-4 py-3 block w-full rounded-xl border-2 border-gray-200 bg-gray-50 shadow-sm 
+                            class="pl-12 pr-4 py-3 block w-full rounded-xl border-2 border-gray-200 shadow-sm 
                                    focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-100 
                                    transition-all duration-200 
-                                   @error('email') border-red-400 bg-red-50 focus:border-red-500 focus:ring-red-100 @enderror"
+                                   @error('email') bg-red-50 @enderror"
                             placeholder="admin@mahubiri.com"
                             required
                             autofocus
@@ -60,7 +60,7 @@
                     </div>
                     @error('email')
                         <div class="mt-2 flex items-center text-sm text-red-600">
-                            <svg class="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <svg class="w-4 h-4 mr-1 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
                             </svg>
                             {{ $message }}
@@ -83,17 +83,17 @@
                             type="password"
                             id="password"
                             wire:model="password"
-                            class="pl-12 pr-4 py-3 block w-full rounded-xl border-2 border-gray-200 bg-gray-50 shadow-sm 
+                            class="pl-12 pr-4 py-3 block w-full rounded-xl border-2 border-gray-200 shadow-sm 
                                    focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-100 
                                    transition-all duration-200
-                                   @error('password') border-red-400 bg-red-50 focus:border-red-500 focus:ring-red-100 @enderror"
+                                   @error('password') bg-red-50 @enderror"
                             placeholder="••••••••"
                             required
                         >
                     </div>
                     @error('password')
                         <div class="mt-2 flex items-center text-sm text-red-600">
-                            <svg class="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <svg class="w-4 h-4 mr-1 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
                             </svg>
                             {{ $message }}
@@ -119,7 +119,7 @@
                     <button
                         type="submit"
                         class="w-full flex justify-center items-center py-3.5 px-4 border border-transparent rounded-xl shadow-lg text-base font-semibold text-white 
-                               bg-gradient-to-r from-[#6B4EAF] to-[#9C7DC7] 
+                               bg-linear-to-r from-[#6B4EAF] to-[#9C7DC7] 
                                hover:from-[#5a3f94] hover:to-[#8b6cb6] hover:shadow-xl hover:scale-[1.02]
                                active:scale-[0.98]
                                focus:outline-none focus:ring-4 focus:ring-violet-200 
@@ -151,7 +151,7 @@
     </div>
 
     <!-- Right Side - Description -->
-    <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#6B4EAF] to-[#9C7DC7] items-center justify-center p-12 relative overflow-hidden">
+    <div class="hidden lg:flex lg:w-1/2 bg-linear-to-br from-[#6B4EAF] to-[#9C7DC7] items-center justify-center p-12 relative overflow-hidden">
         <!-- Background Pattern -->
         <div class="absolute inset-0 opacity-10">
             <div class="absolute top-0 left-0 w-96 h-96 bg-white rounded-full -translate-x-1/2 -translate-y-1/2"></div>
@@ -177,7 +177,7 @@
             <div class="space-y-6">
                 <!-- Feature 1 -->
                 <div class="flex items-start space-x-4">
-                    <div class="flex-shrink-0">
+                    <div class="shrink-0">
                         <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
                             <x-icon name="users" class="w-6 h-6 text-white" />
                         </div>
@@ -192,7 +192,7 @@
 
                 <!-- Feature 2 -->
                 <div class="flex items-start space-x-4">
-                    <div class="flex-shrink-0">
+                    <div class="shrink-0">
                         <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
                             <x-icon name="bell" class="w-6 h-6 text-white" />
                         </div>
@@ -207,7 +207,7 @@
 
                 <!-- Feature 3 -->
                 <div class="flex items-start space-x-4">
-                    <div class="flex-shrink-0">
+                    <div class="shrink-0">
                         <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
                             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -224,7 +224,7 @@
 
                 <!-- Feature 4 -->
                 <div class="flex items-start space-x-4">
-                    <div class="flex-shrink-0">
+                    <div class="shrink-0">
                         <div class="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
                             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />

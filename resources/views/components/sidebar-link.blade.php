@@ -1,4 +1,4 @@
-@props(['href', 'active' => false, 'icon'])
+@props(['href', 'active' => false])
 
 <a 
     href="{{ $href }}" 
@@ -6,8 +6,11 @@
     :class="{ 'justify-center': sidebarCollapsed }"
     :title="sidebarCollapsed ? '{{ $slot }}' : ''"
 >
-    <div class="w-5 h-5 group-hover:scale-110 transition-transform" :class="{ 'mr-0': sidebarCollapsed, 'mr-3': !sidebarCollapsed }">
-        {!! $icon !!}
+    <div class="flex-shrink-0 group-hover:scale-110 transition-transform" 
+         :class="{ 'mr-0': sidebarCollapsed, 'mr-3': !sidebarCollapsed }">
+        <div class="w-5 h-5">
+            {{ $icon }}
+        </div>
     </div>
     <span class="font-medium" x-show="!sidebarCollapsed" x-transition>{{ $slot }}</span>
 </a>

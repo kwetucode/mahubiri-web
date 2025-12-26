@@ -5,7 +5,7 @@
          'w-64': !sidebarCollapsed,
          'w-20': sidebarCollapsed
        }"
-       class="lg:!translate-x-0"
+       class="lg:translate-x-0!"
        x-cloak>
     <!-- Logo & Brand -->
     <div class="p-6 border-b border-[#9C7DC7]">
@@ -26,8 +26,9 @@
         </div>
         <!-- Collapse Toggle Button (Desktop only) -->
         <button @click="toggleSidebar()" 
-                class="hidden lg:flex mt-4 w-full items-center justify-center p-2 rounded-lg hover:bg-white/10 transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" 
+                class="hidden lg:flex mt-4 w-full items-center p-2 rounded-lg hover:bg-white/10 transition-colors"
+                :class="{ 'justify-center': sidebarCollapsed, 'justify-center': !sidebarCollapsed }">
+            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" 
                  :class="{ 'rotate-180': sidebarCollapsed }">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
             </svg>
@@ -114,18 +115,6 @@
         <!-- User Section -->
         @auth
         <div class="mt-8 pt-6 border-t border-[#9C7DC7]">
-            <div class="flex items-center px-4 py-3">
-                <div class="bg-[#9C7DC7] rounded-full p-2">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                    </svg>
-                </div>
-                <div class="ml-3">
-                    <p class="text-sm font-medium">{{ auth()->user()->name }}</p>
-                    <p class="text-xs text-[#E6E3F5]">{{ auth()->user()->email }}</p>
-                </div>
-            </div>
-
             <x-sidebar-link href="/profile" :active="request()->is('profile*')">
                 <x-slot name="icon">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-full h-full">
@@ -135,25 +124,6 @@
                 </x-slot>
                 Paramètres
             </x-sidebar-link>
-
-            <form method="POST" action="{{ route('logout') }}" class="mt-1">
-                @csrf
-                <button type="submit" class="flex items-center w-full px-4 py-2 rounded-lg hover:bg-[#9C7DC7]/20 transition-colors text-left">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                    </svg>
-                    <span class="text-sm">Déconnexion</span>
-                </button>
-            </form>
-        </div>
-        @else
-        <div class="mt-8 pt-6 border-t border-[#9C7DC7] space-y-2">
-            <a href="/login" class="flex items-center justify-center px-4 py-2 bg-white text-[#6B4EAF] rounded-lg hover:bg-[#E6E3F5] transition-colors font-medium">
-                Connexion
-            </a>
-            <a href="/register" class="flex items-center justify-center px-4 py-2 bg-[#E8B77D] rounded-lg hover:bg-[#E8B77D]/80 transition-colors font-medium">
-                S'inscrire
-            </a>
         </div>
         @endauth
     </nav>
