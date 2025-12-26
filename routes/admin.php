@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Livewire\Admin\Dashboard;
 use App\Livewire\Admin\Churches\Index as ChurchesIndex;
 use App\Livewire\Admin\Categories\Index as CategoriesIndex;
+use App\Livewire\Admin\Churches\Show;
 use App\Livewire\Admin\Roles\Index as RolesIndex;
 use App\Livewire\Admin\Users\Index as UsersIndex;
 use App\Livewire\Admin\PreacherProfiles\Index as PreacherProfilesIndex;
@@ -26,25 +27,24 @@ Route::get('/logout', Logout::class)->name('logout');
 
 // Protected admin routes
 Route::middleware(['auth','admin'])->group(function () {
-    Route::get('/dashboard', Dashboard::class)->name('dashboard');
+    Route::get('/dashboard', Dashboard::class)->name('dashboard')->lazy();
     // Churches
     Route::prefix('churches')->name('churches.')->group(function () {
-        Route::get('/', ChurchesIndex::class)->name('index');
-        Route::get('/{church}', \App\Livewire\Admin\Churches\Show::class)->name('show');
+        Route::get('/', ChurchesIndex::class)->name('index')->lazy();
+        Route::get('/{church}', Show::class)->name('show')->lazy();
     });
 
     // Users
-    Route::get('/users', UsersIndex::class)->name('users.index');
+    Route::get('/users', UsersIndex::class)->name('users.index')->lazy();
 
     // Preacher Profiles
     Route::prefix('preacher-profiles')->name('preacher-profiles.')->group(function () {
-        Route::get('/', PreacherProfilesIndex::class)->name('index');
-        Route::get('/{preacherProfile}', PreacherProfilesShow::class)->name('show');
+        Route::get('/', PreacherProfilesIndex::class)->name('index')->lazy();
+        Route::get('/{preacherProfile}', PreacherProfilesShow::class)->name('show')->lazy();
     });
 
     // Categories
-    Route::get('/categories', CategoriesIndex::class)->name('categories.index');
-
+    Route::get('/categories', CategoriesIndex::class)->name('categories.index')->lazy();
     // Roles
-    Route::get('/roles', RolesIndex::class)->name('roles.index');
+    Route::get('/roles', RolesIndex::class)->name('roles.index')->lazy();
 });
