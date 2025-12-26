@@ -22,7 +22,7 @@ class DashboardPreacherController extends Controller
     }
 
     /**
-     * 
+     *
      * Get dashboard statistics for authenticated preacher
      */
     public function dashboard(): JsonResponse
@@ -68,7 +68,7 @@ class DashboardPreacherController extends Controller
             ], 403);
         }
 
-        $preacherProfile = PreacherProfile::find($id);
+        $preacherProfile = PreacherProfile::active()->find($id);
 
         if (!$preacherProfile) {
             return response()->json([

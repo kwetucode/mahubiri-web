@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Sermon;
 use App\Exceptions\ApiExceptionHandler;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\SermonResource;
+use App\Models\Church;
 use App\Models\Sermon;
 use App\Models\SermonView;
 use Illuminate\Http\JsonResponse;
@@ -213,6 +214,15 @@ class SermonListController extends Controller
     public function getSermonsByChurch(int $churchId): JsonResponse
     {
         try {
+            // Verify that the church exists and is active
+            $church = Church::active()->find($churchId);
+            if (!$church) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Church not found or inactive'
+                ], 404);
+            }
+
             // Get sermons from the specified church (paginated, 10 per page)
             $sermons = Sermon::with(['church', 'category'])
                 ->published()

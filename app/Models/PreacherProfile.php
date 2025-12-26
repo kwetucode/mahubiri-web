@@ -21,10 +21,12 @@ class PreacherProfile extends Model
         'country_code',
         'city',
         'social_links',
+        'is_active',
     ];
 
     protected $casts = [
         'user_id' => 'integer',
+        'is_active' => 'boolean',
         'social_links' => 'array',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -85,5 +87,13 @@ class PreacherProfile extends Model
     public function scopeByCountry($query, string $countryCode)
     {
         return $query->where('country_code', $countryCode);
+    }
+
+    /**
+     * Scope to filter only active preacher profiles
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
     }
 }

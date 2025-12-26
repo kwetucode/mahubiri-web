@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Web\EmailVerificationWebController;
 use App\Http\Controllers\Web\PasswordResetWebController;
+use App\Livewire\Admin\Dashboard;
 
 Route::get('/', function () {
     return view('welcome')->with('version', app()
@@ -16,3 +17,12 @@ Route::get('/privacy-policy', function () {
 Route::get('/terms-of-service', function () {
     return view('terms-of-service');
 })->name('terms.service');
+
+//Route::get('/dashboard', Dashboard::class)->name('dashboard');
+
+//load admin routes
+require __DIR__.'/admin.php';
+
+//load test routes (remove in production)
+require __DIR__.'/test.php';
+

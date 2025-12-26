@@ -145,6 +145,7 @@ class UserStatsController extends Controller
             // Get favorite churches
             $favoriteChurches = SermonFavorite::join('sermons', 'sermon_favorites.sermon_id', '=', 'sermons.id')
                 ->join('churches', 'sermons.church_id', '=', 'churches.id')
+                ->where('churches.is_active', true) // Only active churches
                 ->select('churches.name', 'churches.id', DB::raw('COUNT(*) as favorites_count'))
                 ->where('sermon_favorites.user_id', $user->id)
                 ->groupBy('churches.id', 'churches.name')

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('churches', function (Blueprint $table) {
             $table->string('visionary_name')->nullable()->after('abbreviation')->comment('Nom du visionnaire de l\'église');
-            $table->boolean('is_active')->default(true)->after('created_by')->comment('Statut d\'activation de l\'église');
+            $table->boolean('is_active')->default(false)->after('created_by')->comment('Statut d\'activation de l\'église');
         });
     }
 

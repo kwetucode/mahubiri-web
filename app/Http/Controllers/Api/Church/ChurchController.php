@@ -7,6 +7,8 @@ use App\Http\Requests\StoreChurchRequest;
 use App\Http\Requests\UpdateChurchRequest;
 use App\Http\Resources\ChurchResource;
 use App\Models\Church;
+use App\Models\User;
+use App\Notifications\NewChurchCreated;
 use App\Services\FileUploadService;
 use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
@@ -49,6 +51,7 @@ class ChurchController extends Controller
         $onlyMine = filter_var(request()->query('mine', false), FILTER_VALIDATE_BOOLEAN);
 
         $query = Church::query()
+            ->active() // Only active churches
             ->with([
                 'createdBy:id,name,email',
                 'sermons' => function ($q) {
@@ -161,6 +164,9 @@ class ChurchController extends Controller
             ]);
         }
 
+        // Notify all admins about new church
+        $this->notifyAdmins($church);
+
         return response()->json([
             'success' => true,
             'data' => new ChurchResource($church),
@@ -232,5 +238,50 @@ class ChurchController extends Controller
             'success' => true,
             'message' => 'Church deleted successfully'
         ]);
+    }
+
+    /**
+     * Notify all admins about new church creation
+     */
+    private function notifyAdmins(Church $church): void
+    {
+        try {
+            // Get all admin users
+            $admins = User::whereHas('role', function ($query) {
+                $query->where('name', 'admin');
+            })->get();
+
+            Log::info('Looking for admins to notify about new church', [
+                'church_id' => $church->id,
+                'admin_count' => $admins->count(),
+                'admin_ids' => $admins->pluck('id')->toArray()
+            ]);
+
+            if ($admins->isEmpty()) {
+                Log::warning('No admins found to notify about new church');
+                return;
+            }
+
+            // Send notification to each admin
+            foreach ($admins as $admin) {
+                $admin->notify(new NewChurchCreated($church));
+                Log::info('Church notification sent to admin', [
+                    'admin_id' => $admin->id,
+                    'admin_name' => $admin->name,
+                    'church_id' => $church->id
+                ]);
+            }
+
+            Log::info('All admins notified about new church', [
+                'church_id' => $church->id,
+                'admin_count' => $admins->count()
+            ]);
+        } catch (\Exception $e) {
+            // Log error but don't fail church creation
+            Log::error('Failed to notify admins about new church', [
+                'church_id' => $church->id,
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 }

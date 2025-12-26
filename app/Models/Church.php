@@ -55,4 +55,12 @@ class Church extends Model
     {
         return $this->hasManyThrough(SermonView::class, Sermon::class);
     }
+
+    /**
+     * Scope to filter only active churches
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
 }

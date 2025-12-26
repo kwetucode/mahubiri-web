@@ -182,8 +182,16 @@ class NotificationService
     {
         $result = ['total_users' => 0, 'success' => 0, 'failed' => 0];
 
-        // Get all users who have tokens (send to all users for now)
-        // TODO: Implement preacher followers functionality later
+        /**
+         * FUTURE ENHANCEMENT: Implement preacher followers system
+         * 
+         * When the followers functionality is implemented, replace the query below with:
+         * $users = User::whereHas('followedPreachers', function($query) use ($preacherProfileId) {
+         *     $query->where('preacher_profile_id', $preacherProfileId);
+         * })->whereHas('fcmTokens')->get();
+         * 
+         * Current behavior: Sends notifications to all users with FCM tokens
+         */
         $users = User::whereHas('fcmTokens')
             ->get();
 

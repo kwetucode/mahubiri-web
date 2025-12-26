@@ -66,7 +66,8 @@ class SermonSearchController extends Controller
             // Church name search
             if ($request->filled('church_name')) {
                 $query->whereHas('church', function ($q) use ($request) {
-                    $q->where('name', 'LIKE', '%' . $request->input('church_name') . '%');
+                    $q->where('is_active', true)
+                      ->where('name', 'LIKE', '%' . $request->input('church_name') . '%');
                 });
             }
 
@@ -145,6 +146,7 @@ class SermonSearchController extends Controller
 
                     case 'church_name':
                         $query->whereHas('church', function ($q) use ($operator, $value) {
+                            $q->where('is_active', true);
                             $this->applyFieldFilter($q, 'name', $operator, $value);
                         });
                         break;
@@ -241,7 +243,8 @@ class SermonSearchController extends Controller
                     break;
 
                 case 'church_name':
-                    $suggestions = \App\Models\Church::where('name', 'LIKE', "%{$searchQuery}%")
+                    $suggestions = \App\Models\Church::active() // Only active churches
+                        ->where('name', 'LIKE', "%{$searchQuery}%")
                         ->select('name as suggestion')
                         ->limit($limit)
                         ->pluck('suggestion')

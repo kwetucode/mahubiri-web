@@ -11,7 +11,7 @@
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
 
         <!-- Tailwind CSS -->
-        <script src="https://cdn.tailwindcss.com"></script>
+          @vite(['resources/css/app.css', 'resources/js/app.js'])
         <script>
             tailwind.config = {
                 theme: {
@@ -143,9 +143,9 @@
             }
         </style>
     </head>
-    <body class="font-sans bg-gradient-to-br from-gray-50 to-gray-200 dark:from-gray-950 dark:to-gray-900 min-h-screen text-gray-900 dark:text-gray-100">
+    <body class="font-sans bg-linear-to-br from-gray-50 to-gray-200 dark:from-gray-950 dark:to-gray-900 min-h-screen text-gray-900 dark:text-gray-100">
         <!-- Banner de test -->
-        <div class="bg-gradient-to-r from-primary to-primary-light dark:from-primary dark:to-primary-light text-white text-center py-4 px-4 font-bold text-sm md:text-base tracking-widest uppercase shadow-lg animate-pulse-custom">
+        <div class="bg-linear-to-r from-primary to-primary-light dark:from-primary dark:to-primary-light text-white text-center py-4 px-4 font-bold text-sm md:text-base tracking-widest uppercase shadow-lg animate-pulse-custom">
             ⚠️ Application en Mode Test - Version Bêta ⚠️
         </div>
 

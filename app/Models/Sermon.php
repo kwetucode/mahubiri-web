@@ -48,7 +48,7 @@ class Sermon extends Model
      */
     public function church(): BelongsTo
     {
-        return $this->belongsTo(Church::class);
+        return $this->belongsTo(Church::class)->where('is_active', true);
     }
 
     /**
@@ -56,7 +56,7 @@ class Sermon extends Model
      */
     public function preacherProfile(): BelongsTo
     {
-        return $this->belongsTo(PreacherProfile::class);
+        return $this->belongsTo(PreacherProfile::class)->where('is_active', true);
     }
 
     /**

@@ -21,7 +21,7 @@ class PreacherListController extends Controller
         try {
             $limit = request()->input('limit', 5);
 
-            $preachers = PreacherProfile::with('user')
+            $preachers = PreacherProfile::active()->with('user')
                 ->withCount(['sermons' => function ($query) {
                     $query->where('is_published', true);
                 }])
@@ -47,7 +47,7 @@ class PreacherListController extends Controller
     public function getSermonsByPreacher(int $preacherId): JsonResponse
     {
         try {
-            $preacher = PreacherProfile::findOrFail($preacherId);
+            $preacher = PreacherProfile::active()->findOrFail($preacherId);
 
             $perPage = request()->input('per_page', 15);
 

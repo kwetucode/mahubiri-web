@@ -25,7 +25,7 @@ class UserResource extends JsonResource
             'is_email_verified' => $this->hasVerifiedEmail(),
             //'is_active' => $this->is_active,
             'role' => new RoleResource($this->whenLoaded('role')),
-            'church' => new ChurchResource(Church::where('created_by', $this->id)->first()),
+            'church' => new ChurchResource(Church::active()->where('created_by', $this->id)->first()),
             'preacher_profile' => $this->preacherProfile ? new PreacherProfileResource($this->preacherProfile) : null,
         ];
     }

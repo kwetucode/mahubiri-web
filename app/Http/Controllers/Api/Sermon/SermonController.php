@@ -337,6 +337,7 @@ class SermonController extends Controller
         // Check if sermon belongs to user's preacher profile
         if ($sermon->preacher_profile_id) {
             return PreacherProfile::where('id', $sermon->preacher_profile_id)
+                ->where('is_active', true)
                 ->where('user_id', $user->id)
                 ->exists();
         }

@@ -33,7 +33,7 @@ class PreacherProfileController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = PreacherProfile::with('user');
+        $query = PreacherProfile::active()->with('user');
 
         // Filter by ministry type
         if ($request->has('ministry_type')) {
@@ -146,7 +146,7 @@ class PreacherProfileController extends Controller
      */
     public function show(int $id): JsonResponse
     {
-        $preacherProfile = PreacherProfile::with(['user', 'sermons' => function ($query) {
+        $preacherProfile = PreacherProfile::active()->with(['user', 'sermons' => function ($query) {
             $query->where('is_published', true);
         }])->find($id);
 
@@ -168,7 +168,7 @@ class PreacherProfileController extends Controller
      */
     public function update(UpdatePreacherProfileRequest $request, int $id): JsonResponse
     {
-        $preacherProfile = PreacherProfile::find($id);
+        $preacherProfile = PreacherProfile::active()->find($id);
 
         if (!$preacherProfile) {
             return response()->json([
@@ -233,7 +233,7 @@ class PreacherProfileController extends Controller
      */
     public function destroy(int $id): JsonResponse
     {
-        $preacherProfile = PreacherProfile::find($id);
+        $preacherProfile = PreacherProfile::active()->find($id);
         if (!$preacherProfile) {
             return response()->json([
                 'success' => false,

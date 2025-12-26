@@ -55,7 +55,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function church(): HasOne
     {
-        return $this->hasOne(Church::class, 'created_by');
+        return $this->hasOne(Church::class, 'created_by')->where('is_active', true);
     }
 
     /**
@@ -63,7 +63,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function preacherProfile(): HasOne
     {
-        return $this->hasOne(PreacherProfile::class);
+        return $this->hasOne(PreacherProfile::class)->where('is_active', true);
     }
 
     /**
