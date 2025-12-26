@@ -21,7 +21,7 @@ class AdminUserSeeder extends Seeder
             User::create([
                 'name' => 'Administrateur',
                 'email' => 'admin@mahubiri.com',
-                'password' => Hash::make('password'), // Change this in production
+                'password' => Hash::make('password123'), // Change this in production
                 'email_verified_at' => now(),
                 'role_id' => RoleType::ADMIN,
             ]);

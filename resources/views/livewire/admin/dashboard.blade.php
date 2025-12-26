@@ -172,9 +172,9 @@
                         <div class="flex items-center justify-between">
                             <div class="flex items-center flex-1 min-w-0">
                                 @if($preacher->avatar_url)
-                                    <img class="h-10 w-10 rounded-full object-cover flex-shrink-0" src="{{ Storage::url($preacher->avatar_url) }}" alt="">
+                                    <img class="h-10 w-10 rounded-full object-cover shrink-0" src=" {{ $preacher->avatar_url }}" alt="">
                                 @else
-                                    <div class="h-10 w-10 rounded-full bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center flex-shrink-0">
+                                    <div class="h-10 w-10 rounded-full bg-linear-to-br from-violet-500 to-violet-600 flex items-center justify-center shrink-0">
                                         <span class="text-white font-semibold text-sm">{{ substr($preacher->ministry_name, 0, 1) }}</span>
                                     </div>
                                 @endif
@@ -183,7 +183,7 @@
                                     <p class="text-xs text-gray-500">{{ $preacher->user->name ?? 'N/A' }}</p>
                                 </div>
                             </div>
-                            <div class="ml-3 flex items-center space-x-2 flex-shrink-0">
+                            <div class="ml-3 flex items-center space-x-2 shrink-0">
                                 @if($preacher->is_active)
                                     <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
                                         Actif
@@ -223,9 +223,9 @@
                         <div class="flex items-center justify-between">
                             <div class="flex items-center flex-1 min-w-0">
                                 @if($church->logo_url)
-                                    <img class="h-10 w-10 rounded-full object-cover flex-shrink-0" src="{{ Storage::url($church->logo_url) }}" alt="">
+                                    <img class="h-10 w-10 rounded-full object-cover shrink-0" src="{{ $church->logo_url }}" alt="">
                                 @else
-                                    <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+                                    <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center shrink-0">
                                         <span class="text-gray-500 font-semibold text-sm">{{ substr($church->name, 0, 1) }}</span>
                                     </div>
                                 @endif
@@ -234,7 +234,7 @@
                                     <p class="text-xs text-gray-500">{{ $church->city ? $church->city . ', ' : '' }}{{ $church->country_name ?? 'N/A' }}</p>
                                 </div>
                             </div>
-                            <div class="ml-3 flex items-center space-x-2 flex-shrink-0">
+                            <div class="ml-3 flex items-center space-x-2 shrink-0">
                                 @if($church->is_active)
                                     <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
                                         Active
