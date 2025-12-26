@@ -118,6 +118,19 @@ return [
 
     /*
     |---------------------------------------------------------------------------
+    | Asset URL
+    |---------------------------------------------------------------------------
+    |
+    | This value sets the base URL for Livewire's assets. Useful if you serve
+    | assets from a CDN or need to customize the asset path in production.
+    | By default, Livewire will use the APP_URL from your .env file.
+    |
+    */
+
+    'asset_url' => null,
+
+    /*
+    |---------------------------------------------------------------------------
     | Navigate (SPA mode)
     |---------------------------------------------------------------------------
     |
