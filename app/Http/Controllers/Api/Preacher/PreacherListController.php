@@ -25,6 +25,7 @@ class PreacherListController extends Controller
                 ->withCount(['sermons' => function ($query) {
                     $query->where('is_published', true);
                 }])
+                ->withCount(['sermonViews as total_views'])
                 ->orderBy('created_at', 'desc')
                 ->limit($limit)
                 ->get();

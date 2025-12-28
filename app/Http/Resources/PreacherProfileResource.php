@@ -32,6 +32,7 @@ class PreacherProfileResource extends JsonResource
                 ];
             }),
             'sermons_count' => $this->sermons_count ?? 0,
+            'total_views' => $this->total_views ?? 0,
         ];
     }
 }

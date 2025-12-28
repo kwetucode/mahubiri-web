@@ -33,7 +33,12 @@ class PreacherProfileController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = PreacherProfile::active()->with('user');
+        $query = PreacherProfile::active()
+            ->with('user')
+            ->withCount(['sermons' => function ($q) {
+                $q->where('is_published', true);
+            }])
+            ->withCount(['sermonViews as total_views']);
 
         // Filter by ministry type
         if ($request->has('ministry_type')) {
@@ -126,6 +131,11 @@ class PreacherProfileController extends Controller
                 $user->update(['role_id' => RoleType::INDEPENDENT_PREACHER]);
             }
 
+            $preacherProfile->loadCount(['sermons' => function ($q) {
+                $q->where('is_published', true);
+            }]);
+            $preacherProfile->loadCount(['sermonViews as total_views']);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Preacher profile created successfully',
@@ -146,9 +156,15 @@ class PreacherProfileController extends Controller
      */
     public function show(int $id): JsonResponse
     {
-        $preacherProfile = PreacherProfile::active()->with(['user', 'sermons' => function ($query) {
-            $query->where('is_published', true);
-        }])->find($id);
+        $preacherProfile = PreacherProfile::active()
+            ->with(['user', 'sermons' => function ($query) {
+                $query->where('is_published', true);
+            }])
+            ->withCount(['sermons' => function ($q) {
+                $q->where('is_published', true);
+            }])
+            ->withCount(['sermonViews as total_views'])
+            ->find($id);
 
         if (!$preacherProfile) {
             return response()->json([
@@ -213,6 +229,11 @@ class PreacherProfileController extends Controller
             }
 
             $preacherProfile->update($updateData);
+
+            $preacherProfile->loadCount(['sermons' => function ($q) {
+                $q->where('is_published', true);
+            }])
+            ->loadCount(['sermonViews as total_views']);
 
             return response()->json([
                 'success' => true,
