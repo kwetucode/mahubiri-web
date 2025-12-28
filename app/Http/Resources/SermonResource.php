@@ -32,6 +32,8 @@ class SermonResource extends JsonResource
             'duration_formatted' => $this->duration_formatted,
             'audio_format' => $this->audio_format,
             'color' => $this->color,
+            'popularity_score' => $this->popularity_score,
+            'views_count' => $this->views_count ?? 0,
             'is_published' => $this->is_published,
             'church' => $this->whenLoaded('church', fn() => new ChurchResource($this->church)),
             'category' => $this->whenLoaded('category', fn() => new CategorySermonResource($this->category)),

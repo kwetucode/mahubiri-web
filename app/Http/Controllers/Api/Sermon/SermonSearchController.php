@@ -31,6 +31,7 @@ class SermonSearchController extends Controller
             ]);
 
             $query = Sermon::with(['church', 'category'])
+                ->withCount('views')
                 ->published();
 
             // General search query (searches across title, preacher_name, description, category name)
@@ -123,6 +124,7 @@ class SermonSearchController extends Controller
             ]);
 
             $query = Sermon::with(['church', 'category'])
+                ->withCount('views')
                 ->published();
 
             // Apply filters
