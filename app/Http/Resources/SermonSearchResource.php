@@ -29,6 +29,7 @@ class SermonSearchResource extends JsonResource
             'size' => $this->size,
             'color' => $this->color,
             'popularity_score' => $this->popularity_score,
+            'views_count' => $this->views_count ?? 0,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
 
