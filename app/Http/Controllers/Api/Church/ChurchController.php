@@ -66,6 +66,7 @@ class ChurchController extends Controller
             ->withCount(['sermonViews' => function ($q) {
                 $q->where('completed', true);
             }])
+            ->withCount(['sermonViews as total_views'])
             ->select(
                 'id',
                 'name',
@@ -130,7 +131,9 @@ class ChurchController extends Controller
         $validated['created_by'] = Auth::id();
 
         $church = Church::create($validated);
-        $church->load('createdBy');
+        $church->loadCount('sermons')
+            ->loadCount(['sermonViews as total_views'])
+            ->load('createdBy');
 
         //Update role of the user to 'church_admin'
         $user = Auth::user();
@@ -183,6 +186,7 @@ class ChurchController extends Controller
             ->loadCount(['sermonViews' => function ($q) {
                 $q->where('completed', true);
             }])
+            ->loadCount(['sermonViews as total_views'])
             ->load('createdBy');
         return response()->json([
             'success' => true,
@@ -208,7 +212,9 @@ class ChurchController extends Controller
         }
 
         $church->update($validated);
-        $church->load('createdBy');
+        $church->loadCount('sermons')
+            ->loadCount(['sermonViews as total_views'])
+            ->load('createdBy');
 
         return response()->json([
             'success' => true,

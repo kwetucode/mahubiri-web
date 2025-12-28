@@ -23,7 +23,8 @@ class ChurchListController extends Controller
             }])
             ->withCount(['sermonViews' => function ($q) {
                 $q->where('completed', true);
-            }]);
+            }])
+            ->withCount(['sermonViews as total_views']);
 
         // Search by name or city
         if ($request->has('search')) {
@@ -77,7 +78,8 @@ class ChurchListController extends Controller
             }])
             ->withCount(['sermonViews' => function ($q) {
                 $q->where('completed', true);
-            }]);
+            }])
+            ->withCount(['sermonViews as total_views']);
 
         // Additional search within country
         if ($request->has('search')) {
@@ -119,7 +121,8 @@ class ChurchListController extends Controller
             }])
             ->withCount(['sermonViews' => function ($q) {
                 $q->where('completed', true);
-            }]);
+            }])
+            ->withCount(['sermonViews as total_views']);
 
         // Additional search within city
         if ($request->has('search')) {

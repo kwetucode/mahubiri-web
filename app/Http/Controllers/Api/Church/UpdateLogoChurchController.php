@@ -46,7 +46,9 @@ class UpdateLogoChurchController extends Controller
 
             // Update church with new logo URL
             $church->update(['logo_url' => $logoUrl]);
-            $church->load('createdBy');
+            $church->loadCount('sermons')
+                ->loadCount(['sermonViews as total_views'])
+                ->load('createdBy');
 
             return response()->json([
                 'success' => true,
@@ -72,7 +74,9 @@ class UpdateLogoChurchController extends Controller
                 $church->update(['logo_url' => null]);
             }
 
-            $church->load('createdBy');
+            $church->loadCount('sermons')
+                ->loadCount(['sermonViews as total_views'])
+                ->load('createdBy');
 
             return response()->json([
                 'success' => true,
