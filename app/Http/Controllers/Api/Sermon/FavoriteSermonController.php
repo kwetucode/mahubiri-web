@@ -151,7 +151,7 @@ class FavoriteSermonController extends Controller
 
             $favorites = SermonFavorite::where('user_id', $user->id)
                 ->with(['sermon' => function ($query) {
-                    $query->with(['church', 'category']);
+                    $query->with(['church', 'category'])->withCount('views');
                 }])
                 ->orderBy('created_at', 'desc')
                 ->get();

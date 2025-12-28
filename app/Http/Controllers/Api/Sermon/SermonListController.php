@@ -22,6 +22,7 @@ class SermonListController extends Controller
     {
         try {
             $recentSermons = Sermon::with(['church', 'category'])
+                ->withCount('views')
                 ->published()
                 ->orderBy('created_at', 'desc')
                 ->take(5)
@@ -109,6 +110,7 @@ class SermonListController extends Controller
         try {
             // Get sermons from the specified category (paginated, 10 per page)
             $sermons = Sermon::with(['church', 'category'])
+                ->withCount('views')
                 ->published()
                 ->where('category_sermon_id', $categoryId)
                 ->orderBy('created_at', 'desc')
@@ -158,10 +160,12 @@ class SermonListController extends Controller
     {
         try {
             // Load the sermon with relationships
+            $sermon->loadCount('views');
             $sermon->load(['church', 'category', 'favoritedBy', 'views']);
 
             // Get related sermons from the same category (paginated, 10 per page)
             $relatedSermons = Sermon::with(['church', 'category'])
+                ->withCount('views')
                 ->published()
                 ->where('category_sermon_id', $sermon->category_sermon_id)
                 ->where('id', '!=', $sermon->id) // Exclude current sermon
@@ -225,6 +229,7 @@ class SermonListController extends Controller
 
             // Get sermons from the specified church (paginated, 10 per page)
             $sermons = Sermon::with(['church', 'category'])
+                ->withCount('views')
                 ->published()
                 ->where('church_id', $churchId)
                 ->orderBy('created_at', 'desc')

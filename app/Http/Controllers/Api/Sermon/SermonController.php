@@ -47,7 +47,8 @@ class SermonController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = Sermon::with(['church', 'preacherProfile', 'category']);
+        $query = Sermon::with(['church', 'preacherProfile', 'category'])
+            ->withCount('views');
         $user = Auth::user();
 
         // Filter sermons based on user role
@@ -118,6 +119,7 @@ class SermonController extends Controller
             $this->handleFileUploads($validated);
             Log::info('Creating sermon with data', ['data' => $validated]);
             $sermon = Sermon::create($validated);
+            $sermon->loadCount('views');
             $sermon->load(['church', 'preacherProfile']);
             Log::info('Sermon created successfully', ['sermon' => $sermon]);
 
@@ -186,6 +188,7 @@ class SermonController extends Controller
      */
     public function show(Sermon $sermon): JsonResponse
     {
+        $sermon->loadCount('views');
         $sermon->load(['church', 'preacherProfile']);
         return $this->successResponse(
             new SermonResource($sermon),
@@ -213,6 +216,7 @@ class SermonController extends Controller
         $this->handleFileUploads($validated, $sermon);
         Log::info('Updating sermon with data', ['sermon_id' => $sermon->id, 'data' => $validated]);
         $sermon->update($validated);
+        $sermon->loadCount('views');
         $sermon->load(['church', 'preacherProfile']);
 
         return $this->successResponse(
@@ -312,6 +316,7 @@ class SermonController extends Controller
             }
         }
 
+        $sermon->loadCount('views');
         $sermon->load(['church', 'preacherProfile', 'category']);
 
         return $this->successResponse(
