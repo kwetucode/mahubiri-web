@@ -48,6 +48,7 @@ class ChurchStatisticsController extends Controller
                 'publication_analysis' => $this->getPublicationAnalysis($church->id),
                 'top_sermons' => $this->getTopSermons($church->id),
                 'recent_activity' => $this->getRecentActivity($church->id),
+                'disk_usage' => $this->getDiskUsageStatistics($church->id),
             ];
 
             return response()->json([
@@ -438,5 +439,86 @@ class ChurchStatisticsController extends Controller
                 'message' => 'Erreur dans le test: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * Get disk usage statistics for church sermons
+     * Quota: 3 GB per church
+     *
+     * @param int $churchId
+     * @return array
+     */
+    private function getDiskUsageStatistics(int $churchId): array
+    {
+        // Quota en octets (3 GB = 3 * 1024 * 1024 * 1024)
+        $quotaBytes = 3 * 1024 * 1024 * 1024; // 3221225472 octets
+        
+        // Calculer la taille totale des sermons de l'église
+        $totalSizeBytes = Sermon::where('church_id', $churchId)
+            ->sum('size') ?? 0;
+
+        // Calculer les statistiques
+        $usedGB = round($totalSizeBytes / (1024 * 1024 * 1024), 2);
+        $quotaGB = 3.0;
+        $usedPercentage = $totalSizeBytes > 0 
+            ? round(($totalSizeBytes / $quotaBytes) * 100, 2) 
+            : 0;
+        $remainingBytes = max(0, $quotaBytes - $totalSizeBytes);
+        $remainingGB = round($remainingBytes / (1024 * 1024 * 1024), 2);
+        $remainingPercentage = round(100 - $usedPercentage, 2);
+
+        // Compter le nombre de sermons
+        $totalSermons = Sermon::where('church_id', $churchId)->count();
+        $publishedSermons = Sermon::where('church_id', $churchId)
+            ->where('is_published', true)
+            ->count();
+
+        // Taille moyenne par sermon
+        $avgSizeMB = $totalSermons > 0 
+            ? round(($totalSizeBytes / $totalSermons) / (1024 * 1024), 2)
+            : 0;
+
+        // Déterminer le statut
+        $status = 'normal';
+        if ($usedPercentage >= 90) {
+            $status = 'critical';
+        } elseif ($usedPercentage >= 75) {
+            $status = 'warning';
+        }
+
+        return [
+            'quota' => [
+                'total_bytes' => $quotaBytes,
+                'total_gb' => $quotaGB,
+            ],
+            'used' => [
+                'bytes' => $totalSizeBytes,
+                'mb' => round($totalSizeBytes / (1024 * 1024), 2),
+                'gb' => $usedGB,
+                'percentage' => $usedPercentage,
+            ],
+            'remaining' => [
+                'bytes' => $remainingBytes,
+                'mb' => round($remainingBytes / (1024 * 1024), 2),
+                'gb' => $remainingGB,
+                'percentage' => $remainingPercentage,
+            ],
+            'sermons' => [
+                'total' => $totalSermons,
+                'published' => $publishedSermons,
+                'avg_size_mb' => $avgSizeMB,
+            ],
+            'status' => $status,
+            'messages' => [
+                'normal' => 'Espace de stockage disponible',
+                'warning' => 'Attention: vous approchez de la limite de stockage',
+                'critical' => 'Critique: espace de stockage presque épuisé',
+            ],
+            'current_message' => $status === 'critical' 
+                ? 'Critique: espace de stockage presque épuisé'
+                : ($status === 'warning' 
+                    ? 'Attention: vous approchez de la limite de stockage'
+                    : 'Espace de stockage disponible'),
+        ];
     }
 }
