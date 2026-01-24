@@ -66,6 +66,37 @@ class ChurchStatisticsResource extends JsonResource
                 'recent_sermons' => $this->resource['recent_activity']['recent_sermons'],
                 'recent_views' => $this->resource['recent_activity']['recent_listens'],
             ],
+
+            'disk_usage' => $this->resource['disk_usage'] ?? [
+                'quota' => [
+                    'total_bytes' => 3221225472,
+                    'total_gb' => 3.0,
+                ],
+                'used' => [
+                    'bytes' => 0,
+                    'mb' => 0,
+                    'gb' => 0,
+                    'percentage' => 0,
+                ],
+                'remaining' => [
+                    'bytes' => 3221225472,
+                    'mb' => 3072,
+                    'gb' => 3.0,
+                    'percentage' => 100,
+                ],
+                'sermons' => [
+                    'total' => 0,
+                    'published' => 0,
+                    'avg_size_mb' => 0,
+                ],
+                'status' => 'normal',
+                'messages' => [
+                    'normal' => 'Espace de stockage disponible',
+                    'warning' => 'Attention: vous approchez de la limite de stockage',
+                    'critical' => 'Critique: espace de stockage presque épuisé',
+                ],
+                'current_message' => 'Espace de stockage disponible',
+            ],
         ];
     }
 

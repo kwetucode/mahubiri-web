@@ -452,7 +452,7 @@ class ChurchStatisticsController extends Controller
     {
         // Quota en octets (3 GB = 3 * 1024 * 1024 * 1024)
         $quotaBytes = 3 * 1024 * 1024 * 1024; // 3221225472 octets
-        
+
         // Calculer la taille totale des sermons de l'église
         $totalSizeBytes = Sermon::where('church_id', $churchId)
             ->sum('size') ?? 0;
@@ -460,8 +460,8 @@ class ChurchStatisticsController extends Controller
         // Calculer les statistiques
         $usedGB = round($totalSizeBytes / (1024 * 1024 * 1024), 2);
         $quotaGB = 3.0;
-        $usedPercentage = $totalSizeBytes > 0 
-            ? round(($totalSizeBytes / $quotaBytes) * 100, 2) 
+        $usedPercentage = $totalSizeBytes > 0
+            ? round(($totalSizeBytes / $quotaBytes) * 100, 2)
             : 0;
         $remainingBytes = max(0, $quotaBytes - $totalSizeBytes);
         $remainingGB = round($remainingBytes / (1024 * 1024 * 1024), 2);
@@ -474,7 +474,7 @@ class ChurchStatisticsController extends Controller
             ->count();
 
         // Taille moyenne par sermon
-        $avgSizeMB = $totalSermons > 0 
+        $avgSizeMB = $totalSermons > 0
             ? round(($totalSizeBytes / $totalSermons) / (1024 * 1024), 2)
             : 0;
 
@@ -514,9 +514,9 @@ class ChurchStatisticsController extends Controller
                 'warning' => 'Attention: vous approchez de la limite de stockage',
                 'critical' => 'Critique: espace de stockage presque épuisé',
             ],
-            'current_message' => $status === 'critical' 
+            'current_message' => $status === 'critical'
                 ? 'Critique: espace de stockage presque épuisé'
-                : ($status === 'warning' 
+                : ($status === 'warning'
                     ? 'Attention: vous approchez de la limite de stockage'
                     : 'Espace de stockage disponible'),
         ];
