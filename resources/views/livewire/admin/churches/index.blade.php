@@ -55,7 +55,7 @@
                     <x-table.cell>
                         <div class="flex items-center">
                             @if($church->logo_url)
-                                <img class="h-10 w-10 rounded-full object-cover" src="{{ $church->logo_url }}" alt="">
+                                <img class="h-10 w-10 rounded-full object-cover" src="{{ asset($church->logo_url) }}" alt="">
                             @else
                                 <div class="h-10 w-10 rounded-full bg-linear-to-br from-[#6B4EAF] to-[#9C7DC7] flex items-center justify-center">
                                     <span class="text-white font-bold text-sm">{{ substr($church->name, 0, 1) }}</span>
