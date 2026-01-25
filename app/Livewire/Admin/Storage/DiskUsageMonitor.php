@@ -59,12 +59,9 @@ class DiskUsageMonitor extends Component
         $saturationForecast = $this->getSaturationForecast();
 
         return view('livewire.admin.storage.disk-usage-monitor', [
-            'globalStorage' => $globalStorage,
-            'churchStorage' => $churchStorage,
-            'statusDistribution' => $statusDistribution,
-            'storageTrend' => $storagetrend,
-            'largestSermons' => $largestSermons,
+            'churchStorageUsage' => $churchStorage,
             'saturationForecast' => $saturationForecast,
+            'largestSermons' => $largestSermons,
         ]);
     }
 
