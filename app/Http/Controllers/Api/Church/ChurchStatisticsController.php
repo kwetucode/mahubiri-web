@@ -77,24 +77,27 @@ class ChurchStatisticsController extends Controller
             ->where('is_published', true)->count();
         $draftSermons = $totalSermons - $publishedSermons;
 
-        // Sermons par mois (12 derniers mois) - only published
-        $monthlySermons = Sermon::where('church_id', $churchId)
+        // Sermons par mois (tous les mois de l'année en cours) - only published
+        $currentYear = Carbon::now()->year;
+        $sermonsData = Sermon::where('church_id', $churchId)
             ->where('is_published', true)
-            ->where('created_at', '>=', Carbon::now()->subMonths(12))
-            ->selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, COUNT(*) as count')
-            ->groupBy('year', 'month')
-            ->orderBy('year', 'asc')
-            ->orderBy('month', 'asc')
-            ->get()
-            ->map(function ($item) {
-                return [
-                    'year' => $item->year,
-                    'month' => $item->month,
-                    'month_name' => Carbon::createFromDate($item->year, $item->month, 1)->format('M Y'),
-                    'count' => $item->count,
-                ];
-            })
+            ->whereYear('created_at', $currentYear)
+            ->selectRaw('MONTH(created_at) as month, COUNT(*) as count')
+            ->groupBy('month')
+            ->pluck('count', 'month')
             ->toArray();
+
+        // Créer un tableau avec tous les mois de l'année
+        $monthlySermons = [];
+        $monthNames = ['Janv', 'Fév', 'Mars', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sept', 'Oct', 'Nov', 'Déc'];
+        for ($month = 1; $month <= 12; $month++) {
+            $monthlySermons[] = [
+                'year' => $currentYear,
+                'month' => $month,
+                'month_name' => $monthNames[$month - 1],
+                'count' => $sermonsData[$month] ?? 0,
+            ];
+        }
 
         return [
             'total_sermons' => $totalSermons,
@@ -222,64 +225,73 @@ class ChurchStatisticsController extends Controller
      */
     private function getPublicationAnalysis(int $churchId): array
     {
-        // Analyse annuelle (5 dernières années) - only published sermons
-        $yearlyAnalysis = Sermon::where('church_id', $churchId)
+        // Analyse annuelle (seulement 2025 et 2026) - only published sermons
+        $targetYears = [2025, 2026];
+        $sermonsPerYear = Sermon::where('church_id', $churchId)
             ->where('is_published', true)
-            ->where('created_at', '>=', Carbon::now()->subYears(5))
+            ->whereIn(DB::raw('YEAR(created_at)'), $targetYears)
             ->selectRaw('YEAR(created_at) as year, COUNT(*) as sermon_count')
             ->groupBy('year')
-            ->orderBy('year', 'asc')
-            ->get()
-            ->map(function ($item) {
-                return [
-                    'year' => $item->year,
-                    'sermon_count' => $item->sermon_count,
-                ];
-            })
+            ->pluck('sermon_count', 'year')
             ->toArray();
 
-        // Analyse mensuelle (12 derniers mois avec écoutes)
-        $monthlyAnalysis = DB::table('sermons')
+        // Créer un tableau avec 2025 et 2026, même si aucun sermon
+        $yearlyAnalysis = [];
+        foreach ($targetYears as $year) {
+            $yearlyAnalysis[] = [
+                'year' => $year,
+                'sermon_count' => $sermonsPerYear[$year] ?? 0,
+            ];
+        }
+
+        // Analyse mensuelle (tous les mois de l'année en cours avec écoutes)
+        $currentYear = Carbon::now()->year;
+        $monthlyData = DB::table('sermons')
             ->leftJoin('sermon_views', 'sermons.id', '=', 'sermon_views.sermon_id')
             ->where('sermons.church_id', $churchId)
-            ->where('sermons.created_at', '>=', Carbon::now()->subMonths(12))
+            ->whereYear('sermons.created_at', $currentYear)
             ->selectRaw('
-                YEAR(sermons.created_at) as year,
                 MONTH(sermons.created_at) as month,
                 COUNT(DISTINCT sermons.id) as sermon_count,
                 COUNT(sermon_views.id) as listen_count
             ')
-            ->groupBy('year', 'month')
-            ->orderBy('year', 'asc')
-            ->orderBy('month', 'asc')
+            ->groupBy('month')
             ->get()
-            ->map(function ($item) {
-                return [
-                    'year' => $item->year,
-                    'month' => $item->month,
-                    'month_name' => Carbon::createFromDate($item->year, $item->month, 1)->format('M Y'),
-                    'sermon_count' => $item->sermon_count,
-                    'listen_count' => $item->listen_count,
-                ];
-            })
+            ->keyBy('month')
             ->toArray();
 
+        // Créer un tableau avec tous les mois de l'année
+        $monthlyAnalysis = [];
+        $monthNames = ['Janv', 'Fév', 'Mars', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sept', 'Oct', 'Nov', 'Déc'];
+        for ($month = 1; $month <= 12; $month++) {
+            $data = $monthlyData[$month] ?? null;
+            $monthlyAnalysis[] = [
+                'year' => $currentYear,
+                'month' => $month,
+                'month_name' => $monthNames[$month - 1],
+                'sermon_count' => $data->sermon_count ?? 0,
+                'listen_count' => $data->listen_count ?? 0,
+            ];
+        }
+
         // Jour de la semaine le plus actif pour les publications - only published sermons
-        $weekdayAnalysis = Sermon::where('church_id', $churchId)
+        $sermonsPerDay = Sermon::where('church_id', $churchId)
             ->where('is_published', true)
             ->selectRaw('DAYOFWEEK(created_at) as day_of_week, COUNT(*) as count')
             ->groupBy('day_of_week')
-            ->orderBy('day_of_week')
-            ->get()
-            ->map(function ($item) {
-                $days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
-                return [
-                    'day_number' => $item->day_of_week,
-                    'day_name' => $days[$item->day_of_week - 1],
-                    'count' => $item->count,
-                ];
-            })
+            ->pluck('count', 'day_of_week')
             ->toArray();
+
+        // Créer un tableau avec tous les jours de la semaine
+        $days = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+        $weekdayAnalysis = [];
+        for ($dayNumber = 1; $dayNumber <= 7; $dayNumber++) {
+            $weekdayAnalysis[] = [
+                'day_number' => $dayNumber,
+                'day_name' => $days[$dayNumber - 1],
+                'count' => $sermonsPerDay[$dayNumber] ?? 0,
+            ];
+        }
 
         return [
             'yearly_analysis' => $yearlyAnalysis,
