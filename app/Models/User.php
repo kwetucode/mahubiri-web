@@ -117,6 +117,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Get user's sermon views
+     */
+    public function sermonViews()
+    {
+        return $this->hasMany(SermonView::class);
+    }
+
+    /**
      * Get user's FCM tokens for push notifications
      */
     public function fcmTokens()

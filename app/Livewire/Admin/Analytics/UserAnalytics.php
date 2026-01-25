@@ -150,22 +150,18 @@ class UserAnalytics extends Component
             ->distinct('user_id')
             ->count('user_id');
 
+        $totalNewUsers = User::where('created_at', '>=', Carbon::now()->subDays(31))
+            ->where('created_at', '<', Carbon::now()->subDays(30))
+            ->count();
+
         return [
-            'day_1' => [
-                'users' => $day1Users,
-                'active' => $day1Active,
-                'rate' => $day1Users > 0 ? round(($day1Active / $day1Users) * 100, 1) : 0,
-            ],
-            'day_7' => [
-                'users' => $day7Users,
-                'active' => $day7Active,
-                'rate' => $day7Users > 0 ? round(($day7Active / $day7Users) * 100, 1) : 0,
-            ],
-            'day_30' => [
-                'users' => $day30Users,
-                'active' => $day30Active,
-                'rate' => $day30Users > 0 ? round(($day30Active / $day30Users) * 100, 1) : 0,
-            ],
+            'new_users' => $totalNewUsers,
+            'returning_d1' => $day1Active,
+            'retention_d1' => $day1Users > 0 ? round(($day1Active / $day1Users) * 100, 1) : 0,
+            'returning_d7' => $day7Active,
+            'retention_d7' => $day7Users > 0 ? round(($day7Active / $day7Users) * 100, 1) : 0,
+            'returning_d30' => $day30Active,
+            'retention_d30' => $day30Users > 0 ? round(($day30Active / $day30Users) * 100, 1) : 0,
         ];
     }
 
@@ -217,13 +213,31 @@ class UserAnalytics extends Component
                 ->distinct('user_id')
                 ->count('user_id');
 
+                $avgPlays = $item->total > 0
+                    ? SermonView::whereHas('user', function ($q) use ($item) {
+                        $q->where('role_id', $item->role_id);
+                    })
+                    ->where('sermon_views.created_at', '>=', $startDate)
+                    ->count() / $item->total
+                    : 0;
+
+                $avgFavorites = $item->total > 0
+                    ? DB::table('sermon_favorites')
+                        ->join('users', 'sermon_favorites.user_id', '=', 'users.id')
+                        ->where('users.role_id', $item->role_id)
+                        ->where('sermon_favorites.created_at', '>=', $startDate)
+                        ->count() / $item->total
+                    : 0;
+
                 return [
-                    'role' => $item->role->name ?? 'N/A',
+                    'role_name' => $item->role->name ?? 'N/A',
                     'total_users' => $item->total,
                     'active_users' => $activeCount,
-                    'engagement_rate' => $item->total > 0 
+                    'activity_rate' => $item->total > 0 
                         ? round(($activeCount / $item->total) * 100, 1) 
                         : 0,
+                    'avg_plays' => round($avgPlays, 1),
+                    'avg_favorites' => round($avgFavorites, 1),
                 ];
             })
             ->toArray();
@@ -234,23 +248,28 @@ class UserAnalytics extends Component
      */
     private function getTopActiveUsers($startDate)
     {
-        return SermonView::select('user_id', DB::raw('COUNT(*) as play_count'))
-            ->where('created_at', '>=', $startDate)
-            ->groupBy('user_id')
-            ->orderBy('play_count', 'desc')
-            ->take(10)
-            ->with(['user.role'])
-            ->get()
-            ->map(function ($item) {
-                return [
-                    'user_id' => $item->user_id,
-                    'name' => $item->user->name ?? 'N/A',
-                    'email' => $item->user->email ?? 'N/A',
-                    'role' => $item->user->role->name ?? 'N/A',
-                    'play_count' => $item->play_count,
-                ];
+        return User::withCount([
+                'sermonViews as views_count' => function ($q) use ($startDate) {
+                    $q->where('created_at', '>=', $startDate);
+                },
+                'favoriteSermons as favorites_count' => function ($q) use ($startDate) {
+                    $q->where('created_at', '>=', $startDate);
+                }
+            ])
+            ->with('roles')
+            ->whereHas('sermonViews', function ($q) use ($startDate) {
+                $q->where('created_at', '>=', $startDate);
             })
-            ->toArray();
+            ->addSelect([
+                'last_view_at' => SermonView::select('created_at')
+                    ->whereColumn('user_id', 'users.id')
+                    ->where('created_at', '>=', $startDate)
+                    ->latest()
+                    ->limit(1)
+            ])
+            ->orderBy('views_count', 'desc')
+            ->take(10)
+            ->get();
     }
 
     /**
@@ -280,11 +299,10 @@ class UserAnalytics extends Component
         return [
             'new_users' => $newUsers,
             'first_day_listeners' => $firstDayListeners,
-            'first_day_conversion' => $newUsers > 0 
+            'first_day_listener_rate' => $newUsers > 0 
                 ? round(($firstDayListeners / $newUsers) * 100, 1) 
                 : 0,
-            'churches_with_sermons' => $churchesWithSermons,
-            'total_new_churches' => $totalNewChurches,
+            'activated_churches' => $churchesWithSermons,
             'church_activation_rate' => $totalNewChurches > 0 
                 ? round(($churchesWithSermons / $totalNewChurches) * 100, 1) 
                 : 0,
