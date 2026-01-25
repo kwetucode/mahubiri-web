@@ -157,19 +157,7 @@ class DiskUsageMonitor extends Component
         return Sermon::with(['church'])
             ->orderBy('size', 'desc')
             ->take(10)
-            ->get()
-            ->map(function ($sermon) {
-                return [
-                    'id' => $sermon->id,
-                    'title' => $sermon->title,
-                    'church' => $sermon->church->name ?? 'N/A',
-                    'size_mb' => round($sermon->size / (1024 * 1024), 2),
-                    'size_gb' => round($sermon->size / (1024 * 1024 * 1024), 3),
-                    'duration' => $sermon->duration_formatted ?? 'N/A',
-                    'created_at' => $sermon->created_at->format('d/m/Y'),
-                ];
-            })
-            ->toArray();
+            ->get();
     }
 
     /**
