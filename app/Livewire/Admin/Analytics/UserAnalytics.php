@@ -264,7 +264,7 @@ class UserAnalytics extends Component
                     $q->where('created_at', '>=', $startDate);
                 }
             ])
-            ->with('roles')
+            ->with('role')
             ->whereHas('sermonViews', function ($q) use ($startDate) {
                 $q->where('created_at', '>=', $startDate);
             })
