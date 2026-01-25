@@ -196,14 +196,24 @@
             <div class="space-y-2 max-h-96 overflow-y-auto">
                 @forelse($recentActivity['recent_plays'] as $play)
                     <div class="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors">
-                        <div class="flex items-center space-x-3">
+                        <div class="flex items-center space-x-3 flex-1">
                             <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
-                            <div>
+                            <div class="flex-1">
                                 <p class="text-sm font-medium text-gray-900">{{ $play['sermon_title'] }}</p>
                                 <p class="text-xs text-gray-500">par {{ $play['user_name'] }}</p>
                             </div>
                         </div>
-                        <span class="text-xs text-gray-500">{{ $play['time_ago'] }}</span>
+                        <div class="flex items-center space-x-3 text-xs text-gray-500">
+                            @if($play['duration_formatted'])
+                                <span class="flex items-center">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    {{ $play['duration_formatted'] }}
+                                </span>
+                            @endif
+                            <span>{{ $play['time_ago'] }}</span>
+                        </div>
                     </div>
                 @empty
                     <p class="text-sm text-gray-500 text-center py-8">Aucune écoute en cours</p>

@@ -73,15 +73,15 @@ class RealtimeDashboard extends Component
     private function getActiveUsersToday(): int
     {
         return Cache::remember('active_users_today', 300, function () {
-            $today = Carbon::today();
+            $last24Hours = Carbon::now()->subHours(24);
 
-            // Users who listened to sermons today
-            $listeners = SermonView::whereDate('created_at', $today)
+            // Users who listened to sermons in last 24h
+            $listeners = SermonView::where('created_at', '>=', $last24Hours)
                 ->distinct('user_id')
                 ->count('user_id');
 
-            // Users who uploaded sermons today
-            $uploaders = Sermon::whereDate('created_at', $today)
+            // Users who uploaded sermons in last 24h
+            $uploaders = Sermon::where('created_at', '>=', $last24Hours)
                 ->whereHas('church', function ($q) {
                     $q->whereNotNull('created_by');
                 })
@@ -97,7 +97,7 @@ class RealtimeDashboard extends Component
      */
     private function getNewUsersToday(): int
     {
-        return User::whereDate('created_at', Carbon::today())->count();
+        return User::where('created_at', '>=', Carbon::now()->subHours(24))->count();
     }
 
     /**
@@ -105,7 +105,7 @@ class RealtimeDashboard extends Component
      */
     private function getSermonsUploadedToday(): int
     {
-        return Sermon::whereDate('created_at', Carbon::today())->count();
+        return Sermon::where('created_at', '>=', Carbon::now()->subHours(24))->count();
     }
 
     /**
@@ -113,7 +113,7 @@ class RealtimeDashboard extends Component
      */
     private function getTotalPlaysToday(): int
     {
-        return SermonView::whereDate('created_at', Carbon::today())->count();
+        return SermonView::where('created_at', '>=', Carbon::now()->subHours(24))->count();
     }
 
     /**
@@ -122,13 +122,13 @@ class RealtimeDashboard extends Component
     private function getActiveChurchesToday(): int
     {
         return Cache::remember('active_churches_today', 300, function () {
-            $today = Carbon::today();
+            $last24Hours = Carbon::now()->subHours(24);
 
-            $uploadingChurches = Sermon::whereDate('created_at', $today)
+            $uploadingChurches = Sermon::where('created_at', '>=', $last24Hours)
                 ->distinct('church_id')
                 ->pluck('church_id');
 
-            $playedChurches = SermonView::whereDate('sermon_views.created_at', $today)
+            $playedChurches = SermonView::where('sermon_views.created_at', '>=', $last24Hours)
                 ->join('sermons', 'sermon_views.sermon_id', '=', 'sermons.id')
                 ->distinct('sermons.church_id')
                 ->pluck('sermons.church_id');
@@ -194,6 +194,8 @@ class RealtimeDashboard extends Component
                 return [
                     'sermon_title' => $view->sermon->title ?? 'N/A',
                     'user_name' => $view->user->name ?? 'Anonymous',
+                    'duration_played' => $view->duration_played,
+                    'duration_formatted' => $view->duration_played ? gmdate('H:i:s', $view->duration_played) : null,
                     'created_at' => $view->created_at,
                     'time_ago' => $view->created_at->diffForHumans(),
                 ];
