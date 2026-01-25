@@ -14,7 +14,7 @@ use Carbon\Carbon;
 class RealtimeDashboard extends Component
 {
     public $refreshInterval = 30; // Refresh every 30 seconds
-    
+
     public function mount() {}
 
     public function render()
@@ -74,12 +74,12 @@ class RealtimeDashboard extends Component
     {
         return Cache::remember('active_users_today', 300, function () {
             $today = Carbon::today();
-            
+
             // Users who listened to sermons today
             $listeners = SermonView::whereDate('created_at', $today)
                 ->distinct('user_id')
                 ->count('user_id');
-            
+
             // Users who uploaded sermons today
             $uploaders = Sermon::whereDate('created_at', $today)
                 ->whereHas('church', function ($q) {
@@ -87,7 +87,7 @@ class RealtimeDashboard extends Component
                 })
                 ->distinct('church_id')
                 ->count();
-            
+
             return $listeners + $uploaders;
         });
     }
@@ -123,16 +123,16 @@ class RealtimeDashboard extends Component
     {
         return Cache::remember('active_churches_today', 300, function () {
             $today = Carbon::today();
-            
+
             $uploadingChurches = Sermon::whereDate('created_at', $today)
                 ->distinct('church_id')
                 ->pluck('church_id');
-            
+
             $playedChurches = SermonView::whereDate('sermon_views.created_at', $today)
                 ->join('sermons', 'sermon_views.sermon_id', '=', 'sermons.id')
                 ->distinct('sermons.church_id')
                 ->pluck('sermons.church_id');
-            
+
             return $uploadingChurches->merge($playedChurches)->unique()->count();
         });
     }

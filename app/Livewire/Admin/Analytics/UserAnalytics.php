@@ -48,13 +48,11 @@ class UserAnalytics extends Component
         $conversion = $this->getConversionStats($startDate);
 
         return view('livewire.admin.analytics.user-analytics', [
-            'userOverview' => $userOverview,
-            'userGrowth' => $userGrowth,
-            'retention' => $retention,
-            'engagement' => $engagement,
+            'retentionMetrics' => $retention,
+            'engagementMetrics' => $engagement,
+            'conversionStats' => $conversion,
             'roleSegmentation' => $roleSegmentation,
             'topUsers' => $topUsers,
-            'conversion' => $conversion,
         ]);
     }
 
