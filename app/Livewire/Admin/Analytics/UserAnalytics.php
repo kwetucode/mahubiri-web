@@ -173,13 +173,20 @@ class UserAnalytics extends Component
         $totalUsers = User::count();
         $activeUsers = $this->getActiveUsers($startDate);
 
+        // Total plays in period
+        $totalPlays = SermonView::where('created_at', '>=', $startDate)->count();
+
         // Average sessions per user
         $avgSessions = $activeUsers > 0
-            ? round(SermonView::where('created_at', '>=', $startDate)->count() / $activeUsers, 1)
+            ? round($totalPlays / $activeUsers, 1)
             : 0;
+
+        // Average plays per session (estimating session as 1 play = 1 session for now)
+        $avgPlaysPerSession = $avgSessions > 0 ? round($totalPlays / ($activeUsers * $avgSessions), 1) : 0;
 
         // Users with favorites
         $usersWithFavorites = DB::table('sermon_favorites')
+            ->where('created_at', '>=', $startDate)
             ->distinct('user_id')
             ->count('user_id');
 
@@ -189,9 +196,10 @@ class UserAnalytics extends Component
                 ? round(($activeUsers / $totalUsers) * 100, 1) 
                 : 0,
             'avg_sessions' => $avgSessions,
+            'avg_plays_per_session' => max(1, $avgPlaysPerSession),
             'users_with_favorites' => $usersWithFavorites,
-            'favorite_rate' => $totalUsers > 0 
-                ? round(($usersWithFavorites / $totalUsers) * 100, 1) 
+            'favorite_rate' => $activeUsers > 0 
+                ? round(($usersWithFavorites / $activeUsers) * 100, 1) 
                 : 0,
         ];
     }
