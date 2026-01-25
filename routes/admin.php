@@ -9,6 +9,10 @@ use App\Livewire\Admin\Roles\Index as RolesIndex;
 use App\Livewire\Admin\Users\Index as UsersIndex;
 use App\Livewire\Admin\PreacherProfiles\Index as PreacherProfilesIndex;
 use App\Livewire\Admin\PreacherProfiles\Show as PreacherProfilesShow;
+use App\Livewire\Admin\Monitoring\RealtimeDashboard;
+use App\Livewire\Admin\Analytics\UserAnalytics;
+use App\Livewire\Admin\Storage\DiskUsageMonitor;
+use App\Livewire\Admin\Logs\ApiRequestLog;
 use App\Livewire\Auth\Login;
 use App\Livewire\Auth\Logout;
 
@@ -47,4 +51,21 @@ Route::middleware(['auth','admin'])->group(function () {
     Route::get('/categories', CategoriesIndex::class)->name('categories.index')->lazy();
     // Roles
     Route::get('/roles', RolesIndex::class)->name('roles.index')->lazy();
+
+    // Monitoring & Analytics
+    Route::prefix('monitoring')->name('monitoring.')->group(function () {
+        Route::get('/realtime', RealtimeDashboard::class)->name('realtime')->lazy();
+    });
+
+    Route::prefix('analytics')->name('analytics.')->group(function () {
+        Route::get('/users', UserAnalytics::class)->name('users')->lazy();
+    });
+
+    Route::prefix('storage')->name('storage.')->group(function () {
+        Route::get('/monitor', DiskUsageMonitor::class)->name('monitor')->lazy();
+    });
+
+    Route::prefix('logs')->name('logs.')->group(function () {
+        Route::get('/api', ApiRequestLog::class)->name('api')->lazy();
+    });
 });
