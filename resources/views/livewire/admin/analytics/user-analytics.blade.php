@@ -214,7 +214,7 @@
                             <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{{ $index + 1 }}</td>
                             <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">{{ $user->name }}</td>
                             <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{{ $user->email }}</td>
-                            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{{ $user->roles->first()?->name ?? 'N/A' }}</td>
+                            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{{ $user->role?->name ?? 'N/A' }}</td>
                             <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{{ number_format($user->views_count) }}</td>
                             <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{{ number_format($user->favorites_count) }}</td>
                             <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">{{ $user->last_view_at ? \Carbon\Carbon::parse($user->last_view_at)->diffForHumans() : 'Jamais' }}</td>
