@@ -49,11 +49,10 @@ class ApiRequestLog extends Component
         $recentErrors = $this->getRecentErrors();
 
         return view('livewire.admin.logs.api-request-log', [
-            'apiStats' => $apiStats,
             'recentActivity' => $recentActivity,
-            'endpointStats' => $endpointStats,
+            'endpointStatistics' => $endpointStats,
             'statusDistribution' => $statusDistribution,
-            'recentErrors' => $recentErrors,
+            'totalRequests' => count($recentActivity),
         ]);
     }
 
@@ -202,46 +201,46 @@ class ApiRequestLog extends Component
         // Endpoint: GET /api/sermons
         $stats[] = [
             'endpoint' => 'GET /api/sermons',
-            'count' => rand(100, 500),
-            'avg_time' => rand(80, 150) . 'ms',
-            'success_rate' => rand(95, 99) . '%',
+            'total_requests' => rand(100, 500),
+            'avg_response_time' => rand(80, 150),
+            'success_rate' => rand(95, 99),
         ];
 
         // Endpoint: POST /api/sermons/play
         $playCount = SermonView::where('created_at', '>=', Carbon::now()->subDay())->count();
         $stats[] = [
             'endpoint' => 'POST /api/sermons/play',
-            'count' => $playCount,
-            'avg_time' => rand(100, 200) . 'ms',
-            'success_rate' => '98%',
+            'total_requests' => $playCount,
+            'avg_response_time' => rand(100, 200),
+            'success_rate' => 98,
         ];
 
         // Endpoint: POST /api/sermons
         $uploadCount = Sermon::where('created_at', '>=', Carbon::now()->subDay())->count();
         $stats[] = [
             'endpoint' => 'POST /api/sermons',
-            'count' => $uploadCount,
-            'avg_time' => rand(1000, 3000) . 'ms',
-            'success_rate' => '96%',
+            'total_requests' => $uploadCount,
+            'avg_response_time' => rand(1000, 3000),
+            'success_rate' => 96,
         ];
 
         // Endpoint: GET /api/churches
         $stats[] = [
             'endpoint' => 'GET /api/churches',
-            'count' => rand(50, 200),
-            'avg_time' => rand(60, 120) . 'ms',
-            'success_rate' => '99%',
+            'total_requests' => rand(50, 200),
+            'avg_response_time' => rand(60, 120),
+            'success_rate' => 99,
         ];
 
         // Endpoint: GET /api/users/profile
         $stats[] = [
             'endpoint' => 'GET /api/users/profile',
-            'count' => rand(80, 300),
-            'avg_time' => rand(40, 100) . 'ms',
-            'success_rate' => '99%',
+            'total_requests' => rand(80, 300),
+            'avg_response_time' => rand(40, 100),
+            'success_rate' => 99,
         ];
 
-        return collect($stats)->sortByDesc('count')->values()->toArray();
+        return collect($stats)->sortByDesc('total_requests')->values()->toArray();
     }
 
     /**
@@ -252,11 +251,11 @@ class ApiRequestLog extends Component
         $total = $this->getTotalRequests();
 
         return [
-            ['code' => 200, 'label' => '200 OK', 'count' => ceil($total * 0.85), 'color' => 'green'],
-            ['code' => 201, 'label' => '201 Created', 'count' => ceil($total * 0.08), 'color' => 'blue'],
-            ['code' => 400, 'label' => '400 Bad Request', 'count' => ceil($total * 0.03), 'color' => 'yellow'],
-            ['code' => 404, 'label' => '404 Not Found', 'count' => ceil($total * 0.02), 'color' => 'orange'],
-            ['code' => 500, 'label' => '500 Server Error', 'count' => ceil($total * 0.02), 'color' => 'red'],
+            ['status_code' => 200, 'label' => '200 OK', 'count' => ceil($total * 0.85), 'color' => 'green'],
+            ['status_code' => 201, 'label' => '201 Created', 'count' => ceil($total * 0.08), 'color' => 'blue'],
+            ['status_code' => 400, 'label' => '400 Bad Request', 'count' => ceil($total * 0.03), 'color' => 'yellow'],
+            ['status_code' => 404, 'label' => '404 Not Found', 'count' => ceil($total * 0.02), 'color' => 'orange'],
+            ['status_code' => 500, 'label' => '500 Server Error', 'count' => ceil($total * 0.02), 'color' => 'red'],
         ];
     }
 
