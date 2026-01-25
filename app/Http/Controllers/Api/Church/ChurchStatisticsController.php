@@ -231,7 +231,8 @@ class ChurchStatisticsController extends Controller
             ->where('is_published', true)
             ->whereIn(DB::raw('YEAR(created_at)'), $targetYears)
             ->selectRaw('YEAR(created_at) as year, COUNT(*) as sermon_count')
-            ->groupBy('year')
+            ->groupBy(DB::raw('YEAR(created_at)'))
+            ->get()
             ->pluck('sermon_count', 'year')
             ->toArray();
 
@@ -239,8 +240,8 @@ class ChurchStatisticsController extends Controller
         $yearlyAnalysis = [];
         foreach ($targetYears as $year) {
             $yearlyAnalysis[] = [
-                'year' => $year,
-                'sermon_count' => $sermonsPerYear[$year] ?? 0,
+                'year' => (int) $year,
+                'sermon_count' => (int) ($sermonsPerYear[$year] ?? 0),
             ];
         }
 
