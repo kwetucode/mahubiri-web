@@ -91,13 +91,16 @@ class DiskUsageMonitor extends Component
 
                 return [
                     'id' => $church->id,
-                    'name' => $church->name,
+                    'church_name' => $church->name,
                     'sermon_count' => $church->sermons_count,
                     'used_bytes' => $usedBytes,
                     'used_mb' => round($usedBytes / (1024 * 1024), 2),
                     'used_gb' => round($usedBytes / (1024 * 1024 * 1024), 2),
+                    'quota_bytes' => $quotaBytes,
                     'quota_gb' => 3.0,
+                    'remaining_bytes' => $quotaBytes - $usedBytes,
                     'remaining_gb' => round((($quotaBytes - $usedBytes) / (1024 * 1024 * 1024)), 2),
+                    'percentage_used' => $usedPercentage,
                     'used_percentage' => $usedPercentage,
                     'remaining_percentage' => round(100 - $usedPercentage, 2),
                     'status' => $status,
@@ -113,7 +116,7 @@ class DiskUsageMonitor extends Component
             ->sortBy(function ($church) {
                 switch ($this->sortBy) {
                     case 'church_name':
-                        return $church['name'];
+                        return $church['church_name'];
                     case 'sermon_count':
                         return $church['sermon_count'];
                     case 'usage':
@@ -170,32 +173,46 @@ class DiskUsageMonitor extends Component
     }
 
     /**
-     * Calculate saturation forecast
+     * Calculate saturation forecast per church
      */
     private function getSaturationForecast()
     {
-        // Calculate average daily upload
-        $last30Days = Sermon::where('created_at', '>=', Carbon::now()->subDays(30))
-            ->sum('size');
-        
-        $avgDailyUpload = $last30Days / 30;
+        $quotaBytes = 3 * 1024 * 1024 * 1024;
 
-        $totalQuotaBytes = 3 * 1024 * 1024 * 1024 * Church::count();
-        $currentUsage = Sermon::sum('size') ?? 0;
-        $remaining = $totalQuotaBytes - $currentUsage;
+        return Church::withCount('sermons')
+            ->get()
+            ->map(function ($church) use ($quotaBytes) {
+                // Get average daily upload for last 30 days
+                $last30DaysUpload = Sermon::where('church_id', $church->id)
+                    ->where('created_at', '>=', Carbon::now()->subDays(30))
+                    ->sum('size');
+                
+                $avgDailyUpload = $last30DaysUpload / 30;
 
-        $daysUntilFull = $avgDailyUpload > 0 
-            ? ceil($remaining / $avgDailyUpload) 
-            : 999;
+                // Current usage
+                $currentUsage = Sermon::where('church_id', $church->id)->sum('size') ?? 0;
+                $remaining = $quotaBytes - $currentUsage;
 
-        return [
-            'avg_daily_upload_mb' => round($avgDailyUpload / (1024 * 1024), 2),
-            'remaining_space_gb' => round($remaining / (1024 * 1024 * 1024), 2),
-            'days_until_full' => $daysUntilFull > 365 ? '> 1 an' : $daysUntilFull . ' jours',
-            'estimated_date' => $daysUntilFull < 365 
-                ? Carbon::now()->addDays($daysUntilFull)->format('d/m/Y') 
-                : 'N/A',
-        ];
+                $daysUntilFull = $avgDailyUpload > 0 
+                    ? ceil($remaining / $avgDailyUpload) 
+                    : null;
+
+                // Only show churches that will be full in less than 180 days and have activity
+                if ($daysUntilFull === null || $daysUntilFull > 180 || $avgDailyUpload == 0) {
+                    return null;
+                }
+
+                return [
+                    'church_name' => $church->name,
+                    'avg_daily_upload' => $avgDailyUpload,
+                    'days_until_full' => $daysUntilFull,
+                    'estimated_date' => Carbon::now()->addDays($daysUntilFull)->format('d/m/Y'),
+                ];
+            })
+            ->filter()
+            ->sortBy('days_until_full')
+            ->values()
+            ->toArray();
     }
 
     public function sortBy($field)
