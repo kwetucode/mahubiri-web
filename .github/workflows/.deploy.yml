@@ -1,30 +1,236 @@
-name: 🚀 Deploy via SSH Mahubiri backend
+name: 🚀 Deploy via SSH in mahubiri.tech
 
 on:
   push:
     branches:
-      - main # Déclenche le workflow sur chaque push sur la branche main
+      - main
 
 jobs:
-  deploy:
+  tests:
+    name: 🧪 Run Tests
     runs-on: ubuntu-latest
 
     steps:
       - name: 🧩 Checkout code
         uses: actions/checkout@v4
-        # Récupère le code source du dépôt
 
       - name: ⚙️ Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.2"
-        # Installe PHP 8.2 sur l'environnement GitHub Actions
+          php-version: "8.4"
+          extensions: mbstring, xml, bcmath, pdo_mysql, pdo_sqlite, gd, zip
+          coverage: none
 
-      - name: � Install dependencies
+      - name: 📝 Copy .env
+        run: |
+          if [ -f .env.example ]; then
+            cp .env.example .env
+          else
+            echo "⚠️ .env.example not found, creating minimal .env"
+            cat > .env << 'EOF'
+            APP_NAME=Laravel
+            APP_ENV=testing
+            APP_KEY=
+            APP_DEBUG=true
+            APP_URL=http://localhost
+
+            LOG_CHANNEL=stack
+            LOG_LEVEL=debug
+
+            DB_CONNECTION=sqlite
+            DB_DATABASE=:memory:
+
+            CACHE_DRIVER=array
+            SESSION_DRIVER=array
+            QUEUE_CONNECTION=sync
+
+            MAIL_MAILER=array
+            EOF
+          fi
+
+      - name: 📁 Create storage directories
+        run: |
+          mkdir -p storage/framework/{sessions,views,cache}
+          mkdir -p storage/logs
+          mkdir -p bootstrap/cache
+          chmod -R 775 storage bootstrap/cache
+
+      - name: 📦 Install Composer Dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: 🔑 Generate Application Key
+        run: php artisan key:generate --ansi
+
+      - name: 🧪 Run PHPUnit Tests
+        continue-on-error: true
+        run: |
+          if [ -f phpunit.xml ] || [ -f phpunit.xml.dist ]; then
+            php artisan test || php vendor/bin/phpunit
+          else
+            echo "⚠️ No PHPUnit configuration found, skipping tests"
+          fi
+
+      - name: 🔍 Run Static Analysis (PHPStan/Pint)
+        continue-on-error: true
+        run: |
+          if [ -f vendor/bin/phpstan ]; then
+            vendor/bin/phpstan analyse --no-progress || echo "⚠️ PHPStan check failed or not configured"
+          fi
+          if [ -f vendor/bin/pint ]; then
+            vendor/bin/pint --test || echo "⚠️ Pint check failed or not configured"
+          fi
+
+  build-assets:
+    name: 🏗️ Build Frontend Assets
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    steps:
+      - name: 🧩 Checkout code
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          extensions: mbstring, xml, bcmath, pdo_mysql, pdo_sqlite, gd, zip
+          coverage: none
+
+      - name: 📝 Copy .env
+        run: |
+          if [ -f .env.example ]; then
+            cp .env.example .env
+          else
+            echo "⚠️ .env.example not found, creating minimal .env"
+            cat > .env << 'EOF'
+            APP_NAME=Laravel
+            APP_ENV=testing
+            APP_KEY=
+            APP_DEBUG=true
+            APP_URL=http://localhost
+
+            LOG_CHANNEL=stack
+            LOG_LEVEL=debug
+
+            DB_CONNECTION=sqlite
+            DB_DATABASE=:memory:
+
+            CACHE_DRIVER=array
+            SESSION_DRIVER=array
+            QUEUE_CONNECTION=sync
+
+            MAIL_MAILER=array
+            EOF
+          fi
+
+      - name: 📁 Create storage directories
+        run: |
+          mkdir -p storage/framework/{sessions,views,cache}
+          mkdir -p storage/logs
+          mkdir -p bootstrap/cache
+          chmod -R 775 storage bootstrap/cache
+
+      - name: 📦 Install Composer Dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: 🔑 Generate Application Key
+        run: php artisan key:generate --ansi
+
+      - name: 🔍 Check for package.json
+        id: check_package
+        run: |
+          if [ -f package.json ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 📦 Setup Node.js
+        if: steps.check_package.outputs.exists == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: ${{ hashFiles('package-lock.json') != '' && 'npm' || '' }}
+
+      - name: 📥 Install NPM Dependencies
+        if: steps.check_package.outputs.exists == 'true'
+        continue-on-error: true
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            echo "ℹ️ No package-lock.json found, using npm install"
+            npm install
+          fi
+
+      - name: 🏗️ Build Assets
+        if: steps.check_package.outputs.exists == 'true'
+        continue-on-error: true
+        run: |
+          if grep -q '"build"' package.json || grep -q '"prod"' package.json; then
+            npm run build || npm run prod || echo "⚠️ Build script not found or failed"
+          else
+            echo "⚠️ No build script found in package.json"
+          fi
+
+      - name: 📤 Upload Built Assets
+        if: steps.check_package.outputs.exists == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-assets
+          path: public/build/
+          if-no-files-found: ignore
+          retention-days: 1
+
+  deploy:
+    name: 🚀 Deploy to Production
+    needs: [tests, build-assets]
+    runs-on: ubuntu-latest
+    if: success()
+
+    steps:
+      - name: 🧩 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📥 Download Built Assets
+        uses: actions/download-artifact@v4
+        with:
+          name: build-assets
+          path: public/build/
+        continue-on-error: true
+
+      - name: ⚙️ Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+
+      - name: 📁 Create Laravel cache directories
+        run: |
+          mkdir -p bootstrap/cache
+          mkdir -p storage/framework/cache/data
+          mkdir -p storage/framework/sessions
+          mkdir -p storage/framework/views
+          mkdir -p storage/logs
+          chmod -R 775 bootstrap/cache
+          chmod -R 775 storage
+
+      - name: 📦 Install dependencies
         run: composer install --no-dev --optimize-autoloader
-        # Installe les dépendances PHP sans les dépendances de développement
 
-      - name: 🧪 Validate remote deploy path
+      - name: ✅ Validate required secrets
+        run: |
+          missing=""
+          [ -z "${{ secrets.SSH_HOST }}" ] && missing="$missing SSH_HOST"
+          [ -z "${{ secrets.SSH_USERNAME }}" ] && missing="$missing SSH_USERNAME"
+          [ -z "${{ secrets.SSH_PRIVATE_KEY }}" ] && missing="$missing SSH_PRIVATE_KEY"
+          [ -z "${{ secrets.SSH_PORT }}" ] && missing="$missing SSH_PORT"
+          [ -z "${{ secrets.DEPLOY_PATH }}" ] && missing="$missing DEPLOY_PATH"
+          if [ -n "$missing" ]; then
+            echo "❌ Missing required secrets:$missing"
+            exit 1
+          fi
+
+      - name: 🧹 Clean and prepare deploy directory
         uses: appleboy/ssh-action@v1.1.0
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -33,27 +239,54 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             set -e
-            if [ -z "${{ secrets.DEPLOY_PATH }}" ]; then
-              echo "DEPLOY_PATH secret is empty"
-              exit 1
+            DEPLOY_DIR="${{ secrets.DEPLOY_PATH }}"
+            echo "📂 Deploy path: $DEPLOY_DIR"
+            mkdir -p "$DEPLOY_DIR"
+
+            DOMAIN_DIR=$(dirname "$DEPLOY_DIR")
+            PUBLIC_HTML="$DOMAIN_DIR/public_html"
+
+            if [ -L "$PUBLIC_HTML" ]; then
+              echo "✅ public_html is already a symlink -> $(readlink -f "$PUBLIC_HTML")"
+            elif [ -d "$PUBLIC_HTML" ]; then
+              echo "⚠️ public_html is a real directory, converting to symlink..."
+              mv "$PUBLIC_HTML" "${PUBLIC_HTML}_backup_$(date +%Y%m%d%H%M%S)"
+              ln -s "$DEPLOY_DIR" "$PUBLIC_HTML"
+              echo "✅ public_html is now a symlink -> $DEPLOY_DIR"
             fi
-            mkdir -p "${{ secrets.DEPLOY_PATH }}"
-            test -d "${{ secrets.DEPLOY_PATH }}"
-            test -w "${{ secrets.DEPLOY_PATH }}"
+
+            cd "$DEPLOY_DIR"
+            echo "🧹 Cleaning old files..."
+            find . -maxdepth 1 \
+              ! -name '.' \
+              ! -name '.env' \
+              ! -name '.htaccess' \
+              ! -name 'storage' \
+              ! -name 'public_html' \
+              -exec rm -rf {} + 2>/dev/null || true
+
+            mkdir -p storage/framework/{sessions,views,cache/data}
+            mkdir -p storage/logs
+            mkdir -p storage/app/public
+            mkdir -p bootstrap/cache
+
+            echo "✅ Deploy directory ready"
 
       - name: 🚀 Deploy to Hostinger via SSH
-        uses: appleboy/scp-action@v0.1.4
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           source: "./"
-          target: "${{ secrets.DEPLOY_PATH }}/"
+          target: "${{ secrets.DEPLOY_PATH }}"
           rm: false
           overwrite: true
           strip_components: 0
-        # Transfère tous les fichiers du projet vers le serveur distant via SCP
+          debug: true
+          command_timeout: 30m
+          timeout: 600s
 
       - name: 🔧 Run artisan commands remotely
         uses: appleboy/ssh-action@v1.1.0
@@ -69,7 +302,6 @@ jobs:
             if [ ! -f .env ]; then
               if [ -f .env.example ]; then
                 cp .env.example .env
-                echo "Created .env from .env.example"
               else
                 echo ".env is missing and .env.example not found"
                 exit 1
@@ -86,9 +318,8 @@ jobs:
             php artisan config:cache --no-interaction
             php artisan route:cache --no-interaction
             php artisan view:cache --no-interaction
-        # Exécute des commandes Laravel sur le serveur distant (migrations, cache, etc.)
 
-      - name: 📄 Copy index.php, .htaccess and robots.txt to root
+      - name: 📄 Setup root files for Hostinger
         uses: appleboy/ssh-action@v1.1.0
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -96,7 +327,28 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            [ -f ${{ secrets.DEPLOY_PATH }}/index.php ] || cp ${{ secrets.DEPLOY_PATH }}/public/index.php ${{ secrets.DEPLOY_PATH }}/index.php
-            [ -f ${{ secrets.DEPLOY_PATH }}/robots.txt ] || cp ${{ secrets.DEPLOY_PATH }}/public/robots.txt ${{ secrets.DEPLOY_PATH }}/robots.txt
-            [ -f ${{ secrets.DEPLOY_PATH }}/.htaccess ] || cp ${{ secrets.DEPLOY_PATH }}/public/.htaccess ${{ secrets.DEPLOY_PATH }}/.htaccess
-        # Copie certains fichiers du dossier public à la racine si besoin
+            cd "${{ secrets.DEPLOY_PATH }}"
+
+            cat > index.php << 'PHPEOF'
+            <?php
+
+            use Illuminate\Http\Request;
+
+            define('LARAVEL_START', microtime(true));
+
+            if (file_exists($maintenance = __DIR__.'/storage/framework/maintenance.php')) {
+                require $maintenance;
+            }
+
+            require __DIR__.'/vendor/autoload.php';
+
+            (require_once __DIR__.'/bootstrap/app.php')
+                ->handleRequest(Request::capture());
+            PHPEOF
+
+            [ -f .htaccess ] || cp public/.htaccess .htaccess
+            [ -f robots.txt ] || cp public/robots.txt robots.txt
+
+            chmod 644 index.php .htaccess robots.txt
+            chmod -R 755 storage bootstrap/cache
+            chmod -R 644 storage/logs/*.log 2>/dev/null || true
