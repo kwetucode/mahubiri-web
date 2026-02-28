@@ -27,25 +27,24 @@ jobs:
             cp .env.example .env
           else
             echo "⚠️ .env.example not found, creating minimal .env"
-            cat > .env << 'EOF'
-            APP_NAME=Laravel
-            APP_ENV=testing
-            APP_KEY=
-            APP_DEBUG=true
-            APP_URL=http://localhost
-
-            LOG_CHANNEL=stack
-            LOG_LEVEL=debug
-
-            DB_CONNECTION=sqlite
-            DB_DATABASE=:memory:
-
-            CACHE_DRIVER=array
-            SESSION_DRIVER=array
-            QUEUE_CONNECTION=sync
-
-            MAIL_MAILER=array
-            EOF
+            printf '%s\n' \
+              'APP_NAME=Laravel' \
+              'APP_ENV=testing' \
+              'APP_KEY=' \
+              'APP_DEBUG=true' \
+              'APP_URL=http://localhost' \
+              '' \
+              'LOG_CHANNEL=stack' \
+              'LOG_LEVEL=debug' \
+              '' \
+              'DB_CONNECTION=sqlite' \
+              'DB_DATABASE=:memory:' \
+              '' \
+              'CACHE_DRIVER=array' \
+              'SESSION_DRIVER=array' \
+              'QUEUE_CONNECTION=sync' \
+              '' \
+              'MAIL_MAILER=array' > .env
           fi
 
       - name: 📁 Create storage directories
@@ -102,25 +101,24 @@ jobs:
             cp .env.example .env
           else
             echo "⚠️ .env.example not found, creating minimal .env"
-            cat > .env << 'EOF'
-            APP_NAME=Laravel
-            APP_ENV=testing
-            APP_KEY=
-            APP_DEBUG=true
-            APP_URL=http://localhost
-
-            LOG_CHANNEL=stack
-            LOG_LEVEL=debug
-
-            DB_CONNECTION=sqlite
-            DB_DATABASE=:memory:
-
-            CACHE_DRIVER=array
-            SESSION_DRIVER=array
-            QUEUE_CONNECTION=sync
-
-            MAIL_MAILER=array
-            EOF
+            printf '%s\n' \
+              'APP_NAME=Laravel' \
+              'APP_ENV=testing' \
+              'APP_KEY=' \
+              'APP_DEBUG=true' \
+              'APP_URL=http://localhost' \
+              '' \
+              'LOG_CHANNEL=stack' \
+              'LOG_LEVEL=debug' \
+              '' \
+              'DB_CONNECTION=sqlite' \
+              'DB_DATABASE=:memory:' \
+              '' \
+              'CACHE_DRIVER=array' \
+              'SESSION_DRIVER=array' \
+              'QUEUE_CONNECTION=sync' \
+              '' \
+              'MAIL_MAILER=array' > .env
           fi
 
       - name: 📁 Create storage directories
