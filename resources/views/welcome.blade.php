@@ -10,31 +10,8 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
 
-        <!-- Tailwind CSS -->
-          @vite(['resources/css/app.css', 'resources/js/app.js'])
-        <script>
-            tailwind.config = {
-                theme: {
-                    extend: {
-                        fontFamily: {
-                            sans: ['Instrument Sans', 'ui-sans-serif', 'system-ui'],
-                        },
-                        colors: {
-                            primary: {
-                                DEFAULT: '#6B4EAF',
-                                light: '#9C7DC7',
-                                dark: '#5A3D94',
-                            },
-                            accent: {
-                                DEFAULT: '#2C3E50',
-                                warm: '#E8B77D',
-                                lavender: '#E6E3F5',
-                            }
-                        }
-                    }
-                }
-            }
-        </script>
+        <!-- Styles / Scripts -->
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
 
         <!-- Custom Styles -->
         <style>

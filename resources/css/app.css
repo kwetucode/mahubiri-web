@@ -5,12 +5,142 @@
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
+/* ===== MAHUBIRI - Palette de couleurs ===== */
+:root {
+  /* Couleurs principales */
+  --color-primary: #6B4EAF;
+  --color-secondary: #9C7DC7;
+  --color-accent: #2C3E50;
+  --color-warm-accent: #E8B77D;
+  --color-light-accent: #E6E3F5;
+
+  /* Couleurs système */
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  --color-info: #3B82F6;
+
+  /* Backgrounds */
+  --color-bg-light: #F5F5F5;
+  --color-bg-dark: #1E1E1E;
+  --color-card-light: #FFFFFF;
+  --color-card-dark: #2C2C2C;
+
+  /* Textes */
+  --color-text-primary: #2C3E50;
+  --color-text-secondary: #7F8C8D;
+  --color-text-tertiary: #BDC3C7;
+
+  /* Bordures / Dividers */
+  --color-divider: #E5E7EB;
+  --color-border: #D1D5DB;
+  --color-input-fill: #F9FAFB;
+}
+
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    --font-sans: 'Inter', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Primary */
+    --color-primary: #6B4EAF;
+    --color-primary-light: #9C7DC7;
+    --color-primary-dark: #5A3D94;
+
+    /* Accent */
+    --color-accent: #2C3E50;
+    --color-accent-warm: #E8B77D;
+    --color-accent-lavender: #E6E3F5;
+
+    /* System */
+    --color-success: #10B981;
+    --color-warning: #F59E0B;
+    --color-error: #EF4444;
+    --color-info: #3B82F6;
 }
 
 /* Alpine.js x-cloak */
 [x-cloak] {
     display: none !important;
 }
+
+/* ===== Modern Base Styles ===== */
+html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+}
+
+/* Selection color */
+::selection {
+    background-color: rgba(107, 78, 175, 0.15);
+    color: #5A3D94;
+}
+
+/* Scrollbar customization */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+/* Focus visible styles */
+*:focus-visible {
+    outline: 2px solid rgba(107, 78, 175, 0.5);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* Smooth transitions for interactive elements */
+a, button, input, select, textarea {
+    transition-property: color, background-color, border-color, box-shadow, opacity, transform;
+    transition-duration: 200ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Table styles */
+table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+/* Animation utilities */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.animate-fade-in { animation: fadeIn 0.3s ease-out; }
+.animate-slide-up { animation: slideUp 0.4s ease-out; }
+.animate-slide-down { animation: slideDown 0.4s ease-out; }
+.animate-scale-in { animation: scaleIn 0.3s ease-out; }

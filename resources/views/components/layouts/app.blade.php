@@ -13,7 +13,6 @@
 
     <!-- Styles / Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @livewireStyles
 </head>
 <body class="font-sans antialiased bg-gray-50 overflow-hidden"
       x-data="{
@@ -65,9 +64,6 @@
                             <p class="text-xs text-gray-500">{{ Auth::user()->email ?? '' }}</p>
                         </div>
                         <div class="flex items-center space-x-2">
-                            <!-- Notifications Dropdown -->
-                            @livewire('admin.notification-dropdown')
-
                             <button @click="showLogoutDialog = true" class="p-2 rounded-full hover:bg-gray-100 transition-colors" title="Déconnexion">
                                 <x-icon name="logout" class="w-5 h-5 text-gray-600" />
                             </button>
@@ -165,6 +161,5 @@
         </div>
     </div>
 
-    @livewireScripts
 </body>
 </html>

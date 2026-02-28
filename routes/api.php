@@ -26,6 +26,9 @@ use App\Http\Controllers\Api\Preacher\DashboardPreacherController;
 use App\Http\Controllers\Api\Preacher\PreacherProfileController;
 use App\Http\Controllers\Api\Preacher\PreacherListController;
 use App\Http\Controllers\Api\Sermon\CategorySermonController;
+use App\Http\Controllers\Api\Donation\DonationController;
+use App\Http\Controllers\Api\Admin\AdminStatsController;
+use App\Http\Controllers\Api\Admin\AdminManagementController;
 use App\Models\Sermon;
 
 /*
@@ -182,4 +185,53 @@ Route::middleware('auth:sanctum')->group(function () {
     //Dashboard preacher routes group in DashboardPreacherController
     Route::get('/preachers/dashboard', [DashboardPreacherController::class, 'dashboard']);
     Route::get('/preachers/dashboard/{id}', [DashboardPreacherController::class, 'dashboardById']);
+});
+
+// Donations routes group (Mobile Money)
+Route::prefix('donations')->group(function () {
+    // Public route: Shwary callback webhook (no auth required)
+    Route::post('/callback', [DonationController::class, 'handleCallback'])->name('donations.callback');
+
+    // Public route: Get supported countries
+    Route::get('/countries', [DonationController::class, 'getSupportedCountries']);
+
+    // Protected routes
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/', [DonationController::class, 'index']);
+        Route::post('/', [DonationController::class, 'store']);
+        Route::get('/statistics', [DonationController::class, 'getStatistics']);
+        Route::get('/{uuid}', [DonationController::class, 'show']);
+        Route::post('/{uuid}/check-status', [DonationController::class, 'checkStatus']);
+    });
+});
+
+// Admin Statistics routes (protected + admin role required)
+Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
+    // Statistics
+    Route::get('/stats', [AdminStatsController::class, 'index']);
+    Route::get('/stats/quick', [AdminStatsController::class, 'quickStats']);
+    Route::get('/stats/geographical', [AdminStatsController::class, 'geographical']);
+
+    // Management Summary
+    Route::get('/management/summary', [AdminManagementController::class, 'summary']);
+
+    // Churches Management
+    Route::prefix('churches')->group(function () {
+        Route::get('/', [AdminManagementController::class, 'listChurches']);
+        Route::get('/{id}', [AdminManagementController::class, 'showChurch']);
+        Route::post('/{id}/toggle-status', [AdminManagementController::class, 'toggleChurchStatus']);
+        Route::post('/{id}/activate', [AdminManagementController::class, 'activateChurch']);
+        Route::post('/{id}/deactivate', [AdminManagementController::class, 'deactivateChurch']);
+        Route::post('/bulk-status', [AdminManagementController::class, 'bulkUpdateChurchStatus']);
+    });
+
+    // Preachers Management
+    Route::prefix('preachers')->group(function () {
+        Route::get('/', [AdminManagementController::class, 'listPreachers']);
+        Route::get('/{id}', [AdminManagementController::class, 'showPreacher']);
+        Route::post('/{id}/toggle-status', [AdminManagementController::class, 'togglePreacherStatus']);
+        Route::post('/{id}/activate', [AdminManagementController::class, 'activatePreacher']);
+        Route::post('/{id}/deactivate', [AdminManagementController::class, 'deactivatePreacher']);
+        Route::post('/bulk-status', [AdminManagementController::class, 'bulkUpdatePreacherStatus']);
+    });
 });

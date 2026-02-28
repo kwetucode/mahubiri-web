@@ -124,9 +124,25 @@ class Sermon extends Model
     }
 
     /**
+     * Get the category sermon relationship (alias for category).
+     */
+    public function categorySermon(): BelongsTo
+    {
+        return $this->belongsTo(CategorySermon::class, 'category_sermon_id');
+    }
+
+    /**
      * Get users who favorited this sermon
      */
     public function favoritedBy()
+    {
+        return $this->hasMany(SermonFavorite::class);
+    }
+
+    /**
+     * Get favorites for this sermon (alias for favoritedBy).
+     */
+    public function favorites()
     {
         return $this->hasMany(SermonFavorite::class);
     }
