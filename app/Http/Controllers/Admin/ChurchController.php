@@ -115,6 +115,43 @@ class ChurchController extends Controller
         ]);
     }
 
+    public function show(Church $church, Request $request)
+    {
+        $sermons = $church->sermons()
+            ->where('is_published', true)
+            ->orderByDesc('created_at')
+            ->paginate($request->integer('per_page', 12))
+            ->withQueryString()
+            ->through(fn ($sermon) => [
+                'id' => $sermon->id,
+                'title' => $sermon->title,
+                'preacher_name' => $sermon->preacher_name,
+                'duration_formatted' => $sermon->duration_formatted,
+                'created_at' => $sermon->created_at?->format('d/m/Y'),
+                'created_at_human' => $sermon->created_at?->diffForHumans(),
+                'is_published' => (bool) $sermon->is_published,
+            ]);
+
+        return Inertia::render('Admin/Churches/Show', [
+            'church' => [
+                'id' => $church->id,
+                'name' => $church->name,
+                'abbreviation' => $church->abbreviation,
+                'visionary_name' => $church->visionary_name,
+                'logo_url' => $this->toAbsoluteMediaUrl($church->logo_url),
+                'description' => $church->description,
+                'city' => $church->city,
+                'country_name' => $church->country_name,
+                'address' => $church->address,
+                'is_active' => $church->is_active,
+                'created_at' => $church->created_at?->format('d/m/Y'),
+                'created_at_human' => $church->created_at?->diffForHumans(),
+                'published_sermons_count' => $church->sermons()->where('is_published', true)->count(),
+            ],
+            'sermons' => $sermons,
+        ]);
+    }
+
     /**
      * Toggle the active status of a church.
      */

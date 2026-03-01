@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch, computed, onMounted } from 'vue';
-import { router, usePage } from '@inertiajs/vue3';
+import { Link, router, usePage } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import DataTable from '@/Components/DataTable.vue';
 import SearchInput from '@/Components/SearchInput.vue';
@@ -278,7 +278,7 @@ const performToggle = async (row) => {
                             {{ tab.label }}
                             <span
                                 v-if="activeTab === tab.key && currentData"
-                                class="ml-0.5 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-white/20 text-[10px] font-bold leading-none"
+                                class="ml-0.5 inline-flex items-center justify-center min-w-4.5 h-4.5 px-1 rounded-full bg-white/20 text-[10px] font-bold leading-none"
                             >
                                 {{ currentData.total }}
                             </span>
@@ -376,6 +376,15 @@ const performToggle = async (row) => {
                 <!-- Created at cell -->
                 <template #cell-created_at="{ row }">
                     <span class="text-[13px] text-gray-500">{{ row.created_at_human || row.created_at }}</span>
+                </template>
+
+                <template #actions="{ row }">
+                    <Link
+                        :href="`/admin/churches/${row.id}`"
+                        class="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-lg bg-primary/10 text-primary hover:bg-primary/15 transition-colors"
+                    >
+                        Détails
+                    </Link>
                 </template>
             </DataTable>
 

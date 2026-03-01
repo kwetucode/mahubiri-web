@@ -33,6 +33,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard/chart-data', [DashboardController::class, 'chartData'])->name('dashboard.chart');
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::get('/churches', [ChurchController::class, 'index'])->name('churches.index');
+    Route::get('/churches/{church}', [ChurchController::class, 'show'])->name('churches.show');
     Route::patch('/churches/{church}/toggle-active', [ChurchController::class, 'toggleActive'])->name('churches.toggle-active');
     Route::patch('/preachers/{preacher}/toggle-active', [ChurchController::class, 'togglePreacherActive'])->name('preachers.toggle-active');
     Route::get('/donations', [DonationController::class, 'index'])->name('donations.index');
