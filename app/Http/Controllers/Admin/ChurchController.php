@@ -8,6 +8,7 @@ use App\Models\PreacherProfile;
 use App\Enums\MinistryType;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class ChurchController extends Controller
@@ -53,7 +54,7 @@ class ChurchController extends Controller
                     'name' => $church->name,
                     'abbreviation' => $church->abbreviation,
                     'visionary_name' => $church->visionary_name,
-                    'logo_url' => $church->logo_url,
+                    'logo_url' => $this->toAbsoluteMediaUrl($church->logo_url),
                     'city' => $church->city,
                     'country_name' => $church->country_name,
                     'sermons_count' => $church->sermons_count,
@@ -92,7 +93,7 @@ class ChurchController extends Controller
                     'ministry_name' => $p->ministry_name,
                     'ministry_type' => $p->ministry_type,
                     'ministry_type_label' => MinistryType::getDescription($p->ministry_type),
-                    'avatar_url' => $p->avatar_url,
+                    'avatar_url' => $this->toAbsoluteMediaUrl($p->avatar_url),
                     'city' => $p->city,
                     'country_name' => $p->country_name,
                     'sermons_count' => $p->sermons_count,
@@ -150,5 +151,18 @@ class ChurchController extends Controller
                 ? "Le prédicateur \"{$name}\" a été activé."
                 : "Le prédicateur \"{$name}\" a été désactivé.",
         ]);
+    }
+
+    private function toAbsoluteMediaUrl(?string $mediaUrl): ?string
+    {
+        if (!$mediaUrl) {
+            return null;
+        }
+
+        if (Str::startsWith($mediaUrl, ['http://', 'https://', '//'])) {
+            return $mediaUrl;
+        }
+
+        return url('/' . ltrim($mediaUrl, '/'));
     }
 }
