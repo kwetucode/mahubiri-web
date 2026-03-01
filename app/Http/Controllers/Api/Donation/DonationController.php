@@ -62,16 +62,9 @@ class DonationController extends Controller
         $validated = $request->validated();
 
         // Récupérer automatiquement l'église ou le profil prédicateur de l'utilisateur connecté
+        // (optionnel: un utilisateur sans affiliation peut aussi faire un don)
         $churchId = $user->church?->id;
         $preacherProfileId = $user->preacherProfile?->id;
-
-        // Vérifier que l'utilisateur a une église ou un profil prédicateur
-        if (!$churchId && !$preacherProfileId) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Votre compte n\'est associé à aucune église ou profil de prédicateur.',
-            ], 422);
-        }
 
         $countryCode = $validated['country_code'] ?? config('shwary.default_country', 'DRC');
         $currency = config("shwary.countries.{$countryCode}.currency", 'CDF');
