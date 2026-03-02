@@ -228,6 +228,25 @@ jobs:
             exit 1
           fi
 
+          if [[ "${{ secrets.SSH_HOST }}" == http* ]]; then
+            echo "❌ SSH_HOST doit être un host/IP sans http:// ou https://"
+            exit 1
+          fi
+
+          if ! [[ "${{ secrets.SSH_PORT }}" =~ ^[0-9]+$ ]]; then
+            echo "❌ SSH_PORT doit être numérique"
+            exit 1
+          fi
+
+      - name: 🔌 SSH connectivity precheck
+        run: |
+          set -e
+          HOST="${{ secrets.SSH_HOST }}"
+          PORT="${{ secrets.SSH_PORT }}"
+          echo "🔎 Testing TCP connectivity to $HOST:$PORT"
+          nc -z -w 8 "$HOST" "$PORT"
+          echo "✅ TCP reachable: $HOST:$PORT"
+
       - name: 🧹 Clean and prepare deploy directory
         uses: appleboy/ssh-action@v1.1.0
         with:
@@ -235,6 +254,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
+          timeout: 60s
           script: |
             set -e
             DEPLOY_DIR="${{ secrets.DEPLOY_PATH }}"
@@ -305,6 +325,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
+          timeout: 60s
           script: |
             set -e
             cd "${{ secrets.DEPLOY_PATH }}"
@@ -334,6 +355,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
+          timeout: 60s
           script: |
             cd "${{ secrets.DEPLOY_PATH }}"
 
