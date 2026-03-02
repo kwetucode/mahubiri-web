@@ -244,13 +244,25 @@ jobs:
             DOMAIN_DIR=$(dirname "$DEPLOY_DIR")
             PUBLIC_HTML="$DOMAIN_DIR/public_html"
 
+            # Idempotent: skip si déjà configuré
             if [ -L "$PUBLIC_HTML" ]; then
-              echo "✅ public_html is already a symlink -> $(readlink -f "$PUBLIC_HTML")"
+              CURRENT_TARGET="$(readlink -f "$PUBLIC_HTML" || true)"
+              DESIRED_TARGET="$(readlink -f "$DEPLOY_DIR" || echo "$DEPLOY_DIR")"
+              if [ "$CURRENT_TARGET" = "$DESIRED_TARGET" ]; then
+                echo "✅ public_html déjà configuré -> $CURRENT_TARGET (skip)"
+              else
+                echo "⚠️ public_html pointe ailleurs -> $CURRENT_TARGET (skip)"
+              fi
             elif [ -d "$PUBLIC_HTML" ]; then
-              echo "⚠️ public_html is a real directory, converting to symlink..."
+              echo "⚠️ public_html est un dossier réel, conversion en symlink..."
               mv "$PUBLIC_HTML" "${PUBLIC_HTML}_backup_$(date +%Y%m%d%H%M%S)"
               ln -s "$DEPLOY_DIR" "$PUBLIC_HTML"
-              echo "✅ public_html is now a symlink -> $DEPLOY_DIR"
+              echo "✅ public_html est maintenant un symlink -> $DEPLOY_DIR"
+            elif [ -e "$PUBLIC_HTML" ]; then
+              echo "⚠️ public_html existe mais n'est ni dossier ni symlink (skip)"
+            else
+              ln -s "$DEPLOY_DIR" "$PUBLIC_HTML"
+              echo "✅ public_html créé en symlink -> $DEPLOY_DIR"
             fi
 
             cd "$DEPLOY_DIR"
@@ -310,9 +322,7 @@ jobs:
               php artisan key:generate --force --no-interaction
             fi
 
-            php artisan migrate --force --no-interaction
-            php artisan db:seed --force --no-interaction
-            CACHE_STORE=file php artisan optimize:clear --no-interaction || true
+            php artisan migrate
             php artisan config:cache --no-interaction
             php artisan route:cache --no-interaction
             php artisan view:cache --no-interaction
@@ -346,6 +356,35 @@ jobs:
 
             [ -f .htaccess ] || cp public/.htaccess .htaccess
             [ -f robots.txt ] || cp public/robots.txt robots.txt
+
+            # Fix audio streaming: Content-Type + Accept-Ranges + no-gzip (idempotent)
+            if ! grep -q "BEGIN AUDIO_STREAMING_FIX" .htaccess; then
+              cat >> .htaccess << 'HTAEOF'
+
+            # BEGIN AUDIO_STREAMING_FIX
+            <IfModule mod_mime.c>
+              RemoveType .m4a
+              AddType audio/mp4 .m4a
+              AddType audio/mpeg .mp3
+              AddType audio/aac .aac
+            </IfModule>
+
+            <IfModule mod_headers.c>
+              <FilesMatch "\.(m4a|mp3|aac)$">
+                Header always set Accept-Ranges "bytes"
+                Header always set Cache-Control "public, max-age=2592000, immutable"
+              </FilesMatch>
+            </IfModule>
+
+            <IfModule mod_deflate.c>
+              SetEnvIfNoCase Request_URI "\.(m4a|mp3|aac)$" no-gzip=1
+            </IfModule>
+            # END AUDIO_STREAMING_FIX
+            HTAEOF
+              echo "✅ AUDIO_STREAMING_FIX ajouté à .htaccess"
+            else
+              echo "✅ AUDIO_STREAMING_FIX déjà présent (skip)"
+            fi
 
             chmod 644 index.php .htaccess robots.txt
             chmod -R 755 storage bootstrap/cache
