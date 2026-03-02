@@ -20,6 +20,7 @@ class SermonSearchResource extends JsonResource
             'preacher_name' => $this->preacher_name,
             'description' => $this->description,
             'audio_url' => $this->audio_url,
+            'stream_url' => route('sermons.stream', ['sermon' => $this->id]),
             'cover_url' => $this->cover_url,
             'duration' => $this->duration,
             'duration_formatted' => $this->duration_formatted,

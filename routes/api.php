@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\Church\UpdateLogoChurchController;
 use App\Http\Controllers\Api\Church\ChurchStatisticsController;
 use App\Http\Controllers\Api\Sermon\FavoriteSermonController;
 use App\Http\Controllers\Api\Sermon\SermonController;
+use App\Http\Controllers\Api\Sermon\SermonAudioStreamController;
 use App\Http\Controllers\Api\Sermon\SermonListController;
 use App\Http\Controllers\Api\Sermon\SermonSearchController;
 use App\Http\Controllers\Api\User\UserAvatarController;
@@ -64,6 +65,11 @@ Route::prefix('auth')->group(function () {
     Route::post('/social/login', [SocialAuthController::class, 'socialLogin'])
         ->name('social.login');
 });
+
+// Public audio streaming route (Range/206 support)
+Route::get('/sermons/{sermon}/stream', SermonAudioStreamController::class)
+    ->whereNumber('sermon')
+    ->name('sermons.stream');
 
 // Protected authentication routes
 Route::middleware('auth:sanctum')->prefix('user')->group(function () {
