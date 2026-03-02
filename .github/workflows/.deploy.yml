@@ -363,7 +363,7 @@ jobs:
               sed -i '/RewriteRule \^ index.php/i\
     # BEGIN STORAGE_REWRITE_FIX\
     # Map /storage/* URLs to actual storage/app/public/* path\
-    RewriteCond %{REQUEST_URI} ^/storage/\
+    RewriteCond %{REQUEST_URI} ^/storage/(.*)$\
     RewriteCond %{DOCUMENT_ROOT}/storage/app/public/%1 -f\
     RewriteRule ^storage/(.*)$ storage/app/public/$1 [L]\
     # END STORAGE_REWRITE_FIX\
