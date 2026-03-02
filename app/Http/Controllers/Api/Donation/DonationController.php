@@ -90,15 +90,13 @@ class DonationController extends Controller
             'currency' => $donation->currency,
         ]);
 
-        // Notify admins about new donation
-        $this->notifyAdmins($donation);
-
         // Process payment with Shwary
         try {
             $result = $this->shwaryService->processDonation($donation);
 
             if ($result['success']) {
                 $donation->refresh();
+                $this->notifyAdminsOnCompletion($donation, 'pending');
 
                 return response()->json([
                     'success' => true,
@@ -250,8 +248,11 @@ class DonationController extends Controller
 
         // Update status if changed
         if ($newStatus !== $donation->status) {
+            $oldStatus = $donation->status;
+
             if ($newStatus === 'completed') {
                 $donation->markAsCompleted();
+                $this->notifyAdminsOnCompletion($donation, $oldStatus);
             } elseif ($newStatus === 'failed') {
                 $donation->markAsFailed($failureReason ?? 'Transaction échouée');
             } else {
@@ -315,8 +316,11 @@ class DonationController extends Controller
         }
 
         // Update donation status
+        $oldStatus = $donation->status;
+
         if ($status === 'completed') {
             $donation->markAsCompleted($transactionId);
+            $this->notifyAdminsOnCompletion($donation, $oldStatus);
             Log::info('Donation completed via callback', ['donation_id' => $donation->id]);
         } elseif ($status === 'failed') {
             $failureReason = $request->input('failureReason') ?? $request->input('error') ?? 'Transaction failed';
@@ -354,6 +358,22 @@ class DonationController extends Controller
                 'error' => $e->getMessage(),
             ]);
         }
+    }
+
+    /**
+     * Notify admins only when a donation is truly completed.
+     */
+    private function notifyAdminsOnCompletion(Donation $donation, ?string $previousStatus = null): void
+    {
+        if (!$donation->isCompleted()) {
+            return;
+        }
+
+        if ($previousStatus === 'completed') {
+            return;
+        }
+
+        $this->notifyAdmins($donation);
     }
 
     /**

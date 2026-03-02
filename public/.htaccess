@@ -18,6 +18,10 @@
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
 
+    # OPTIONS preflight
+    RewriteCond %{REQUEST_METHOD} OPTIONS
+    RewriteRule ^ - [R=204,L]
+
     # Send Requests To Front Controller...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
@@ -27,10 +31,30 @@
 <IfModule mod_mime.c>
     AddType audio/mpeg .mp3
     AddType audio/mp4 .m4a
+    AddType audio/aac .aac
+    AddType audio/ogg .ogg
+    AddType audio/wav .wav
 </IfModule>
 
 <IfModule mod_headers.c>
-    <FilesMatch "\.(mp3|m4a)$">
-        Header set Accept-Ranges "bytes"
+    <FilesMatch "\.(mp3|m4a|aac|ogg|wav)$">
+        Header always set Accept-Ranges "bytes"
+        Header always set Cache-Control "public, max-age=2592000, immutable"
+        Header always set Access-Control-Allow-Origin "*"
+        Header always set Access-Control-Allow-Methods "GET, HEAD, OPTIONS"
+        Header always set Access-Control-Allow-Headers "Range, Origin, Accept, Authorization"
+        Header always unset Content-Disposition
+    </FilesMatch>
+</IfModule>
+
+<IfModule mod_headers.c>
+    <FilesMatch "\.(mp3|m4a|aac|ogg|wav)$">
+        Header always unset Content-Type
+    </FilesMatch>
+</IfModule>
+
+<IfModule mod_authz_core.c>
+    <FilesMatch "\.(mp3|m4a|aac|ogg|wav)$">
+        Require all granted
     </FilesMatch>
 </IfModule>
