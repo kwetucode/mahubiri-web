@@ -23,3 +23,14 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+<IfModule mod_mime.c>
+    AddType audio/mpeg .mp3
+    AddType audio/mp4 .m4a
+</IfModule>
+
+<IfModule mod_headers.c>
+    <FilesMatch "\.(mp3|m4a)$">
+        Header set Accept-Ranges "bytes"
+    </FilesMatch>
+</IfModule>
