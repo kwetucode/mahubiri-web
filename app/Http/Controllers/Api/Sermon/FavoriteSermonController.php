@@ -149,23 +149,39 @@ class FavoriteSermonController extends Controller
         try {
             $user = Auth::user();
 
+            $perPage = min((int) request()->query('per_page', 20), 50);
+
             $favorites = SermonFavorite::where('user_id', $user->id)
-                ->with(['sermon' => function ($query) {
-                    $query->with(['church', 'category'])->withCount('views');
+                ->with(['sermon' => function ($query) use ($user) {
+                    $query->with([
+                        'church.createdBy',
+                        'category',
+                        'favoritedBy' => function ($favoriteQuery) use ($user) {
+                            $favoriteQuery->where('user_id', $user->id)
+                                ->select('id', 'sermon_id', 'user_id');
+                        },
+                    ])->withCount('views');
                 }])
                 ->orderBy('created_at', 'desc')
-                ->get();
+                ->paginate($perPage);
 
             // Format each favorite using formatFavoriteData helper method
-            $sermons = $favorites->map(function ($favorite) {
+            $sermons = collect($favorites->items())->map(function ($favorite) {
                 return $this->formatFavoriteData($favorite);
-            });
+            })->filter()->values();
 
             return $this->successResponse(
                 'Liste des favoris récupérée avec succès',
                 [
-                    'total' => $sermons->count(),
+                    'total' => $favorites->total(),
                     'favorites' => $sermons,
+                    'pagination' => [
+                        'current_page' => $favorites->currentPage(),
+                        'last_page' => $favorites->lastPage(),
+                        'per_page' => $favorites->perPage(),
+                        'from' => $favorites->firstItem(),
+                        'to' => $favorites->lastItem(),
+                    ],
                 ]
             );
         } catch (\Exception $e) {
@@ -252,8 +268,12 @@ class FavoriteSermonController extends Controller
      * @param SermonFavorite $favorite
      * @return array
      */
-    private function formatFavoriteData(SermonFavorite $favorite): array
+    private function formatFavoriteData(SermonFavorite $favorite): ?array
     {
+        if (!$favorite->sermon) {
+            return null;
+        }
+
         return [
             'favorite_id' => $favorite->id,
             'favorited_at' => $favorite->created_at,

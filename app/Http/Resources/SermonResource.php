@@ -54,6 +54,14 @@ class SermonResource extends JsonResource
      */
     private function checkIfFavorite(): bool
     {
+        if (isset($this->is_favorite)) {
+            return (bool) $this->is_favorite;
+        }
+
+        if ($this->relationLoaded('favoritedBy')) {
+            return $this->favoritedBy->isNotEmpty();
+        }
+
         if (!Auth::check()) {
             return false;
         }
