@@ -77,6 +77,14 @@ class FileUploadService
         return $this->imageUploadService->getSupportedStorageTypes();
     }
 
+    /**
+     * Get the thumbnail URL for a given image URL.
+     */
+    public function getThumbnailUrl(?string $imageUrl): ?string
+    {
+        return $this->imageUploadService->getThumbnailUrl($imageUrl);
+    }
+
     public function isBase64String($input): bool
     {
         return $this->audioUploadService->isBase64AudioString($input) ||

@@ -454,9 +454,42 @@ jobs:
               SetEnvIfNoCase Request_URI "\.(mp3|m4a|aac|ogg|wav)$" no-gzip=1
             </IfModule>
             # END AUDIO_STREAMING_FIX
+
+            # BEGIN IMAGE_OPTIMIZATION
+            <IfModule mod_headers.c>
+              <FilesMatch "\.(jpg|jpeg|png|gif|webp|svg|ico)$">
+                Header set Cache-Control "public, max-age=2592000, immutable"
+                Header set Access-Control-Allow-Origin "*"
+              </FilesMatch>
+            </IfModule>
+
+            <IfModule mod_expires.c>
+              ExpiresActive On
+              ExpiresByType image/jpeg "access plus 30 days"
+              ExpiresByType image/png "access plus 30 days"
+              ExpiresByType image/gif "access plus 30 days"
+              ExpiresByType image/webp "access plus 30 days"
+              ExpiresByType image/svg+xml "access plus 30 days"
+              ExpiresByType audio/mpeg "access plus 30 days"
+              ExpiresByType audio/mp4 "access plus 30 days"
+              ExpiresByType application/json "access plus 1 minute"
+            </IfModule>
+
+            # Enable ETag for conditional requests
+            FileETag MTime Size
+
+            # Enable gzip for JSON API responses
+            <IfModule mod_deflate.c>
+              AddOutputFilterByType DEFLATE application/json
+              AddOutputFilterByType DEFLATE text/html
+              AddOutputFilterByType DEFLATE text/css
+              AddOutputFilterByType DEFLATE application/javascript
+              AddOutputFilterByType DEFLATE image/svg+xml
+            </IfModule>
+            # END IMAGE_OPTIMIZATION
             HTEOF
 
-            echo "✅ .htaccess generated with STORAGE_REWRITE_FIX + AUDIO_STREAMING_FIX"
+            echo "✅ .htaccess generated with STORAGE_REWRITE + AUDIO_STREAMING + IMAGE_OPTIMIZATION"
 
             chmod 644 index.php .htaccess robots.txt
             chmod -R 755 storage bootstrap/cache

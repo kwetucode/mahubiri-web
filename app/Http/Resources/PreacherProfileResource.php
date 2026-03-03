@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Helpers\ThumbnailHelper;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -20,6 +21,7 @@ class PreacherProfileResource extends JsonResource
             'ministry_name' => $this->ministry_name,
             'ministry_type' => $this->ministry_type,
             'avatar_url' => $this->avatar_url ? asset($this->avatar_url) : null,
+            'avatar_thumbnail_url' => ThumbnailHelper::url($this->avatar_url),
             'country_name' => $this->country_name,
             'country_code' => $this->country_code,
             'city' => $this->city,

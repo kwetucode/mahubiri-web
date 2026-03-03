@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Helpers\DateHelper;
+use App\Helpers\ThumbnailHelper;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -21,6 +22,7 @@ class ChurchResource extends JsonResource
             'abbreviation' => $this->abbreviation,
             'visionary_name' => $this->visionary_name,
             'logo_url' => $this->logo_url ? asset($this->logo_url) : null,
+            'logo_thumbnail_url' => ThumbnailHelper::url($this->logo_url),
             'description' => $this->description,
             'country_name' => $this->country_name,
             'country_code' => $this->country_code,

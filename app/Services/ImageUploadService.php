@@ -10,6 +10,13 @@ use InvalidArgumentException;
 
 class ImageUploadService
 {
+    private ImageOptimizerService $optimizer;
+
+    public function __construct(ImageOptimizerService $optimizer)
+    {
+        $this->optimizer = $optimizer;
+    }
+
     /**
      * Handle image upload from either base64 string or UploadedFile
      *
@@ -85,6 +92,10 @@ class ImageUploadService
         // Store the image
         Storage::disk('public')->put($fullPath, $imageData);
 
+        // Optimize and generate thumbnail
+        $this->optimizer->optimize($fullPath, $storageType);
+        $this->optimizer->generateThumbnail($fullPath, $storageType);
+
         // Return the relative path (not full URL)
         return 'storage/' . $fullPath;
     }
@@ -114,6 +125,10 @@ class ImageUploadService
         // Store the image
         $image->storeAs('', $fullPath, 'public');
 
+        // Optimize and generate thumbnail
+        $this->optimizer->optimize($fullPath, $storageType);
+        $this->optimizer->generateThumbnail($fullPath, $storageType);
+
         // Return the relative path (not full URL)
         return 'storage/' . $fullPath;
     }
@@ -138,7 +153,10 @@ class ImageUploadService
 
             // Delete if exists
             if (Storage::disk('public')->exists($relativePath)) {
-                return Storage::disk('public')->delete($relativePath);
+                $deleted = Storage::disk('public')->delete($relativePath);
+                // Also delete thumbnail
+                $this->optimizer->deleteThumbnail($relativePath);
+                return $deleted;
             }
 
             return true; // File doesn't exist, consider as successfully deleted
@@ -330,6 +348,30 @@ class ImageUploadService
 
         $prefix = $prefixes[$storageType] ?? 'file';
         return Str::random(32) . '_' . $prefix . '.' . $extension;
+    }
+
+    /**
+     * Get the thumbnail URL for a given image URL.
+     *
+     * @param string|null $imageUrl The original image url (e.g. "storage/sermons/covers/2026/file.jpg")
+     * @return string|null The thumbnail url or null
+     */
+    public function getThumbnailUrl(?string $imageUrl): ?string
+    {
+        if (!$imageUrl) {
+            return null;
+        }
+
+        // Extract disk path from storage url
+        $diskPath = str_replace('storage/', '', $imageUrl);
+        $thumbPath = $this->optimizer->buildThumbnailPath($diskPath);
+
+        if (Storage::disk('public')->exists($thumbPath)) {
+            return 'storage/' . $thumbPath;
+        }
+
+        // Fallback: return original if thumbnail doesn't exist
+        return $imageUrl;
     }
 
     /**

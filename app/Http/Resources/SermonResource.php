@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Helpers\DateHelper;
+use App\Helpers\ThumbnailHelper;
 use App\Http\Resources\ChurchResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -25,6 +26,7 @@ class SermonResource extends JsonResource
             'audio_url' => $this->audio_url ? asset($this->audio_url) : null,
             'stream_url' => route('sermons.stream', ['sermon' => $this->id]),
             'cover_url' => $this->cover_url ? asset($this->cover_url) : null,
+            'cover_thumbnail_url' => ThumbnailHelper::url($this->cover_url),
             'duration' => $this->duration,
             'size' => $this->size,
             'size_formatted' => $this->formatSize($this->size),

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Helpers\ThumbnailHelper;
 use App\Models\Church;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -21,6 +22,7 @@ class UserResource extends JsonResource
             'email' => $this->email,
             'phone' => $this->phone,
             'avatar_url' => $this->avatar_url ? asset($this->avatar_url) : null,
+            'avatar_thumbnail_url' => ThumbnailHelper::url($this->avatar_url),
             'email_verified_at' => $this->email_verified_at,
             'is_email_verified' => $this->hasVerifiedEmail(),
             //'is_active' => $this->is_active,
