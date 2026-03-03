@@ -345,8 +345,7 @@ const toggleFeatured = async (row) => {
                         </div>
                         <div class="min-w-0">
                             <p class="text-[13px] font-semibold text-gray-900 truncate leading-tight">
-                                {{ row.name }}
-                                <span v-if="row.abbreviation" class="text-gray-400 font-normal text-xs">({{ row.abbreviation }})</span>
+                                {{ row.abbreviation || row.name }}
                             </p>
                             <p class="text-[11px] text-gray-400 truncate mt-0.5">
                                 {{ row.visionary_name || row.created_by_name || '—' }}
