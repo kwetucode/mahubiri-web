@@ -24,7 +24,7 @@ class SermonResource extends JsonResource
             'preacher_name' => $this->preacher_name,
             'description' => $this->description,
             'audio_url' => $this->audio_url ? asset($this->audio_url) : null,
-            'stream_url' => route('sermons.stream', ['sermon' => $this->id]),
+            'stream_url' => route('api.v1.sermons.stream', ['sermon' => $this->id]),
             'cover_url' => $this->cover_url ? asset($this->cover_url) : null,
             'cover_thumbnail_url' => ThumbnailHelper::url($this->cover_url),
             'duration' => $this->duration,
