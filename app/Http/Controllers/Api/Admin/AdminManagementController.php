@@ -7,7 +7,6 @@ use App\Models\Church;
 use App\Models\PreacherProfile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class AdminManagementController extends Controller
 {
@@ -88,6 +87,39 @@ class AdminManagementController extends Controller
                 'data' => $churches,
             ], 200);
 
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get church details
+     *
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getFeaturedChurch()
+    {
+        if ($error = $this->checkAdmin()) return $error;
+
+        try {
+            $church = Church::with(['createdBy:id,name,email'])
+                ->withCount(['sermons', 'sermons as published_sermons_count' => function ($q) {
+                    $q->where('is_published', true);
+                }])
+                ->where('is_featured', true)
+                ->first();
+
+            return response()->json([
+                'success' => true,
+                'message' => $church
+                    ? 'Église mise en avant récupérée avec succès'
+                    : 'Aucune église mise en avant pour le moment',
+                'data' => $church,
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

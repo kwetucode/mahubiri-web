@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Auth\RegisterController;
 use App\Http\Controllers\Api\Auth\LoginController;
@@ -224,6 +223,7 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
     // Churches Management
     Route::prefix('churches')->group(function () {
         Route::get('/', [AdminManagementController::class, 'listChurches']);
+        Route::get('/featured', [AdminManagementController::class, 'getFeaturedChurch']);
         Route::get('/{id}', [AdminManagementController::class, 'showChurch']);
         Route::post('/{id}/toggle-status', [AdminManagementController::class, 'toggleChurchStatus']);
         Route::post('/{id}/activate', [AdminManagementController::class, 'activateChurch']);
