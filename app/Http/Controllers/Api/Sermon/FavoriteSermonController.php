@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\Sermon;
 
 use App\Exceptions\ApiExceptionHandler;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\SermonResource;
+use App\Http\Resources\FavoriteSermonResource;
 use App\Models\Sermon;
 use App\Models\SermonFavorite;
 use Illuminate\Http\JsonResponse;
@@ -154,13 +154,33 @@ class FavoriteSermonController extends Controller
             $favorites = SermonFavorite::where('user_id', $user->id)
                 ->with(['sermon' => function ($query) use ($user) {
                     $query->with([
-                        'church.createdBy',
+                        'church',
                         'category',
                         'favoritedBy' => function ($favoriteQuery) use ($user) {
                             $favoriteQuery->where('user_id', $user->id)
                                 ->select('id', 'sermon_id', 'user_id');
                         },
-                    ])->withCount('views');
+                    ])->withCount('views')
+                        ->select([
+                            'id',
+                            'church_id',
+                            'category_sermon_id',
+                            'title',
+                            'preacher_name',
+                            'audio_url',
+                            'cover_url',
+                            'duration',
+                            'mime_type',
+                            'size',
+                            'audio_bitrate',
+                            'duration_formatted',
+                            'audio_format',
+                            'color',
+                            'description',
+                            'is_published',
+                            'created_at',
+                            'updated_at',
+                        ]);
                 }])
                 ->orderBy('created_at', 'desc')
                 ->paginate($perPage);
@@ -277,7 +297,7 @@ class FavoriteSermonController extends Controller
         return [
             'favorite_id' => $favorite->id,
             'favorited_at' => $favorite->created_at,
-            'sermon' => new SermonResource($favorite->sermon),
+            'sermon' => new FavoriteSermonResource($favorite->sermon),
         ];
     }
 
