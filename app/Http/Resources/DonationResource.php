@@ -106,7 +106,7 @@ class DonationResource extends JsonResource
                 'type' => 'church',
                 'id' => $this->church->id,
                 'name' => $this->church->name,
-                'logo_url' => $this->church->logo_url ?? null,
+                'logo_url' => $this->church->logo_url ? asset($this->church->logo_url) : null,
             ];
         }
 
@@ -115,7 +115,7 @@ class DonationResource extends JsonResource
                 'type' => 'preacher',
                 'id' => $this->preacherProfile->id,
                 'name' => $this->preacherProfile->name ?? $this->preacherProfile->user->name ?? 'Prédicateur',
-                'avatar_url' => $this->preacherProfile->avatar_url ?? null,
+                'avatar_url' => $this->preacherProfile->avatar_url ? asset($this->preacherProfile->avatar_url) : null,
             ];
         }
 

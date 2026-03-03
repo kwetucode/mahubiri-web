@@ -30,8 +30,9 @@ class FileUploadService
     public function handleAudioUploadWithMeta(string|UploadedFile $audio): array
     {
         $audioUrl = $this->audioUploadService->handleAudioUpload($audio);
-        // Get absolute path for getID3
-        $absolutePath = public_path($audioUrl);
+        // Get absolute path for getID3 - use storage_path directly (works without symlink)
+        $relativePath = str_replace('storage/', '', $audioUrl);
+        $absolutePath = storage_path('app/public/' . $relativePath);
         $meta = $this->audioMetaService->extractMeta($absolutePath) ?? [];
         $meta['audio_url'] = $audioUrl;
         return $meta;
