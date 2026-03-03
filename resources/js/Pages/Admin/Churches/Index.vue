@@ -66,6 +66,7 @@ const handleSort = ({ key, direction }) => {
 // --- Churches columns ---
 const churchColumns = [
     { key: 'name', label: 'Église', sortable: true },
+    { key: 'is_featured', label: 'Mise en avant', sortable: true, hidden: 'hidden md:table-cell' },
     { key: 'city', label: 'Localisation', sortable: true, hidden: 'hidden md:table-cell' },
     { key: 'sermons_count', label: 'Prédications' },
     { key: 'is_active', label: 'Statut', sortable: true, hidden: 'hidden sm:table-cell' },
@@ -136,6 +137,7 @@ const tabs = [
 const showConfirmModal = ref(false);
 const toggleTarget = ref(null);
 const toggleLoading = ref(false);
+const featuredLoading = ref(false);
 
 const requestToggle = (row, type = null) => {
     toggleTarget.value = row;
@@ -173,6 +175,19 @@ const performToggle = async (row) => {
         toggleLoading.value = false;
         showConfirmModal.value = false;
         toggleTarget.value = null;
+    }
+};
+
+const toggleFeatured = async (row) => {
+    featuredLoading.value = true;
+    try {
+        const { data } = await axios.patch(`/admin/churches/${row.id}/toggle-featured`);
+        row.is_featured = data.is_featured;
+        navigate();
+    } catch (e) {
+        console.error('Toggle featured error:', e);
+    } finally {
+        featuredLoading.value = false;
     }
 };
 </script>
@@ -336,8 +351,20 @@ const performToggle = async (row) => {
                             <p class="text-[11px] text-gray-400 truncate mt-0.5">
                                 {{ row.visionary_name || row.created_by_name || '—' }}
                             </p>
+                            <p v-if="row.is_featured" class="text-[10px] text-amber-600 font-semibold mt-0.5">★ Église mise en avant</p>
                         </div>
                     </div>
+                </template>
+
+                <!-- Featured cell -->
+                <template #cell-is_featured="{ row }">
+                    <Toggle
+                        :model-value="row.is_featured"
+                        :loading="featuredLoading"
+                        size="sm"
+                        color="emerald"
+                        @change="toggleFeatured(row)"
+                    />
                 </template>
 
                 <!-- Location cell -->

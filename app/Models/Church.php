@@ -23,11 +23,13 @@ class Church extends Model
         'address',
         'created_by',
         'is_active',
+        'is_featured',
     ];
 
     protected $casts = [
         'created_by' => 'integer',
         'is_active' => 'boolean',
+        'is_featured' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

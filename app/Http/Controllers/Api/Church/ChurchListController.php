@@ -7,7 +7,6 @@ use App\Http\Resources\ChurchResource;
 use App\Models\Church;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class ChurchListController extends Controller
 {
@@ -46,8 +45,9 @@ class ChurchListController extends Controller
             $query->where('city', 'like', '%' . $request->city . '%');
         }
 
-        // Order by most recent first
-        $churches = $query->orderBy('created_at', 'desc')
+        // Featured churches first, then most recent
+        $churches = $query->orderByDesc('is_featured')
+            ->orderBy('created_at', 'desc')
             ->paginate(5);
 
         return response()->json([
@@ -90,7 +90,8 @@ class ChurchListController extends Controller
             });
         }
 
-        $churches = $query->orderBy('created_at', 'desc')
+        $churches = $query->orderByDesc('is_featured')
+            ->orderBy('created_at', 'desc')
             ->paginate(5);
 
         return response()->json([
@@ -130,7 +131,8 @@ class ChurchListController extends Controller
             $query->where('name', 'like', "%{$search}%");
         }
 
-        $churches = $query->orderBy('created_at', 'desc')
+        $churches = $query->orderByDesc('is_featured')
+            ->orderBy('created_at', 'desc')
             ->paginate(5);
 
         return response()->json([

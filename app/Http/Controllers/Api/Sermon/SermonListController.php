@@ -21,12 +21,38 @@ class SermonListController extends Controller
     public function getRecentSermons(): JsonResponse
     {
         try {
-            $recentSermons = Sermon::with(['church', 'category'])
+            $limit = 5;
+
+            $featuredChurch = Church::query()
+                ->where('is_active', true)
+                ->where('is_featured', true)
+                ->first();
+
+            $pinnedSermons = collect();
+
+            if ($featuredChurch) {
+                $pinnedSermons = Sermon::with(['church', 'category'])
+                    ->withCount('views')
+                    ->published()
+                    ->where('church_id', $featuredChurch->id)
+                    ->orderByDesc('created_at')
+                    ->take(2)
+                    ->get();
+            }
+
+            $remainingLimit = max(0, $limit - $pinnedSermons->count());
+
+            $fallbackSermons = Sermon::with(['church', 'category'])
                 ->withCount('views')
                 ->published()
-                ->orderBy('created_at', 'desc')
-                ->take(5)
+                ->when($pinnedSermons->isNotEmpty(), function ($query) use ($pinnedSermons) {
+                    $query->whereNotIn('id', $pinnedSermons->pluck('id'));
+                })
+                ->orderByDesc('created_at')
+                ->take($remainingLimit)
                 ->get();
+
+            $recentSermons = $pinnedSermons->concat($fallbackSermons);
 
             Log::info('Recent sermons retrieved', [
                 'count' => $recentSermons->count(),

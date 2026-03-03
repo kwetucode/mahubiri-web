@@ -29,7 +29,7 @@ class ChurchController extends Controller
         $preachers = null;
 
         if ($tab === 'churches') {
-            $allowedSorts = ['name', 'city', 'country_name', 'created_at', 'is_active'];
+            $allowedSorts = ['name', 'city', 'country_name', 'created_at', 'is_active', 'is_featured'];
             if (!in_array($sortBy, $allowedSorts)) {
                 $sortBy = 'created_at';
             }
@@ -46,6 +46,7 @@ class ChurchController extends Controller
                           ->orWhere('country_name', 'like', "%{$search}%");
                     });
                 })
+                ->orderByDesc('is_featured')
                 ->orderBy($sortBy, $sortDirection)
                 ->paginate($perPage)
                 ->withQueryString()
@@ -59,6 +60,7 @@ class ChurchController extends Controller
                     'country_name' => $church->country_name,
                     'sermons_count' => $church->sermons_count,
                     'is_active' => $church->is_active,
+                    'is_featured' => $church->is_featured,
                     'created_by_name' => $church->createdBy?->name,
                     'created_at' => $church->created_at->format('d/m/Y'),
                     'created_at_human' => $church->created_at->diffForHumans(),
@@ -167,6 +169,31 @@ class ChurchController extends Controller
             'message' => $church->is_active
                 ? "L'église \"{$church->name}\" a été activée."
                 : "L'église \"{$church->name}\" a été désactivée.",
+        ]);
+    }
+
+    /**
+     * Toggle featured status for a church.
+     * Only one church can be featured at a time.
+     */
+    public function toggleFeatured(Church $church): JsonResponse
+    {
+        if (!$church->is_featured) {
+            Church::where('is_featured', true)
+                ->where('id', '!=', $church->id)
+                ->update(['is_featured' => false]);
+        }
+
+        $church->update([
+            'is_featured' => !$church->is_featured,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'is_featured' => $church->is_featured,
+            'message' => $church->is_featured
+                ? "L'église \"{$church->name}\" est maintenant mise en avant."
+                : "L'église \"{$church->name}\" n'est plus mise en avant.",
         ]);
     }
 

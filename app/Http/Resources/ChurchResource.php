@@ -29,6 +29,7 @@ class ChurchResource extends JsonResource
             'city' => $this->city,
             'address' => $this->address,
             'is_active' => $this->is_active,
+            'is_featured' => $this->is_featured,
             'creator' => [
                 'id' => $this->createdBy->id,
                 'name' => $this->createdBy->name,

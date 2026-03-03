@@ -35,6 +35,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/churches', [ChurchController::class, 'index'])->name('churches.index');
     Route::get('/churches/{church}', [ChurchController::class, 'show'])->name('churches.show');
     Route::patch('/churches/{church}/toggle-active', [ChurchController::class, 'toggleActive'])->name('churches.toggle-active');
+    Route::patch('/churches/{church}/toggle-featured', [ChurchController::class, 'toggleFeatured'])->name('churches.toggle-featured');
     Route::patch('/preachers/{preacher}/toggle-active', [ChurchController::class, 'togglePreacherActive'])->name('preachers.toggle-active');
     Route::get('/donations', [DonationController::class, 'index'])->name('donations.index');
 

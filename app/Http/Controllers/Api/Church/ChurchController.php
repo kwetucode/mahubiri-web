@@ -12,9 +12,7 @@ use App\Notifications\NewChurchCreated;
 use App\Services\FileUploadService;
 use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class ChurchController extends Controller
@@ -78,6 +76,7 @@ class ChurchController extends Controller
                 'logo_url',
                 'description',
                 'created_by',
+                'is_featured',
                 'created_at'
             );
 
@@ -96,7 +95,10 @@ class ChurchController extends Controller
             $query->where('created_by', Auth::id());
         }
 
-        $churches = $query->orderByDesc('created_at')->paginate($perPage);
+        $churches = $query
+            ->orderByDesc('is_featured')
+            ->orderByDesc('created_at')
+            ->paginate($perPage);
         return response()->json([
             'success' => true,
             'data' => ChurchResource::collection($churches),
