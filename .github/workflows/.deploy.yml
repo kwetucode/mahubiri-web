@@ -344,6 +344,7 @@ jobs:
             fi
 
             php artisan migrate
+            php artisan storage:link --no-interaction 2>/dev/null || echo "⚠️ storage:link already exists or failed"
             php artisan config:cache --no-interaction
             php artisan route:cache --no-interaction
             php artisan view:cache --no-interaction
