@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ChurchController;
 use App\Http\Controllers\Admin\DonationController;
 use App\Http\Controllers\Admin\NotificationController;
+use App\Http\Controllers\Admin\CategorySermonController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,6 +39,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::patch('/churches/{church}/toggle-featured', [ChurchController::class, 'toggleFeatured'])->name('churches.toggle-featured');
     Route::patch('/preachers/{preacher}/toggle-active', [ChurchController::class, 'togglePreacherActive'])->name('preachers.toggle-active');
     Route::get('/donations', [DonationController::class, 'index'])->name('donations.index');
+    Route::get('/sermon-categories', [CategorySermonController::class, 'index'])->name('sermon-categories.index');
+    Route::post('/sermon-categories', [CategorySermonController::class, 'store'])->name('sermon-categories.store');
+    Route::patch('/sermon-categories/{categorySermon}', [CategorySermonController::class, 'update'])->name('sermon-categories.update');
+    Route::delete('/sermon-categories/{categorySermon}', [CategorySermonController::class, 'destroy'])->name('sermon-categories.destroy');
 
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');

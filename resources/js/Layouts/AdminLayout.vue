@@ -244,6 +244,13 @@ const currentDate = computed(() => {
                 />
 
                 <SidebarItem
+                    href="/admin/sermon-categories"
+                    label="Catégories sermons"
+                    :icon="icons.sermon"
+                    :collapsed="sidebarCollapsed"
+                />
+
+                <SidebarItem
                     href="/admin/donations"
                     label="Donations"
                     :icon="icons.donation"
