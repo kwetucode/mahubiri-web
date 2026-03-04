@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
 use App\Services\AudioMetaService;
 
@@ -33,7 +34,24 @@ class FileUploadService
         // Get absolute path for getID3 - use storage_path directly (works without symlink)
         $relativePath = str_replace('storage/', '', $audioUrl);
         $absolutePath = storage_path('app/public/' . $relativePath);
+
+        Log::info('Audio upload - attempting meta extraction', [
+            'audio_url' => $audioUrl,
+            'relative_path' => $relativePath,
+            'absolute_path' => $absolutePath,
+            'file_exists' => file_exists($absolutePath),
+        ]);
+
         $meta = $this->audioMetaService->extractMeta($absolutePath) ?? [];
+
+        if (empty($meta) || $meta['duration'] === null) {
+            Log::warning('Audio meta extraction returned no duration', [
+                'audio_url' => $audioUrl,
+                'meta' => $meta,
+                'absolute_path' => $absolutePath,
+            ]);
+        }
+
         $meta['audio_url'] = $audioUrl;
         return $meta;
     }
