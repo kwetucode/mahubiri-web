@@ -31,7 +31,7 @@ class SermonListController extends Controller
             $pinnedSermons = collect();
 
             if ($featuredChurch) {
-                $pinnedSermons = Sermon::with(['church', 'category'])
+                $pinnedSermons = Sermon::with(['church', 'category', 'currentUserFavorite'])
                     ->withCount('views')
                     ->published()
                     ->where('church_id', $featuredChurch->id)
@@ -42,7 +42,7 @@ class SermonListController extends Controller
 
             $remainingLimit = max(0, $limit - $pinnedSermons->count());
 
-            $fallbackSermons = Sermon::with(['church', 'category'])
+            $fallbackSermons = Sermon::with(['church', 'category', 'currentUserFavorite'])
                 ->withCount('views')
                 ->published()
                 ->when($pinnedSermons->isNotEmpty(), function ($query) use ($pinnedSermons) {
@@ -88,7 +88,7 @@ class SermonListController extends Controller
             $minCompleteViews = $request->input('min_complete_views', 2); // Minimum completed views (default: 2)
 
             // Get sermons with at least X unique users who completed listening
-            $popularSermons = Sermon::with(['church', 'category'])
+            $popularSermons = Sermon::with(['church', 'category', 'currentUserFavorite'])
                 ->published()
                 ->withCount(['favoritedBy', 'views'])
                 ->addSelect([
@@ -135,7 +135,7 @@ class SermonListController extends Controller
     {
         try {
             // Get sermons from the specified category (paginated, 10 per page)
-            $sermons = Sermon::with(['church', 'category'])
+            $sermons = Sermon::with(['church', 'category', 'currentUserFavorite'])
                 ->withCount('views')
                 ->published()
                 ->where('category_sermon_id', $categoryId)
@@ -185,12 +185,12 @@ class SermonListController extends Controller
     public function getSermonWithRelated(Sermon $sermon): JsonResponse
     {
         try {
-            // Load the sermon with relationships
+            // Load the sermon with relationships (use loadCount instead of loading all views)
             $sermon->loadCount('views');
-            $sermon->load(['church', 'category', 'favoritedBy', 'views']);
+            $sermon->load(['church', 'category', 'currentUserFavorite']);
 
             // Get related sermons from the same category (paginated, 10 per page)
-            $relatedSermons = Sermon::with(['church', 'category'])
+            $relatedSermons = Sermon::with(['church', 'category', 'currentUserFavorite'])
                 ->withCount('views')
                 ->published()
                 ->where('category_sermon_id', $sermon->category_sermon_id)
@@ -254,7 +254,7 @@ class SermonListController extends Controller
             }
 
             // Get sermons from the specified church (paginated, 10 per page)
-            $sermons = Sermon::with(['church', 'category'])
+            $sermons = Sermon::with(['church', 'category', 'currentUserFavorite'])
                 ->withCount('views')
                 ->published()
                 ->where('church_id', $churchId)

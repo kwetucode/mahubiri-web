@@ -54,7 +54,7 @@ class PreacherListController extends Controller
 
             $sermons = $preacher->sermons()
                 ->where('is_published', true)
-                ->with(['church', 'category'])
+                ->with(['church', 'category', 'currentUserFavorite'])
                 ->withCount('views')
                 ->orderBy('created_at', 'desc')
                 ->paginate($perPage);

@@ -89,7 +89,7 @@ const isSorted = (col) => props.sortBy === col.key;
 
 <template>
     <div
-        class="bg-white border border-gray-200/80 overflow-hidden shadow-sm"
+        class="bg-white dark:bg-gray-800 border border-gray-200/80 dark:border-gray-700 overflow-hidden shadow-sm"
         :class="rounded ? 'rounded-2xl' : ''"
     >
         <!-- Loading bar -->
@@ -101,7 +101,7 @@ const isSorted = (col) => props.sortBy === col.key;
         <div class="overflow-x-auto">
             <table class="w-full">
                 <thead>
-                    <tr class="border-b border-gray-100 bg-gray-50/80">
+                    <tr class="border-b border-gray-100 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-800/80">
                         <th
                             v-for="col in columns"
                             :key="col.key"
@@ -109,7 +109,7 @@ const isSorted = (col) => props.sortBy === col.key;
                             :class="[
                                 col.hidden || '',
                                 col.sortable ? 'cursor-pointer select-none hover:text-gray-700 transition-colors group/th' : '',
-                                isSorted(col) ? 'text-primary' : 'text-gray-500',
+                                isSorted(col) ? 'text-primary' : 'text-gray-500 dark:text-gray-400',
                             ]"
                             @click="handleSort(col)"
                         >
@@ -135,12 +135,12 @@ const isSorted = (col) => props.sortBy === col.key;
                             </div>
                         </th>
                         <!-- Actions column -->
-                        <th v-if="$slots.actions" class="text-right py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                        <th v-if="$slots.actions" class="text-right py-4 px-6 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                             Actions
                         </th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-50">
+                <tbody class="divide-y divide-gray-50 dark:divide-gray-700/50">
                     <!-- Loading skeleton (full replacement) -->
                     <template v-if="loading && (rows.length === 0 || skeletonOnLoad)">
                         <tr v-for="n in 5" :key="'skel-' + n" class="animate-pulse">
@@ -167,8 +167,8 @@ const isSorted = (col) => props.sortBy === col.key;
                             class="transition-colors duration-150 group"
                             :class="[
                                 clickable ? 'cursor-pointer' : '',
-                                striped && index % 2 === 1 ? 'bg-gray-50/40' : '',
-                                'hover:bg-primary/[0.02]',
+                                striped && index % 2 === 1 ? 'bg-gray-50/40 dark:bg-gray-700/20' : '',
+                                'hover:bg-primary/[0.02] dark:hover:bg-gray-700/30',
                             ]"
                             @click="clickable ? $emit('row-click', row) : null"
                         >
@@ -180,7 +180,7 @@ const isSorted = (col) => props.sortBy === col.key;
                             >
                                 <!-- Named slot per column, fallback to raw value -->
                                 <slot :name="`cell-${col.key}`" :row="row" :value="row[col.key]" :index="index">
-                                    <span class="text-sm text-gray-700">{{ row[col.key] ?? '—' }}</span>
+                                    <span class="text-sm text-gray-700 dark:text-gray-300">{{ row[col.key] ?? '—' }}</span>
                                 </slot>
                             </td>
                             <!-- Actions slot -->
@@ -194,13 +194,13 @@ const isSorted = (col) => props.sortBy === col.key;
                     <tr v-else-if="!loading">
                         <td :colspan="totalColumns + ($slots.actions ? 1 : 0)" class="py-16 text-center">
                             <div class="flex flex-col items-center">
-                                <div class="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mb-4">
-                                    <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div class="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center mb-4">
+                                    <svg class="w-8 h-8 text-gray-300 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="emptyIcon" />
                                     </svg>
                                 </div>
-                                <p class="text-gray-600 font-semibold mb-1">{{ emptyTitle }}</p>
-                                <p v-if="emptySubtitle" class="text-gray-400 text-sm">{{ emptySubtitle }}</p>
+                                <p class="text-gray-600 dark:text-gray-300 font-semibold mb-1">{{ emptyTitle }}</p>
+                                <p v-if="emptySubtitle" class="text-gray-400 dark:text-gray-500 text-sm">{{ emptySubtitle }}</p>
                             </div>
                         </td>
                     </tr>
@@ -211,12 +211,12 @@ const isSorted = (col) => props.sortBy === col.key;
         <!-- Pagination -->
         <div
             v-if="pagination && pagination.last_page > 1"
-            class="border-t border-gray-100 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 bg-gray-50/50"
+            class="border-t border-gray-100 dark:border-gray-700 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 bg-gray-50/50 dark:bg-gray-800/50"
         >
-            <p class="text-sm text-gray-500 font-medium">
-                Affichage de <span class="text-gray-700">{{ pagination.from }}</span>
-                à <span class="text-gray-700">{{ pagination.to }}</span>
-                sur <span class="text-gray-700">{{ pagination.total }}</span> résultats
+            <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                Affichage de <span class="text-gray-700 dark:text-gray-300">{{ pagination.from }}</span>
+                à <span class="text-gray-700 dark:text-gray-300">{{ pagination.to }}</span>
+                sur <span class="text-gray-700 dark:text-gray-300">{{ pagination.total }}</span> résultats
             </p>
             <div class="flex items-center gap-1">
                 <template v-for="link in pagination.links" :key="link.label">
@@ -226,14 +226,14 @@ const isSorted = (col) => props.sortBy === col.key;
                         class="px-3.5 py-2 rounded-xl text-sm font-semibold transition-all duration-200"
                         :class="link.active
                             ? 'bg-primary text-white shadow-md shadow-primary/30'
-                            : 'text-gray-600 hover:bg-gray-100'"
+                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'"
                         v-html="link.label"
                         preserve-state
                         preserve-scroll
                     />
                     <span
                         v-else
-                        class="px-3 py-2 text-sm text-gray-300"
+                        class="px-3 py-2 text-sm text-gray-300 dark:text-gray-600"
                         v-html="link.label"
                     />
                 </template>

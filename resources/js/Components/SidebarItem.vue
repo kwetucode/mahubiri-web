@@ -53,8 +53,8 @@ const iconPaths = computed(() => {
         class="relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group/item"
         :class="[
             isActive
-                ? 'bg-gradient-to-r from-primary/10 to-primary/5 text-primary shadow-sm'
-                : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800',
+                ? 'bg-gradient-to-r from-primary/10 to-primary/5 text-primary dark:from-primary/20 dark:to-primary/10 shadow-sm'
+                : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-gray-700/50 dark:hover:text-gray-200',
             collapsed ? 'justify-center' : ''
         ]"
         :title="collapsed ? label : ''"
@@ -68,7 +68,7 @@ const iconPaths = computed(() => {
         <!-- Icon container -->
         <div
             class="flex items-center justify-center w-8 h-8 rounded-lg flex-shrink-0"
-            :class="isActive ? 'bg-primary/10' : 'group-hover/item:bg-gray-200/60'"
+            :class="isActive ? 'bg-primary/10' : 'group-hover/item:bg-gray-200/60 dark:group-hover/item:bg-gray-600/40'"
         >
             <slot name="icon">
                 <svg

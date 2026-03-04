@@ -22,9 +22,10 @@ class OptimizeApiResponse
         }
 
         // ETag for conditional requests (Flutter can send If-None-Match)
+        // Use crc32 instead of md5 — much faster on large payloads, sufficient for cache validation
         $content = $response->getContent();
-        if ($content) {
-            $etag = '"' . md5($content) . '"';
+        if ($content && strlen($content) < 512000) { // Skip ETag for responses > 500KB
+            $etag = '"' . dechex(crc32($content)) . '"';
             $response->headers->set('ETag', $etag);
 
             // Return 304 Not Modified if ETag matches

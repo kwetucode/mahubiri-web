@@ -69,23 +69,29 @@ const colors = {
 
 <template>
     <div
-        class="group bg-white rounded-xl border px-4 py-3.5 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 cursor-default"
+        class="group bg-white dark:bg-gray-800 rounded-xl border px-3 py-2.5 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-default"
         :class="colors[color].border"
     >
-        <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2.5">
             <div
-                class="flex items-center justify-center w-9 h-9 rounded-xl"
+                class="flex items-center justify-center w-7 h-7 rounded-lg shrink-0"
                 :class="colors[color].icon"
             >
                 <slot name="icon">
-                    <svg v-if="icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg v-if="icon" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="icon" />
                     </svg>
                 </slot>
             </div>
+            <div class="flex-1 min-w-0">
+                <p class="text-lg font-extrabold text-gray-900 dark:text-white tabular-nums leading-none">
+                    {{ typeof value === 'number' ? value.toLocaleString() : value }}
+                </p>
+                <p class="text-[11px] text-gray-500 dark:text-gray-400 font-medium mt-0.5 truncate">{{ label }}</p>
+            </div>
             <span
                 v-if="trend"
-                class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold"
+                class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold shrink-0"
                 :class="colors[color].trend"
             >
                 <svg v-if="trendUp" class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -97,9 +103,5 @@ const colors = {
                 {{ trend }}
             </span>
         </div>
-        <p class="text-2xl font-extrabold text-gray-900 mb-0.5 tabular-nums leading-tight">
-            {{ typeof value === 'number' ? value.toLocaleString() : value }}
-        </p>
-        <p class="text-xs text-gray-500 font-medium">{{ label }}</p>
     </div>
 </template>

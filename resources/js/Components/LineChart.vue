@@ -14,6 +14,16 @@ import {
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Filler);
 
+const isDarkMode = ref(false);
+const updateDarkMode = () => {
+    isDarkMode.value = document.documentElement.classList.contains('dark');
+};
+onMounted(() => {
+    updateDarkMode();
+    const observer = new MutationObserver(updateDarkMode);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+});
+
 const props = defineProps({
     /** Chart title */
     title: {
@@ -148,7 +158,7 @@ const chartOptions = computed(() => ({
     plugins: {
         legend: { display: false },
         tooltip: {
-            backgroundColor: '#1f2937',
+            backgroundColor: isDarkMode.value ? '#374151' : '#1f2937',
             titleColor: '#f9fafb',
             bodyColor: '#d1d5db',
             titleFont: { size: 12, weight: '600' },
@@ -164,19 +174,19 @@ const chartOptions = computed(() => ({
             border: { display: false },
             ticks: {
                 font: { size: 11 },
-                color: '#9ca3af',
+                color: isDarkMode.value ? '#6b7280' : '#9ca3af',
                 maxRotation: 0,
             },
         },
         y: {
             grid: {
-                color: '#f3f4f6',
+                color: isDarkMode.value ? '#374151' : '#f3f4f6',
                 drawBorder: false,
             },
             border: { display: false },
             ticks: {
                 font: { size: 11 },
-                color: '#9ca3af',
+                color: isDarkMode.value ? '#6b7280' : '#9ca3af',
                 precision: 0,
             },
             beginAtZero: true,
@@ -206,9 +216,9 @@ const applyCustomPeriod = () => {
 </script>
 
 <template>
-    <div class="bg-white rounded-xl border border-gray-200/80 overflow-hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200/80 dark:border-gray-700 overflow-hidden">
         <!-- Header -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-3.5 border-b border-gray-100">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-3.5 border-b border-gray-100 dark:border-gray-700">
             <div class="flex items-center gap-3">
                 <div
                     v-if="icon"
@@ -220,15 +230,15 @@ const applyCustomPeriod = () => {
                     </svg>
                 </div>
                 <div>
-                    <h3 class="text-sm font-bold text-gray-900">{{ title }}</h3>
-                    <p v-if="subtitle" class="text-[11px] text-gray-400">{{ subtitle }}</p>
+                    <h3 class="text-sm font-bold text-gray-900 dark:text-gray-100">{{ title }}</h3>
+                    <p v-if="subtitle" class="text-[11px] text-gray-400 dark:text-gray-500">{{ subtitle }}</p>
                 </div>
             </div>
 
             <div class="flex items-center gap-2">
                 <!-- Total + trend -->
                 <div v-if="total != null" class="text-right mr-2 hidden sm:block">
-                    <p class="text-lg font-extrabold text-gray-900 leading-tight tabular-nums">
+                    <p class="text-lg font-extrabold text-gray-900 dark:text-white leading-tight tabular-nums">
                         {{ typeof total === 'number' ? total.toLocaleString() : total }}
                     </p>
                     <span
@@ -247,15 +257,15 @@ const applyCustomPeriod = () => {
                 </div>
 
                 <!-- Filter buttons -->
-                <div v-if="filters.length" class="flex items-center gap-1 bg-gray-100/80 rounded-xl p-0.5">
+                <div v-if="filters.length" class="flex items-center gap-1 bg-gray-100/80 dark:bg-gray-700/60 rounded-xl p-0.5">
                     <button
                         v-for="f in filters"
                         :key="f.value"
                         @click="selectFilter(f.value)"
                         class="px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all duration-200"
                         :class="activeFilter === f.value
-                            ? 'bg-white text-gray-900 shadow-sm'
-                            : 'text-gray-500 hover:text-gray-700'"
+                            ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
+                            : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'"
                     >
                         {{ f.label }}
                     </button>
@@ -264,8 +274,8 @@ const applyCustomPeriod = () => {
                         @click="toggleCustom"
                         class="px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all duration-200"
                         :class="activeFilter === 'custom'
-                            ? 'bg-white text-gray-900 shadow-sm'
-                            : 'text-gray-500 hover:text-gray-700'"
+                            ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
+                            : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'"
                     >
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -284,18 +294,18 @@ const applyCustomPeriod = () => {
             leave-from-class="opacity-100 max-h-24"
             leave-to-class="opacity-0 max-h-0"
         >
-            <div v-if="showCustom" class="flex items-center gap-2 px-5 py-2.5 bg-gray-50 border-b border-gray-100 overflow-hidden">
-                <label class="text-[11px] text-gray-500 font-medium">Du</label>
+            <div v-if="showCustom" class="flex items-center gap-2 px-5 py-2.5 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-700 overflow-hidden">
+                <label class="text-[11px] text-gray-500 dark:text-gray-400 font-medium">Du</label>
                 <input
                     v-model="localStart"
                     type="date"
-                    class="px-2 py-1 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-primary bg-white"
+                    class="px-2 py-1 text-xs border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:border-primary bg-white dark:bg-gray-700 dark:text-gray-200"
                 />
-                <label class="text-[11px] text-gray-500 font-medium">au</label>
+                <label class="text-[11px] text-gray-500 dark:text-gray-400 font-medium">au</label>
                 <input
                     v-model="localEnd"
                     type="date"
-                    class="px-2 py-1 text-xs border border-gray-200 rounded-lg focus:outline-none focus:border-primary bg-white"
+                    class="px-2 py-1 text-xs border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:border-primary bg-white dark:bg-gray-700 dark:text-gray-200"
                 />
                 <button
                     @click="applyCustomPeriod"
@@ -310,7 +320,7 @@ const applyCustomPeriod = () => {
         <!-- Chart -->
         <div class="px-5 py-4 relative" :style="{ height: height + 'px' }">
             <!-- Loading overlay -->
-            <div v-if="loading" class="absolute inset-0 flex items-center justify-center bg-white/80 z-10">
+            <div v-if="loading" class="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-gray-800/80 z-10">
                 <div class="flex flex-col items-center gap-2">
                     <div class="w-7 h-7 border-2 border-gray-200 border-t-primary rounded-full animate-spin"></div>
                     <span class="text-[11px] text-gray-400 font-medium">Chargement...</span>
@@ -325,7 +335,7 @@ const applyCustomPeriod = () => {
 
             <!-- Empty state -->
             <div v-else-if="!loading" class="flex flex-col items-center justify-center h-full text-center">
-                <div class="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center mb-3">
+                <div class="w-12 h-12 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center mb-3">
                     <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="icon || 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z'" />
                     </svg>

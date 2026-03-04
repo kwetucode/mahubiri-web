@@ -140,6 +140,17 @@ class Sermon extends Model
     }
 
     /**
+     * Get the current authenticated user's favorite record (if any).
+     * Eager-load this instead of favoritedBy to avoid loading ALL favorites.
+     * Returns a single SermonFavorite or null.
+     */
+    public function currentUserFavorite()
+    {
+        return $this->hasOne(SermonFavorite::class)
+            ->where('user_id', auth()->id());
+    }
+
+    /**
      * Get favorites for this sermon (alias for favoritedBy).
      */
     public function favorites()

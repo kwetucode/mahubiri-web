@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\CategorySermonController;
 use App\Http\Controllers\Admin\AdminSermonController;
 use App\Http\Controllers\Admin\ChurchProfileController;
+use App\Http\Controllers\Admin\SettingsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,6 +49,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
     // Church profile (church admin manages their own church)
     Route::get('/church-profile', [ChurchProfileController::class, 'show'])->name('church-profile');
     Route::post('/church-profile', [ChurchProfileController::class, 'update'])->name('church-profile.update');
+
+    // Settings
+    Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
 
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');

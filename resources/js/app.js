@@ -1,6 +1,14 @@
 import './bootstrap';
 import '../css/app.css';
 
+// Apply theme before render to prevent flash
+const savedTheme = localStorage.getItem('mahubiri-theme') || 'light';
+if (savedTheme === 'dark') {
+    document.documentElement.classList.add('dark');
+} else {
+    document.documentElement.classList.remove('dark');
+}
+
 import { createApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
 

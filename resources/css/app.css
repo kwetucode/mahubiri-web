@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
@@ -56,6 +58,21 @@
     --color-warning: #F59E0B;
     --color-error: #EF4444;
     --color-info: #3B82F6;
+}
+
+/* ===== Dark Mode Variables ===== */
+.dark {
+  --color-bg-light: #111827;
+  --color-bg-dark: #0f172a;
+  --color-card-light: #1f2937;
+  --color-card-dark: #111827;
+  --color-text-primary: #f3f4f6;
+  --color-text-secondary: #9ca3af;
+  --color-text-tertiary: #6b7280;
+  --color-divider: #374151;
+  --color-border: #4b5563;
+  --color-input-fill: #1f2937;
+  color-scheme: dark;
 }
 
 /* Alpine.js x-cloak */

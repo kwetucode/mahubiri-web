@@ -11,6 +11,20 @@ const props = defineProps({
     categories: Array,
 });
 
+// Color conversion helpers (hex ↔ Flutter ARGB int)
+const hexToFlutterInt = (hex) => {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return ((0xFF << 24) | (r << 16) | (g << 8) | b) >>> 0;
+};
+const flutterIntToHex = (val) => {
+    const r = (val >> 16) & 0xFF;
+    const g = (val >> 8) & 0xFF;
+    const b = val & 0xFF;
+    return '#' + [r, g, b].map(c => c.toString(16).padStart(2, '0')).join('');
+};
+
 // Form data
 const form = ref({
     title: '',
@@ -20,6 +34,8 @@ const form = ref({
     color: null,
     is_published: false,
 });
+
+const colorHex = ref('#6B4EAF');
 
 const audioFile = ref(null);
 const coverFile = ref(null);
@@ -145,7 +161,7 @@ const submit = async () => {
     formData.append('category_sermon_id', form.value.category_sermon_id);
     formData.append('description', form.value.description || '');
     formData.append('is_published', form.value.is_published ? '1' : '0');
-    if (form.value.color) formData.append('color', form.value.color);
+    if (colorHex.value) formData.append('color', hexToFlutterInt(colorHex.value));
     if (audioFile.value) formData.append('audio_file', audioFile.value);
     if (coverFile.value) formData.append('cover_file', coverFile.value);
 
@@ -204,7 +220,7 @@ const submit = async () => {
                 leave-to-class="opacity-0"
             >
                 <div v-if="submitting" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm">
-                    <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 space-y-5">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 space-y-5">
                         <div class="flex justify-center">
                             <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
                                 <svg v-if="uploadPhase === 'uploading'" class="w-8 h-8 text-primary animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -217,10 +233,10 @@ const submit = async () => {
                             </div>
                         </div>
                         <div class="text-center">
-                            <h3 class="text-lg font-bold text-gray-900">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">
                                 {{ uploadPhase === 'uploading' ? 'Envoi en cours...' : 'Traitement du fichier...' }}
                             </h3>
-                            <p class="text-sm text-gray-500 mt-1">
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                                 {{ uploadPhase === 'uploading'
                                     ? 'Veuillez patienter pendant l\'envoi du fichier audio.'
                                     : 'Extraction des métadonnées audio en cours...'
@@ -229,12 +245,12 @@ const submit = async () => {
                         </div>
                         <div class="space-y-2">
                             <div class="flex justify-between text-sm">
-                                <span class="font-medium text-gray-700">Progression</span>
+                                <span class="font-medium text-gray-700 dark:text-gray-300">Progression</span>
                                 <span class="font-bold" :class="uploadProgress >= 100 ? 'text-emerald-600' : 'text-primary'">
                                     {{ uploadProgress }}%
                                 </span>
                             </div>
-                            <div class="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
+                            <div class="w-full h-3 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
                                 <div
                                     class="h-full rounded-full transition-all duration-300 ease-out"
                                     :class="progressColor"
@@ -265,14 +281,14 @@ const submit = async () => {
                             <div class="p-5 space-y-3">
                                 <!-- Title -->
                                 <div>
-                                    <label for="title" class="block text-xs font-semibold text-gray-600 mb-1">
+                                    <label for="title" class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">
                                         Titre <span class="text-red-500">*</span>
                                     </label>
                                     <input
                                         id="title"
                                         v-model="form.title"
                                         type="text"
-                                        class="w-full px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                                        class="w-full px-3.5 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:bg-white dark:focus:bg-gray-600 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                                         placeholder="Ex: La puissance de la prière"
                                         :class="{ 'border-red-300 bg-red-50/50': errors.title }"
                                     />
@@ -282,27 +298,27 @@ const submit = async () => {
                                 <!-- Preacher + Category side by side -->
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div>
-                                        <label for="preacher_name" class="block text-xs font-semibold text-gray-600 mb-1">
+                                        <label for="preacher_name" class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">
                                             Prédicateur <span class="text-red-500">*</span>
                                         </label>
                                         <input
                                             id="preacher_name"
                                             v-model="form.preacher_name"
                                             type="text"
-                                            class="w-full px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                                            class="w-full px-3.5 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:bg-white dark:focus:bg-gray-600 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                                             placeholder="Pasteur Jean Mulumba"
                                             :class="{ 'border-red-300 bg-red-50/50': errors.preacher_name }"
                                         />
                                         <p v-if="errors.preacher_name" class="mt-1 text-xs text-red-500">{{ errors.preacher_name }}</p>
                                     </div>
                                     <div>
-                                        <label for="category" class="block text-xs font-semibold text-gray-600 mb-1">
+                                        <label for="category" class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">
                                             Catégorie <span class="text-red-500">*</span>
                                         </label>
                                         <select
                                             id="category"
                                             v-model="form.category_sermon_id"
-                                            class="w-full px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                                            class="w-full px-3.5 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:bg-white dark:focus:bg-gray-600 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                                             :class="{ 'border-red-300 bg-red-50/50': errors.category_sermon_id }"
                                         >
                                             <option value="">Sélectionner</option>
@@ -314,16 +330,32 @@ const submit = async () => {
 
                                 <!-- Description (compact) -->
                                 <div>
-                                    <label for="description" class="block text-xs font-semibold text-gray-600 mb-1">
-                                        Description <span class="text-gray-400 font-normal">(optionnelle)</span>
+                                    <label for="description" class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">
+                                        Description <span class="text-gray-400 dark:text-gray-500 font-normal">(optionnelle)</span>
                                     </label>
                                     <textarea
                                         id="description"
                                         v-model="form.description"
                                         rows="3"
-                                        class="w-full px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none"
+                                        class="w-full px-3.5 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:bg-white dark:focus:bg-gray-600 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none"
                                         placeholder="Décrivez brièvement le contenu..."
                                     ></textarea>
+                                </div>
+
+                                <!-- Couleur -->
+                                <div>
+                                    <label for="color" class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">
+                                        Couleur <span class="text-gray-400 dark:text-gray-500 font-normal">(optionnelle)</span>
+                                    </label>
+                                    <div class="flex items-center gap-3">
+                                        <input
+                                            id="color"
+                                            v-model="colorHex"
+                                            type="color"
+                                            class="w-10 h-10 rounded-lg border border-gray-200 dark:border-gray-600 cursor-pointer p-0.5 bg-gray-50 dark:bg-gray-700"
+                                        />
+                                        <span class="text-sm text-gray-500 dark:text-gray-400 font-mono">{{ colorHex }}</span>
+                                    </div>
                                 </div>
                             </div>
                         </Card>
@@ -342,7 +374,7 @@ const submit = async () => {
                                     />
                                     <div
                                         class="flex items-center gap-4 px-5 py-4 border-2 border-dashed rounded-xl transition-colors"
-                                        :class="errors.audio_file ? 'border-red-300 bg-red-50/30' : 'border-gray-200 bg-gray-50/50 hover:border-primary/40 hover:bg-primary/5'"
+                                        :class="errors.audio_file ? 'border-red-300 bg-red-50/30' : 'border-gray-200 dark:border-gray-600 bg-gray-50/50 dark:bg-gray-700/30 hover:border-primary/40 hover:bg-primary/5 dark:hover:bg-primary/10'"
                                     >
                                         <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                                             <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -350,22 +382,22 @@ const submit = async () => {
                                             </svg>
                                         </div>
                                         <div>
-                                            <p class="text-sm font-semibold text-gray-700">Cliquez pour ajouter le fichier audio</p>
-                                            <p class="text-xs text-gray-400">MP3, WAV, M4A, AAC, OGG, FLAC — max 200 MB</p>
+                                            <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">Cliquez pour ajouter le fichier audio</p>
+                                            <p class="text-xs text-gray-400 dark:text-gray-500">MP3, WAV, M4A, AAC, OGG, FLAC — max 200 MB</p>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Audio file preview -->
-                                <div v-else class="flex items-center gap-3 px-4 py-3 bg-emerald-50/60 border border-emerald-200/60 rounded-xl">
+                                <div v-else class="flex items-center gap-3 px-4 py-3 bg-emerald-50/60 dark:bg-emerald-900/20 border border-emerald-200/60 dark:border-emerald-800/40 rounded-xl">
                                     <div class="w-9 h-9 rounded-lg bg-emerald-100 flex items-center justify-center shrink-0">
                                         <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
                                         </svg>
                                     </div>
                                     <div class="flex-1 min-w-0">
-                                        <p class="text-sm font-semibold text-gray-900 truncate">{{ audioPreview.name }}</p>
-                                        <p class="text-xs text-gray-500">{{ audioPreview.size }}</p>
+                                        <p class="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">{{ audioPreview.name }}</p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ audioPreview.size }}</p>
                                     </div>
                                     <button type="button" @click="removeAudio" class="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -394,15 +426,15 @@ const submit = async () => {
                                     />
                                     <div
                                         class="flex flex-col items-center justify-center py-6 border-2 border-dashed rounded-xl transition-colors"
-                                        :class="errors.cover_file ? 'border-red-300 bg-red-50/30' : 'border-gray-200 bg-gray-50/50 hover:border-primary/40 hover:bg-primary/5'"
+                                        :class="errors.cover_file ? 'border-red-300 bg-red-50/30' : 'border-gray-200 dark:border-gray-600 bg-gray-50/50 dark:bg-gray-700/30 hover:border-primary/40 hover:bg-primary/5 dark:hover:bg-primary/10'"
                                     >
-                                        <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center mb-2">
+                                        <div class="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center mb-2">
                                             <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                             </svg>
                                         </div>
-                                        <p class="text-xs font-medium text-gray-600">Ajouter une image</p>
-                                        <p class="text-[10px] text-gray-400 mt-0.5">JPG, PNG, WebP — max 5 MB</p>
+                                        <p class="text-xs font-medium text-gray-600 dark:text-gray-300">Ajouter une image</p>
+                                        <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">JPG, PNG, WebP — max 5 MB</p>
                                     </div>
                                 </div>
 
@@ -427,8 +459,8 @@ const submit = async () => {
                         <Card noPadding>
                             <div class="p-5 flex items-center justify-between">
                                 <div>
-                                    <p class="text-sm font-semibold text-gray-700">Publier immédiatement</p>
-                                    <p class="text-[11px] text-gray-400 mt-0.5">Sinon, enregistré comme brouillon</p>
+                                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">Publier immédiatement</p>
+                                    <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">Sinon, enregistré comme brouillon</p>
                                 </div>
                                 <Toggle v-model="form.is_published" color="emerald" />
                             </div>
@@ -438,7 +470,7 @@ const submit = async () => {
                         <div class="flex items-center gap-3">
                             <Link
                                 href="/admin/sermons"
-                                class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors"
+                                class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                             >
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />

@@ -48,25 +48,33 @@ class SermonResource extends JsonResource
     }
 
     /**
-     * Check if sermon is favorited by authenticated user
-     *
-     * @return bool
+     * Check if sermon is favorited by authenticated user.
+     * Uses the scoped "currentUserFavorite" relation (single row) when
+     * eager-loaded, avoiding N+1 queries entirely.
      */
     private function checkIfFavorite(): bool
     {
+        // 1. Explicit attribute set by a sub-query
         if (isset($this->is_favorite)) {
             return (bool) $this->is_favorite;
         }
 
+        // 2. Scoped eager-load: currentUserFavorite (single row, most efficient)
+        if ($this->relationLoaded('currentUserFavorite')) {
+            return $this->currentUserFavorite !== null;
+        }
+
+        // 3. Legacy: full favoritedBy collection already loaded
         if ($this->relationLoaded('favoritedBy')) {
-            return $this->favoritedBy->isNotEmpty();
+            $userId = Auth::id();
+            return $userId
+                ? $this->favoritedBy->contains('user_id', $userId)
+                : false;
         }
 
-        if (!Auth::check()) {
-            return false;
-        }
-
-        return $this->isFavoritedBy(Auth::id());
+        // 4. No relation loaded — return false to avoid N+1 query
+        //    (callers should eager-load currentUserFavorite)
+        return false;
     }
 
     private function formatSize($sizeInBytes)

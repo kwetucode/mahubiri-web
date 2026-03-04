@@ -105,7 +105,7 @@ const maxWidthClass = {
                 >
                     <div
                         v-if="show"
-                        class="relative bg-white rounded-2xl shadow-2xl w-full overflow-hidden"
+                        class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full overflow-hidden"
                         :class="maxWidthClass[maxWidth]"
                     >
                         <!-- Top accent bar -->
@@ -140,8 +140,8 @@ const maxWidthClass = {
 
                                 <!-- Text -->
                                 <div class="flex-1 min-w-0">
-                                    <h3 class="text-lg font-bold text-gray-900">{{ title }}</h3>
-                                    <p v-if="message" class="mt-2 text-sm text-gray-500 leading-relaxed">
+                                    <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">{{ title }}</h3>
+                                    <p v-if="message" class="mt-2 text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
                                         {{ message }}
                                     </p>
                                     <slot />
@@ -149,11 +149,11 @@ const maxWidthClass = {
                             </div>
 
                             <!-- Actions -->
-                            <div class="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
+                            <div class="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-gray-100 dark:border-gray-700">
                                 <button
                                     @click="close"
                                     :disabled="loading"
-                                    class="px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 transition-all duration-200 disabled:opacity-50"
+                                    class="px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 disabled:opacity-50"
                                 >
                                     {{ cancelText }}
                                 </button>

@@ -94,7 +94,7 @@ const infoItems = computed(() => [
 
             <div class="max-w-4xl">
                 <!-- Combined card -->
-                <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/60 dark:border-gray-700 shadow-sm overflow-hidden">
                     <!-- Header with logo -->
                     <div class="relative">
                         <!-- Gradient strip -->
@@ -105,7 +105,7 @@ const infoItems = computed(() => [
                             <!-- Logo -->
                             <div class="relative shrink-0">
                                 <div
-                                    class="w-20 h-20 rounded-2xl border-4 border-white shadow-lg overflow-hidden bg-white"
+                                    class="w-20 h-20 rounded-2xl border-4 border-white dark:border-gray-800 shadow-lg overflow-hidden bg-white dark:bg-gray-700"
                                 >
                                     <img
                                         v-if="displayLogo"
@@ -153,11 +153,11 @@ const infoItems = computed(() => [
 
                             <!-- Church name & meta -->
                             <div class="flex-1 min-w-0 pb-1">
-                                <h1 class="text-lg font-bold text-gray-900 truncate">{{ church.name }}</h1>
+                                <h1 class="text-lg font-bold text-gray-900 dark:text-gray-100 truncate">{{ church.name }}</h1>
                                 <div class="flex items-center gap-2 mt-0.5">
                                     <span
                                         v-if="church.abbreviation"
-                                        class="text-xs font-semibold text-gray-500"
+                                        class="text-xs font-semibold text-gray-500 dark:text-gray-400"
                                     >{{ church.abbreviation }}</span>
                                     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold"
                                         :class="church.is_active ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/10' : 'bg-red-50 text-red-600 ring-1 ring-red-600/10'"
@@ -165,8 +165,8 @@ const infoItems = computed(() => [
                                         <span class="w-1.5 h-1.5 rounded-full" :class="church.is_active ? 'bg-emerald-500' : 'bg-red-400'"></span>
                                         {{ church.is_active ? 'Active' : 'Inactive' }}
                                     </span>
-                                    <span class="text-[11px] text-gray-400">· {{ church.sermons_count }} prédication{{ church.sermons_count > 1 ? 's' : '' }}</span>
-                                    <span class="text-[11px] text-gray-400">· Depuis {{ church.created_at }}</span>
+                                    <span class="text-[11px] text-gray-400 dark:text-gray-500">· {{ church.sermons_count }} prédication{{ church.sermons_count > 1 ? 's' : '' }}</span>
+                                    <span class="text-[11px] text-gray-400 dark:text-gray-500">· Depuis {{ church.created_at }}</span>
                                 </div>
                             </div>
 
@@ -185,7 +185,7 @@ const infoItems = computed(() => [
                                 <button
                                     v-else
                                     @click="cancelEditing"
-                                    class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-gray-100 text-gray-600 rounded-xl text-xs font-semibold hover:bg-gray-200 transition-colors"
+                                    class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-xl text-xs font-semibold hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                                 >
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -201,34 +201,34 @@ const infoItems = computed(() => [
 
                     <!-- VIEW MODE -->
                     <template v-if="!editing">
-                        <div class="divide-y divide-gray-100">
+                        <div class="divide-y divide-gray-100 dark:divide-gray-700">
                             <div
                                 v-for="item in infoItems"
                                 :key="item.label"
                                 class="flex items-start gap-3 px-5 py-3"
                             >
-                                <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-50 text-gray-400 shrink-0 mt-0.5">
+                                <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-400 dark:text-gray-500 shrink-0 mt-0.5">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" :d="item.icon" />
                                     </svg>
                                 </div>
                                 <div class="min-w-0 flex-1">
-                                    <p class="text-[11px] font-medium text-gray-400 uppercase tracking-wider">{{ item.label }}</p>
-                                    <p class="text-[13px] text-gray-900 mt-0.5">{{ item.value || '—' }}</p>
+                                    <p class="text-[11px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">{{ item.label }}</p>
+                                    <p class="text-[13px] text-gray-900 dark:text-gray-100 mt-0.5">{{ item.value || '—' }}</p>
                                 </div>
                             </div>
 
                             <!-- Description (full width) -->
                             <div class="px-5 py-3">
                                 <div class="flex items-start gap-3">
-                                    <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-50 text-gray-400 shrink-0 mt-0.5">
+                                    <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-400 dark:text-gray-500 shrink-0 mt-0.5">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h7" />
                                         </svg>
                                     </div>
                                     <div class="min-w-0 flex-1">
-                                        <p class="text-[11px] font-medium text-gray-400 uppercase tracking-wider">Description</p>
-                                        <p class="text-[13px] text-gray-900 mt-0.5 whitespace-pre-line">{{ church.description || '—' }}</p>
+                                        <p class="text-[11px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">Description</p>
+                                        <p class="text-[13px] text-gray-900 dark:text-gray-100 mt-0.5 whitespace-pre-line">{{ church.description || '—' }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -237,29 +237,29 @@ const infoItems = computed(() => [
 
                     <!-- EDIT MODE -->
                     <template v-else>
-                        <form @submit.prevent="submit" class="divide-y divide-gray-100">
+                        <form @submit.prevent="submit" class="divide-y divide-gray-100 dark:divide-gray-700">
                             <!-- Row: Nom + Abréviation -->
                             <div class="grid grid-cols-1 sm:grid-cols-5 gap-4 px-5 py-4">
                                 <div class="sm:col-span-3">
-                                    <label class="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+                                    <label class="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">
                                         Nom de l'église <span class="text-red-400">*</span>
                                     </label>
                                     <input
                                         v-model="form.name"
                                         type="text"
-                                        class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
+                                        class="w-full rounded-xl border border-gray-200 dark:border-gray-600 dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
                                         placeholder="Nom complet de l'église"
                                     />
                                     <p v-if="form.errors.name" class="text-xs text-red-500 mt-1">{{ form.errors.name }}</p>
                                 </div>
                                 <div class="sm:col-span-2">
-                                    <label class="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+                                    <label class="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">
                                         Abréviation
                                     </label>
                                     <input
                                         v-model="form.abbreviation"
                                         type="text"
-                                        class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
+                                        class="w-full rounded-xl border border-gray-200 dark:border-gray-600 dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
                                         placeholder="Ex: CBCA"
                                     />
                                     <p v-if="form.errors.abbreviation" class="text-xs text-red-500 mt-1">{{ form.errors.abbreviation }}</p>
@@ -268,13 +268,13 @@ const infoItems = computed(() => [
 
                             <!-- Row: Visionnaire -->
                             <div class="px-5 py-4">
-                                <label class="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+                                <label class="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">
                                     Nom du visionnaire / Pasteur principal
                                 </label>
                                 <input
                                     v-model="form.visionary_name"
                                     type="text"
-                                    class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
+                                    class="w-full rounded-xl border border-gray-200 dark:border-gray-600 dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
                                     placeholder="Nom complet du visionnaire"
                                 />
                                 <p v-if="form.errors.visionary_name" class="text-xs text-red-500 mt-1">{{ form.errors.visionary_name }}</p>
@@ -283,25 +283,25 @@ const infoItems = computed(() => [
                             <!-- Row: Pays + Ville -->
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 px-5 py-4">
                                 <div>
-                                    <label class="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+                                    <label class="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">
                                         Pays
                                     </label>
                                     <input
                                         v-model="form.country_name"
                                         type="text"
-                                        class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
+                                        class="w-full rounded-xl border border-gray-200 dark:border-gray-600 dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
                                         placeholder="Ex: RD Congo"
                                     />
                                     <p v-if="form.errors.country_name" class="text-xs text-red-500 mt-1">{{ form.errors.country_name }}</p>
                                 </div>
                                 <div>
-                                    <label class="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+                                    <label class="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">
                                         Ville
                                     </label>
                                     <input
                                         v-model="form.city"
                                         type="text"
-                                        class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
+                                        class="w-full rounded-xl border border-gray-200 dark:border-gray-600 dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
                                         placeholder="Ex: Goma"
                                     />
                                     <p v-if="form.errors.city" class="text-xs text-red-500 mt-1">{{ form.errors.city }}</p>
@@ -310,13 +310,13 @@ const infoItems = computed(() => [
 
                             <!-- Row: Adresse -->
                             <div class="px-5 py-4">
-                                <label class="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+                                <label class="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">
                                     Adresse complète
                                 </label>
                                 <input
                                     v-model="form.address"
                                     type="text"
-                                    class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
+                                    class="w-full rounded-xl border border-gray-200 dark:border-gray-600 dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
                                     placeholder="Rue, avenue, quartier..."
                                 />
                                 <p v-if="form.errors.address" class="text-xs text-red-500 mt-1">{{ form.errors.address }}</p>
@@ -324,24 +324,24 @@ const infoItems = computed(() => [
 
                             <!-- Row: Description -->
                             <div class="px-5 py-4">
-                                <label class="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+                                <label class="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">
                                     Description
                                 </label>
                                 <textarea
                                     v-model="form.description"
                                     rows="3"
-                                    class="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors resize-none"
+                                    class="w-full rounded-xl border border-gray-200 dark:border-gray-600 dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors resize-none"
                                     placeholder="Courte description de l'église..."
                                 ></textarea>
                                 <p v-if="form.errors.description" class="text-xs text-red-500 mt-1">{{ form.errors.description }}</p>
                             </div>
 
                             <!-- Actions -->
-                            <div class="flex items-center justify-end gap-2 px-5 py-3.5 bg-gray-50/50">
+                            <div class="flex items-center justify-end gap-2 px-5 py-3.5 bg-gray-50/50 dark:bg-gray-800/50">
                                 <button
                                     type="button"
                                     @click="cancelEditing"
-                                    class="px-4 py-2 text-xs font-semibold text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+                                    class="px-4 py-2 text-xs font-semibold text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
                                 >
                                     Annuler
                                 </button>

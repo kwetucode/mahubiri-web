@@ -78,8 +78,8 @@ const hasActiveChild = computed(() => {
             class="relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group/dropdown"
             :class="[
                 isOpen
-                    ? 'text-gray-800 bg-gray-50'
-                    : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800',
+                    ? 'text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-700/50'
+                    : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-gray-700/50 dark:hover:text-gray-200',
                 collapsed ? 'justify-center' : '',
             ]"
             :title="collapsed ? label : ''"
@@ -87,7 +87,7 @@ const hasActiveChild = computed(() => {
             <!-- Icon container -->
             <div
                 class="flex items-center justify-center w-8 h-8 rounded-lg flex-shrink-0"
-                :class="isOpen ? 'bg-primary/10 text-primary' : 'group-hover/dropdown:bg-gray-200/60'"
+                :class="isOpen ? 'bg-primary/10 text-primary' : 'group-hover/dropdown:bg-gray-200/60 dark:group-hover/dropdown:bg-gray-600/40'"
             >
                 <slot name="icon">
                     <svg
@@ -164,7 +164,7 @@ const hasActiveChild = computed(() => {
             leave-from-class="opacity-100 translate-y-0 max-h-96"
             leave-to-class="opacity-0 -translate-y-1 max-h-0"
         >
-            <div v-show="isOpen && !collapsed" class="mt-1 ml-4 pl-4 border-l-2 border-gray-100 space-y-0.5 overflow-hidden">
+            <div v-show="isOpen && !collapsed" class="mt-1 ml-4 pl-4 border-l-2 border-gray-100 dark:border-gray-700 space-y-0.5 overflow-hidden">
                 <slot />
             </div>
         </Transition>
@@ -172,7 +172,7 @@ const hasActiveChild = computed(() => {
         <!-- Collapsed: show children as tooltip/popover on hover (optional slot) -->
         <div v-if="collapsed" class="relative group/collapsed">
             <!-- Popover on hover when collapsed -->
-            <div class="hidden group-hover/collapsed:block absolute left-full top-0 ml-2 py-2 px-1 bg-white rounded-xl shadow-xl border border-gray-200/80 min-w-[200px] z-50">
+            <div class="hidden group-hover/collapsed:block absolute left-full top-0 ml-2 py-2 px-1 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200/80 dark:border-gray-700 min-w-[200px] z-50">
                 <p class="px-3 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">{{ label }}</p>
                 <slot name="collapsed-items" />
             </div>

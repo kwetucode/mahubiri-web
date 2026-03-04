@@ -80,7 +80,7 @@ const sizeClasses = computed(() => {
             type="text"
             :placeholder="placeholder"
             :disabled="disabled"
-            class="block w-full border-2 border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-0 focus:border-primary transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="block w-full border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-0 focus:border-primary transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             :class="sizeClasses.input"
         />
 

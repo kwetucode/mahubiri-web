@@ -32,7 +32,7 @@ defineProps({
             <Link
                 v-if="item.href && index < items.length - 1"
                 :href="item.href"
-                class="flex items-center gap-1.5 text-gray-400 hover:text-primary font-medium transition-colors duration-200 whitespace-nowrap"
+                class="flex items-center gap-1.5 text-gray-400 hover:text-primary font-medium transition-colors duration-200 whitespace-nowrap dark:text-gray-500 dark:hover:text-primary"
             >
                 <svg v-if="item.icon" class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="item.icon" />
@@ -43,7 +43,7 @@ defineProps({
             <!-- Current page (last item) -->
             <span
                 v-else
-                class="flex items-center gap-1.5 text-gray-700 font-semibold whitespace-nowrap"
+                class="flex items-center gap-1.5 text-gray-700 dark:text-gray-200 font-semibold whitespace-nowrap"
                 aria-current="page"
             >
                 <svg v-if="item.icon" class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

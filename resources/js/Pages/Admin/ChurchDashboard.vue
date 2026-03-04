@@ -11,6 +11,7 @@ import axios from 'axios';
 const page = usePage();
 const church = computed(() => page.props.church);
 const stats = computed(() => page.props.stats);
+const diskUsage = computed(() => page.props.diskUsage);
 const latestSermons = computed(() => page.props.latestSermons ?? []);
 const topSermons = computed(() => page.props.topSermons ?? []);
 const pageLoading = ref(true);
@@ -29,6 +30,7 @@ const icons = {
     plus: 'M12 4v16m8-8H4',
     music: 'M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3',
     trophy: 'M5 3l14 0M5 3v4a7.012 7.012 0 004 6.32V17H9a2 2 0 00-2 2v2h10v-2a2 2 0 00-2-2h-1v-3.68A7.012 7.012 0 0019 7V3',
+    disk: 'M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4',
 };
 
 const statCards = computed(() => [
@@ -45,6 +47,28 @@ const sermonsLoading = ref(false);
 const sermonsStartDate = ref('');
 const sermonsEndDate = ref('');
 
+// Views chart
+const viewsChart = ref({ labels: [], data: [], total: 0, trend: '', trendUp: true });
+const viewsFilter = ref('this_month');
+const viewsLoading = ref(false);
+const viewsStartDate = ref('');
+const viewsEndDate = ref('');
+
+const diskStatusColor = computed(() => {
+    if (!diskUsage.value) return { bg: 'bg-emerald-500', text: 'text-emerald-600', light: 'bg-emerald-50', hex: '#10b981', label: 'Normal' };
+    const s = diskUsage.value.status;
+    if (s === 'critical') return { bg: 'bg-red-500', text: 'text-red-600', light: 'bg-red-50', hex: '#ef4444', label: 'Critique' };
+    if (s === 'warning') return { bg: 'bg-amber-500', text: 'text-amber-600', light: 'bg-amber-50', hex: '#f59e0b', label: 'Attention' };
+    return { bg: 'bg-emerald-500', text: 'text-emerald-600', light: 'bg-emerald-50', hex: '#10b981', label: 'Normal' };
+});
+
+const diskArc = computed(() => {
+    const pct = diskUsage.value?.usedPercentage ?? 0;
+    const circumference = 2 * Math.PI * 15.915; // ≈ 100
+    const used = (pct / 100) * circumference;
+    return { used: used.toFixed(2), gap: (circumference - used).toFixed(2) };
+});
+
 const filterOptions = [
     { label: 'Semaine', value: 'this_week' },
     { label: 'Ce mois', value: 'this_month' },
@@ -52,29 +76,39 @@ const filterOptions = [
     { label: '3 mois', value: 'last_3_months' },
 ];
 
-const fetchChartData = async (startDate = '', endDate = '') => {
-    sermonsLoading.value = true;
+const fetchChartData = async (type = 'sermons', startDate = '', endDate = '') => {
+    const isViews = type === 'views';
+    const filterRef = isViews ? viewsFilter : sermonsFilter;
+    const loadingRef = isViews ? viewsLoading : sermonsLoading;
+    const chartRef = isViews ? viewsChart : sermonsChart;
+
+    loadingRef.value = true;
     try {
-        const params = { type: 'sermons', filter: sermonsFilter.value };
-        if (sermonsFilter.value === 'custom' && startDate && endDate) {
+        const params = { type, filter: filterRef.value };
+        if (filterRef.value === 'custom' && startDate && endDate) {
             params.start_date = startDate;
             params.end_date = endDate;
         }
         const { data } = await axios.get('/admin/dashboard/chart-data', { params });
-        sermonsChart.value = data;
+        chartRef.value = data;
     } catch (e) {
         console.error('Chart fetch error:', e);
     } finally {
-        sermonsLoading.value = false;
+        loadingRef.value = false;
     }
 };
 
 const onSermonsFilterChange = ({ filter, startDate, endDate }) => {
-    fetchChartData(startDate, endDate);
+    fetchChartData('sermons', startDate, endDate);
+};
+
+const onViewsFilterChange = ({ filter, startDate, endDate }) => {
+    fetchChartData('views', startDate, endDate);
 };
 
 onMounted(() => {
-    fetchChartData();
+    fetchChartData('sermons');
+    fetchChartData('views');
 });
 </script>
 
@@ -84,49 +118,17 @@ onMounted(() => {
             <!-- Breadcrumb -->
             <Breadcrumb :items="[{ label: 'Dashboard' }]" />
 
-            <!-- Welcome banner -->
-            <div class="relative overflow-hidden bg-linear-to-r from-primary via-primary-dark to-[#3a2570] rounded-2xl p-6 lg:p-7">
-                <div class="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/4 blur-2xl"></div>
-                <div class="absolute bottom-0 left-1/3 w-36 h-36 bg-accent-warm/10 rounded-full translate-y-1/2 blur-2xl"></div>
-                <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(circle, white 1px, transparent 1px); background-size: 24px 24px;"></div>
-
-                <div class="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-                    <div>
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/15 backdrop-blur-sm text-white/90 text-[11px] font-medium border border-white/10">
-                                <span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
-                                {{ church.name }}
-                            </span>
-                        </div>
-                        <h1 class="text-xl lg:text-2xl font-extrabold text-white mb-1">
-                            Bienvenue, {{ $page.props.auth.user?.name }}
-                        </h1>
-                        <p class="text-white/60 text-sm max-w-lg">
-                            Gérez les prédications de votre église. Publiez, modifiez et suivez vos contenus.
-                        </p>
-                    </div>
-                    <Link
-                        href="/admin/sermons/create"
-                        class="inline-flex items-center gap-2 px-4 py-2.5 bg-white/15 backdrop-blur-sm text-white rounded-xl text-xs font-semibold border border-white/20 hover:bg-white/25 transition-all duration-200 shadow-lg shadow-black/10 shrink-0"
-                    >
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="icons.plus" />
-                        </svg>
-                        Nouvelle prédication
-                    </Link>
-                </div>
-            </div>
-
             <!-- Stats Grid -->
-            <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
+            <div class="grid grid-cols-2 xl:grid-cols-4 gap-3">
                 <template v-if="pageLoading">
-                    <div v-for="n in 4" :key="'skel-stat-'+n" class="bg-white rounded-xl border border-gray-100 px-4 py-3.5">
-                        <div class="flex items-center justify-between mb-3">
-                            <div class="w-9 h-9 rounded-xl bg-gray-100 animate-pulse"></div>
-                            <div class="w-12 h-4 rounded-full bg-gray-100 animate-pulse"></div>
+                    <div v-for="n in 4" :key="'skel-stat-'+n" class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 px-3 py-2.5">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-7 h-7 rounded-lg bg-gray-100 animate-pulse shrink-0"></div>
+                            <div class="flex-1">
+                                <div class="h-5 w-12 bg-gray-100 rounded-lg animate-pulse mb-1"></div>
+                                <div class="h-2.5 w-20 bg-gray-50 rounded animate-pulse"></div>
+                            </div>
                         </div>
-                        <div class="h-7 w-20 bg-gray-100 rounded-lg animate-pulse mb-1.5"></div>
-                        <div class="h-3 w-28 bg-gray-50 rounded animate-pulse"></div>
                     </div>
                 </template>
                 <template v-else>
@@ -139,6 +141,151 @@ onMounted(() => {
                         :color="stat.color"
                     />
                 </template>
+            </div>
+
+            <!-- Charts side by side -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <!-- Sermons Evolution Chart -->
+                <LineChart
+                    title="Évolution des prédications"
+                    subtitle="Publications par jour"
+                    :labels="sermonsChart.labels"
+                    :data="sermonsChart.data"
+                    color="#6B4EAF"
+                    :total="sermonsChart.total"
+                    :trend="sermonsChart.trend"
+                    :trend-up="sermonsChart.trendUp"
+                    :loading="sermonsLoading"
+                    :icon="icons.mic"
+                    :filters="filterOptions"
+                    v-model:active-filter="sermonsFilter"
+                    v-model:start-date="sermonsStartDate"
+                    v-model:end-date="sermonsEndDate"
+                    show-custom-period
+                    @filter-change="onSermonsFilterChange"
+                    height="250px"
+                />
+
+                <!-- Views Evolution Chart -->
+                <LineChart
+                    title="Évolution des écoutes"
+                    subtitle="Écoutes par jour"
+                    :labels="viewsChart.labels"
+                    :data="viewsChart.data"
+                    color="#3B82F6"
+                    :total="viewsChart.total"
+                    :trend="viewsChart.trend"
+                    :trend-up="viewsChart.trendUp"
+                    :loading="viewsLoading"
+                    :icon="icons.eye"
+                    :filters="filterOptions"
+                    v-model:active-filter="viewsFilter"
+                    v-model:start-date="viewsStartDate"
+                    v-model:end-date="viewsEndDate"
+                    show-custom-period
+                    @filter-change="onViewsFilterChange"
+                    height="250px"
+                />
+            </div>
+
+            <!-- Disk Usage Card with Donut Chart -->
+            <div v-if="diskUsage" class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div class="px-5 py-4 flex items-center justify-between border-b border-gray-50 dark:border-gray-700">
+                    <div class="flex items-center gap-3">
+                        <div class="flex items-center justify-center w-9 h-9 rounded-xl bg-primary/10 text-primary">
+                            <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" :d="icons.disk" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Espace de stockage</h3>
+                            <p class="text-[11px] text-gray-400">Quota de {{ diskUsage.quotaGB }} GB</p>
+                        </div>
+                    </div>
+                    <span
+                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold"
+                        :class="[diskStatusColor.light, diskStatusColor.text]"
+                    >
+                        <span class="w-1.5 h-1.5 rounded-full" :class="diskStatusColor.bg"></span>
+                        {{ diskStatusColor.label }}
+                    </span>
+                </div>
+                <div class="px-5 py-5">
+                    <div class="flex items-center gap-6">
+                        <!-- Donut Chart SVG -->
+                        <div class="relative shrink-0" style="width: 140px; height: 140px;">
+                            <svg viewBox="0 0 36 36" class="w-full h-full -rotate-90">
+                                <!-- Background circle -->
+                                <circle
+                                    cx="18" cy="18" r="15.915"
+                                    fill="none"
+                                    class="stroke-gray-100 dark:stroke-gray-700"
+                                    stroke-width="3"
+                                />
+                                <!-- Used segment -->
+                                <circle
+                                    cx="18" cy="18" r="15.915"
+                                    fill="none"
+                                    :stroke="diskStatusColor.hex"
+                                    stroke-width="3"
+                                    stroke-linecap="round"
+                                    :stroke-dasharray="diskArc.used + ' ' + diskArc.gap"
+                                    stroke-dashoffset="0"
+                                    class="transition-all duration-700 ease-out"
+                                />
+                            </svg>
+                            <!-- Center text -->
+                            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                <span class="text-xl font-bold text-gray-900 dark:text-white leading-none">{{ diskUsage.usedPercentage }}%</span>
+                                <span class="text-[10px] text-gray-400 mt-0.5">utilisé</span>
+                            </div>
+                        </div>
+
+                        <!-- Legend & details -->
+                        <div class="flex-1 space-y-3">
+                            <!-- Used -->
+                            <div class="flex items-center gap-3">
+                                <span class="w-3 h-3 rounded-full shrink-0" :class="diskStatusColor.bg"></span>
+                                <div class="flex-1">
+                                    <div class="flex items-baseline justify-between">
+                                        <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Utilisé</span>
+                                        <span class="text-sm font-bold text-gray-900 dark:text-white">
+                                            {{ diskUsage.usedMB >= 1024 ? diskUsage.usedGB + ' GB' : diskUsage.usedMB + ' MB' }}
+                                        </span>
+                                    </div>
+                                    <div class="w-full h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full mt-1 overflow-hidden">
+                                        <div class="h-full rounded-full transition-all duration-500" :class="diskStatusColor.bg" :style="{ width: Math.max(diskUsage.usedPercentage, 1) + '%' }"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Remaining -->
+                            <div class="flex items-center gap-3">
+                                <span class="w-3 h-3 rounded-full bg-gray-200 dark:bg-gray-600 shrink-0"></span>
+                                <div class="flex-1">
+                                    <div class="flex items-baseline justify-between">
+                                        <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Disponible</span>
+                                        <span class="text-sm font-bold text-gray-900 dark:text-white">{{ diskUsage.remainingGB }} GB</span>
+                                    </div>
+                                    <div class="w-full h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full mt-1 overflow-hidden">
+                                        <div class="h-full rounded-full bg-gray-300 dark:bg-gray-500 transition-all duration-500" :style="{ width: diskUsage.remainingPercentage + '%' }"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Divider + stats -->
+                            <div class="flex items-center gap-4 pt-2 border-t border-gray-50 dark:border-gray-700 text-center">
+                                <div class="flex-1">
+                                    <p class="text-sm font-bold text-gray-800 dark:text-gray-200">{{ diskUsage.totalSermons }}</p>
+                                    <p class="text-[10px] text-gray-400">Fichiers</p>
+                                </div>
+                                <div class="w-px h-6 bg-gray-100 dark:bg-gray-700"></div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-bold text-gray-800 dark:text-gray-200">{{ diskUsage.avgSizeMB }}</p>
+                                    <p class="text-[10px] text-gray-400">MB/sermon</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Content Grid -->
@@ -156,7 +303,7 @@ onMounted(() => {
                         </Link>
                     </template>
 
-                    <div v-if="pageLoading" class="divide-y divide-gray-50">
+                    <div v-if="pageLoading" class="divide-y divide-gray-50 dark:divide-gray-700/50">
                         <div v-for="n in 5" :key="'skel-s-'+n" class="flex items-center gap-3 px-5 py-3">
                             <div class="w-8 h-8 rounded-lg bg-gray-100 animate-pulse shrink-0"></div>
                             <div class="flex-1">
@@ -167,13 +314,13 @@ onMounted(() => {
                     </div>
 
                     <div v-else-if="latestSermons.length === 0" class="px-5 py-8 text-center">
-                        <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
+                        <div class="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-3">
                             <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" :d="icons.music" />
                             </svg>
                         </div>
-                        <p class="text-sm font-medium text-gray-500">Aucune prédication</p>
-                        <p class="text-xs text-gray-400 mt-1">Publiez votre première prédication</p>
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Aucune prédication</p>
+                        <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Publiez votre première prédication</p>
                         <Link
                             href="/admin/sermons/create"
                             class="inline-flex items-center gap-1.5 mt-3 px-3 py-1.5 text-xs font-semibold text-primary bg-primary/5 rounded-lg hover:bg-primary/10 transition-colors"
@@ -185,12 +332,12 @@ onMounted(() => {
                         </Link>
                     </div>
 
-                    <div v-else class="divide-y divide-gray-50">
+                    <div v-else class="divide-y divide-gray-50 dark:divide-gray-700/50">
                         <Link
                             v-for="sermon in latestSermons"
                             :key="sermon.id"
                             :href="`/admin/sermons/${sermon.id}/edit`"
-                            class="flex items-center gap-3 px-5 py-3 hover:bg-gray-50/50 transition-colors group"
+                            class="flex items-center gap-3 px-5 py-3 hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition-colors group"
                         >
                             <div
                                 class="flex items-center justify-center w-8 h-8 rounded-lg shrink-0"
@@ -201,12 +348,12 @@ onMounted(() => {
                                 </svg>
                             </div>
                             <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium text-gray-800 truncate group-hover:text-primary transition-colors">{{ sermon.title }}</p>
-                                <div class="flex items-center gap-2 text-[11px] text-gray-400">
+                                <p class="text-sm font-medium text-gray-800 dark:text-gray-200 truncate group-hover:text-primary transition-colors">{{ sermon.title }}</p>
+                                <div class="flex items-center gap-2 text-[11px] text-gray-400 dark:text-gray-500">
                                     <span>{{ sermon.preacher_name }}</span>
-                                    <span class="text-gray-200">•</span>
+                                    <span class="text-gray-200 dark:text-gray-600">•</span>
                                     <span>{{ sermon.created_at_human }}</span>
-                                    <span v-if="sermon.duration_formatted" class="text-gray-200">•</span>
+                                    <span v-if="sermon.duration_formatted" class="text-gray-200 dark:text-gray-600">•</span>
                                     <span v-if="sermon.duration_formatted">{{ sermon.duration_formatted }}</span>
                                 </div>
                             </div>
@@ -228,7 +375,7 @@ onMounted(() => {
                         <div class="space-y-2">
                             <Link
                                 href="/admin/sermons/create"
-                                class="flex items-center gap-3 p-2.5 rounded-xl bg-gray-50 hover:bg-primary/5 border border-gray-100 hover:border-primary/20 transition-all duration-200 group"
+                                class="flex items-center gap-3 p-2.5 rounded-xl bg-gray-50 dark:bg-gray-700/50 hover:bg-primary/5 dark:hover:bg-primary/10 border border-gray-100 dark:border-gray-600 hover:border-primary/20 transition-all duration-200 group"
                             >
                                 <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-all duration-200">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -236,27 +383,27 @@ onMounted(() => {
                                     </svg>
                                 </div>
                                 <div class="flex-1">
-                                    <p class="text-xs font-semibold text-gray-800 group-hover:text-primary transition-colors">Nouvelle prédication</p>
-                                    <p class="text-[11px] text-gray-400">Publier un nouveau sermon</p>
+                                    <p class="text-xs font-semibold text-gray-800 dark:text-gray-200 group-hover:text-primary transition-colors">Nouvelle prédication</p>
+                                    <p class="text-[11px] text-gray-400 dark:text-gray-500">Publier un nouveau sermon</p>
                                 </div>
-                                <svg class="w-3.5 h-3.5 text-gray-300 group-hover:text-primary/50 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-3.5 h-3.5 text-gray-300 dark:text-gray-500 group-hover:text-primary/50 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                 </svg>
                             </Link>
                             <Link
                                 href="/admin/sermons"
-                                class="flex items-center gap-3 p-2.5 rounded-xl bg-gray-50 hover:bg-primary/5 border border-gray-100 hover:border-primary/20 transition-all duration-200 group"
+                                class="flex items-center gap-3 p-2.5 rounded-xl bg-gray-50 dark:bg-gray-700/50 hover:bg-primary/5 dark:hover:bg-primary/10 border border-gray-100 dark:border-gray-600 hover:border-primary/20 transition-all duration-200 group"
                             >
-                                <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all duration-200">
+                                <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-all duration-200">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="icons.music" />
                                     </svg>
                                 </div>
                                 <div class="flex-1">
-                                    <p class="text-xs font-semibold text-gray-800 group-hover:text-primary transition-colors">Toutes les prédications</p>
-                                    <p class="text-[11px] text-gray-400">Gérer vos sermons</p>
+                                    <p class="text-xs font-semibold text-gray-800 dark:text-gray-200 group-hover:text-primary transition-colors">Toutes les prédications</p>
+                                    <p class="text-[11px] text-gray-400 dark:text-gray-500">Gérer vos sermons</p>
                                 </div>
-                                <svg class="w-3.5 h-3.5 text-gray-300 group-hover:text-primary/50 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-3.5 h-3.5 text-gray-300 dark:text-gray-500 group-hover:text-primary/50 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                 </svg>
                             </Link>
@@ -266,9 +413,9 @@ onMounted(() => {
                     <!-- Top sermons (most viewed) -->
                     <Card title="Top prédications" subtitle="Les plus écoutées" no-padding>
                         <div v-if="topSermons.length === 0" class="px-5 py-6 text-center">
-                            <p class="text-xs text-gray-400">Aucune donnée disponible</p>
+                            <p class="text-xs text-gray-400 dark:text-gray-500">Aucune donnée disponible</p>
                         </div>
-                        <div v-else class="divide-y divide-gray-50">
+                        <div v-else class="divide-y divide-gray-50 dark:divide-gray-700/50">
                             <div
                                 v-for="(sermon, i) in topSermons"
                                 :key="sermon.id"
@@ -276,15 +423,15 @@ onMounted(() => {
                             >
                                 <span
                                     class="flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold shrink-0"
-                                    :class="i === 0 ? 'bg-amber-100 text-amber-700' : i === 1 ? 'bg-gray-100 text-gray-600' : i === 2 ? 'bg-orange-50 text-orange-600' : 'bg-gray-50 text-gray-400'"
+                                    :class="i === 0 ? 'bg-amber-100 text-amber-700' : i === 1 ? 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300' : i === 2 ? 'bg-orange-50 text-orange-600' : 'bg-gray-50 dark:bg-gray-700/50 text-gray-400'"
                                 >
                                     {{ i + 1 }}
                                 </span>
                                 <div class="flex-1 min-w-0">
-                                    <p class="text-xs font-medium text-gray-800 truncate">{{ sermon.title }}</p>
-                                    <p class="text-[10px] text-gray-400">{{ sermon.preacher_name }}</p>
+                                    <p class="text-xs font-medium text-gray-800 dark:text-gray-200 truncate">{{ sermon.title }}</p>
+                                    <p class="text-[10px] text-gray-400 dark:text-gray-500">{{ sermon.preacher_name }}</p>
                                 </div>
-                                <span class="text-[11px] font-semibold text-gray-500 shrink-0">{{ sermon.views_count }} vues</span>
+                                <span class="text-[11px] font-semibold text-gray-500 dark:text-gray-400 shrink-0">{{ sermon.views_count }} vues</span>
                             </div>
                         </div>
                     </Card>
@@ -316,27 +463,6 @@ onMounted(() => {
                     </Card>
                 </div>
             </div>
-
-            <!-- Sermons Evolution Chart -->
-            <LineChart
-                title="Évolution des prédications"
-                subtitle="Publications par jour"
-                :labels="sermonsChart.labels"
-                :data="sermonsChart.data"
-                color="#6B4EAF"
-                :total="sermonsChart.total"
-                :trend="sermonsChart.trend"
-                :trend-up="sermonsChart.trendUp"
-                :loading="sermonsLoading"
-                :icon="icons.mic"
-                :filters="filterOptions"
-                v-model:active-filter="sermonsFilter"
-                v-model:start-date="sermonsStartDate"
-                v-model:end-date="sermonsEndDate"
-                show-custom-period
-                @filter-change="onSermonsFilterChange"
-                height="280px"
-            />
         </div>
     </AdminLayout>
 </template>

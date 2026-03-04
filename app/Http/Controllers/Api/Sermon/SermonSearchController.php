@@ -30,7 +30,7 @@ class SermonSearchController extends Controller
                 'page' => 'nullable|integer|min:1'
             ]);
 
-            $query = Sermon::with(['church', 'category'])
+            $query = Sermon::with(['church', 'category', 'currentUserFavorite'])
                 ->withCount('views')
                 ->published();
 
@@ -123,7 +123,7 @@ class SermonSearchController extends Controller
                 'limit' => 'nullable|integer|min:1|max:100',
             ]);
 
-            $query = Sermon::with(['church', 'category'])
+            $query = Sermon::with(['church', 'category', 'currentUserFavorite'])
                 ->withCount('views')
                 ->published();
 

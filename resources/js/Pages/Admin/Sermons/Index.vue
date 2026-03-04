@@ -144,9 +144,9 @@ const statusTabs = [
 
             <!-- Skeleton -->
             <template v-if="pageLoading">
-                <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/60 dark:border-gray-700 shadow-sm overflow-hidden">
                     <!-- Skeleton header -->
-                    <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+                    <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-xl bg-gray-100 animate-pulse"></div>
                             <div>
@@ -157,14 +157,14 @@ const statusTabs = [
                         <div class="h-9 w-36 bg-gray-100 rounded-xl animate-pulse"></div>
                     </div>
                     <!-- Skeleton stats -->
-                    <div class="grid grid-cols-4 divide-x divide-gray-100 border-b border-gray-100">
+                    <div class="grid grid-cols-4 divide-x divide-gray-100 dark:divide-gray-700 border-b border-gray-100 dark:border-gray-700">
                         <div v-for="n in 4" :key="'ss-'+n" class="px-4 py-3 text-center">
                             <div class="h-6 w-10 bg-gray-100 rounded animate-pulse mx-auto mb-1"></div>
                             <div class="h-3 w-16 bg-gray-50 rounded animate-pulse mx-auto"></div>
                         </div>
                     </div>
                     <!-- Skeleton toolbar -->
-                    <div class="px-4 py-2.5 border-b border-gray-100 flex gap-2">
+                    <div class="px-4 py-2.5 border-b border-gray-100 dark:border-gray-700 flex gap-2">
                         <div class="flex gap-1 p-0.5">
                             <div class="h-8 w-14 bg-gray-100 rounded-lg animate-pulse"></div>
                             <div class="h-8 w-18 bg-gray-50 rounded-lg animate-pulse"></div>
@@ -173,7 +173,7 @@ const statusTabs = [
                         <div class="flex-1 h-8 bg-gray-50 rounded-lg animate-pulse"></div>
                     </div>
                     <!-- Skeleton rows -->
-                    <div class="divide-y divide-gray-50/80">
+                    <div class="divide-y divide-gray-50/80 dark:divide-gray-700/50">
                         <div v-for="n in 6" :key="'sr-'+n" class="flex items-center gap-4 px-5 py-3">
                             <div class="w-9 h-9 rounded-lg bg-gray-100/80 animate-pulse shrink-0"></div>
                             <div class="flex-1 space-y-1">
@@ -191,9 +191,9 @@ const statusTabs = [
             <template v-else>
 
             <!-- Combined card: Header + Stats + Toolbar + Table -->
-            <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/60 dark:border-gray-700 shadow-sm overflow-hidden">
                 <!-- Header row -->
-                <div class="px-5 py-3.5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="px-5 py-3.5 border-b border-gray-100 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div class="flex items-center gap-3">
                         <div class="flex items-center justify-center w-9 h-9 rounded-xl bg-primary/10 text-primary shrink-0">
                             <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -201,8 +201,8 @@ const statusTabs = [
                             </svg>
                         </div>
                         <div>
-                            <h1 class="text-base font-bold text-gray-900 leading-tight">Prédications</h1>
-                            <p class="text-[11px] text-gray-400 mt-0.5">{{ church?.name }}</p>
+                            <h1 class="text-base font-bold text-gray-900 dark:text-gray-100 leading-tight">Prédications</h1>
+                            <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">{{ church?.name }}</p>
                         </div>
                     </div>
                     <Link
@@ -217,28 +217,28 @@ const statusTabs = [
                 </div>
 
                 <!-- Inline stats strip -->
-                <div class="grid grid-cols-2 sm:grid-cols-4 divide-x divide-gray-100 border-b border-gray-100 bg-gray-50/30">
+                <div class="grid grid-cols-2 sm:grid-cols-4 divide-x divide-gray-100 dark:divide-gray-700 border-b border-gray-100 dark:border-gray-700 bg-gray-50/30 dark:bg-gray-800/50">
                     <div class="px-4 py-2.5 text-center">
-                        <p class="text-lg font-bold text-gray-900 leading-none">{{ stats?.total ?? 0 }}</p>
-                        <p class="text-[10px] font-medium text-gray-400 mt-0.5 uppercase tracking-wider">Total</p>
+                        <p class="text-lg font-bold text-gray-900 dark:text-gray-100 leading-none">{{ stats?.total ?? 0 }}</p>
+                        <p class="text-[10px] font-medium text-gray-400 dark:text-gray-500 mt-0.5 uppercase tracking-wider">Total</p>
                     </div>
                     <div class="px-4 py-2.5 text-center">
                         <p class="text-lg font-bold text-emerald-600 leading-none">{{ stats?.published ?? 0 }}</p>
-                        <p class="text-[10px] font-medium text-gray-400 mt-0.5 uppercase tracking-wider">Publiées</p>
+                        <p class="text-[10px] font-medium text-gray-400 dark:text-gray-500 mt-0.5 uppercase tracking-wider">Publiées</p>
                     </div>
                     <div class="px-4 py-2.5 text-center">
                         <p class="text-lg font-bold text-amber-600 leading-none">{{ stats?.draft ?? 0 }}</p>
-                        <p class="text-[10px] font-medium text-gray-400 mt-0.5 uppercase tracking-wider">Brouillons</p>
+                        <p class="text-[10px] font-medium text-gray-400 dark:text-gray-500 mt-0.5 uppercase tracking-wider">Brouillons</p>
                     </div>
                     <div class="px-4 py-2.5 text-center">
                         <p class="text-lg font-bold text-blue-600 leading-none">{{ stats?.views ?? 0 }}</p>
-                        <p class="text-[10px] font-medium text-gray-400 mt-0.5 uppercase tracking-wider">Écoutes</p>
+                        <p class="text-[10px] font-medium text-gray-400 dark:text-gray-500 mt-0.5 uppercase tracking-wider">Écoutes</p>
                     </div>
                 </div>
 
                 <!-- Toolbar: Status tabs + Search -->
-                <div class="flex flex-col sm:flex-row sm:items-center gap-2 px-4 py-2.5 border-b border-gray-100">
-                    <div class="bg-gray-100/80 rounded-lg p-0.5 inline-flex gap-0.5 shrink-0">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2 px-4 py-2.5 border-b border-gray-100 dark:border-gray-700">
+                    <div class="bg-gray-100/80 dark:bg-gray-700/80 rounded-lg p-0.5 inline-flex gap-0.5 shrink-0">
                         <button
                             v-for="tab in statusTabs"
                             :key="tab.key"
@@ -246,7 +246,7 @@ const statusTabs = [
                             class="relative flex items-center gap-1 px-3 py-1.5 rounded-md text-[11px] font-semibold transition-all duration-200"
                             :class="statusFilter === tab.key
                                 ? 'bg-primary text-white shadow-sm'
-                                : 'text-gray-500 hover:text-gray-700 hover:bg-white/60'"
+                                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-white/60 dark:hover:bg-gray-600/50'"
                         >
                             {{ tab.label }}
                             <span
@@ -298,7 +298,7 @@ const statusTabs = [
                             </svg>
                         </div>
                         <div class="min-w-0">
-                            <p class="text-[13px] font-semibold text-gray-900 truncate leading-tight">{{ row.title }}</p>
+                            <p class="text-[13px] font-semibold text-gray-900 dark:text-gray-100 truncate leading-tight">{{ row.title }}</p>
                             <p class="text-[11px] text-gray-400 truncate mt-0.5">
                                 {{ row.views_count ?? 0 }} écoute{{ (row.views_count ?? 0) > 1 ? 's' : '' }}
                                 <span v-if="row.size" class="ml-1">· {{ formatSize(row.size) }}</span>
@@ -309,7 +309,7 @@ const statusTabs = [
 
                 <!-- Preacher cell -->
                 <template #cell-preacher_name="{ row }">
-                    <span class="text-[13px] text-gray-700">{{ row.preacher_name }}</span>
+                    <span class="text-[13px] text-gray-700 dark:text-gray-300">{{ row.preacher_name }}</span>
                 </template>
 
                 <!-- Category cell -->
@@ -320,12 +320,12 @@ const statusTabs = [
                     >
                         {{ row.category_name }}
                     </span>
-                    <span v-else class="text-[13px] text-gray-300">—</span>
+                    <span v-else class="text-[13px] text-gray-300 dark:text-gray-600">—</span>
                 </template>
 
                 <!-- Duration cell -->
                 <template #cell-duration_formatted="{ row }">
-                    <span class="text-[13px] text-gray-600">{{ row.duration_formatted || '—' }}</span>
+                    <span class="text-[13px] text-gray-600 dark:text-gray-400">{{ row.duration_formatted || '—' }}</span>
                 </template>
 
                 <!-- Status cell -->
@@ -341,7 +341,7 @@ const statusTabs = [
 
                 <!-- Created at cell -->
                 <template #cell-created_at="{ row }">
-                    <span class="text-[13px] text-gray-500">{{ row.created_at_human || row.created_at }}</span>
+                    <span class="text-[13px] text-gray-500 dark:text-gray-400">{{ row.created_at_human || row.created_at }}</span>
                 </template>
 
                 <!-- Actions -->

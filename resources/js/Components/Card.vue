@@ -39,28 +39,28 @@ defineProps({
         :class="[
             dark
                 ? 'bg-linear-to-br from-gray-900 to-gray-800 text-white'
-                : 'bg-white',
-            bordered && !dark ? 'border border-gray-200/80' : '',
+                : 'bg-white dark:bg-gray-800',
+            bordered && !dark ? 'border border-gray-200/80 dark:border-gray-700' : '',
         ]"
     >
         <!-- Header (title/subtitle + actions slot) -->
         <div
             v-if="title || $slots.header"
             class="flex items-center justify-between px-5 py-3.5"
-            :class="dark ? 'border-b border-white/10' : 'border-b border-gray-100'"
+            :class="dark ? 'border-b border-white/10' : 'border-b border-gray-100 dark:border-gray-700'"
         >
             <slot name="header">
                 <div>
                     <h3
                         class="text-sm font-bold"
-                        :class="dark ? 'text-white/90' : 'text-gray-900'"
+                        :class="dark ? 'text-white/90' : 'text-gray-900 dark:text-gray-100'"
                     >
                         {{ title }}
                     </h3>
                     <p
                         v-if="subtitle"
                         class="text-[11px] mt-0.5"
-                        :class="dark ? 'text-white/40' : 'text-gray-400'"
+                        :class="dark ? 'text-white/40' : 'text-gray-400 dark:text-gray-500'"
                     >
                         {{ subtitle }}
                     </p>

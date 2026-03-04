@@ -7,6 +7,7 @@ use App\Models\CategorySermon;
 use App\Models\Church;
 use App\Models\Sermon;
 use App\Services\FileUploadService;
+use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,10 +18,12 @@ use Inertia\Inertia;
 class AdminSermonController extends Controller
 {
     private FileUploadService $uploadService;
+    private NotificationService $notificationService;
 
-    public function __construct(FileUploadService $uploadService)
+    public function __construct(FileUploadService $uploadService, NotificationService $notificationService)
     {
         $this->uploadService = $uploadService;
+        $this->notificationService = $notificationService;
     }
 
     /**
@@ -176,6 +179,11 @@ class AdminSermonController extends Controller
 
             Log::info('Admin: Sermon created', ['sermon_id' => $sermon->id, 'church_id' => $church->id]);
 
+            // Send FCM notification if published
+            if ($sermon->is_published) {
+                $this->sendPublishNotification($sermon);
+            }
+
             return redirect()->route('admin.sermons.index')
                 ->with('success', "La prédication « {$sermon->title} » a été créée avec succès.");
 
@@ -310,6 +318,11 @@ class AdminSermonController extends Controller
 
         $sermon->update(['is_published' => !$sermon->is_published]);
 
+        // Send FCM notification when publishing
+        if ($sermon->is_published) {
+            $this->sendPublishNotification($sermon);
+        }
+
         return response()->json([
             'success' => true,
             'is_published' => $sermon->is_published,
@@ -359,5 +372,35 @@ class AdminSermonController extends Controller
         }
 
         return url('/' . ltrim($mediaUrl, '/'));
+    }
+
+    /**
+     * Send FCM push notification when a sermon is published.
+     */
+    private function sendPublishNotification(Sermon $sermon): void
+    {
+        try {
+            if ($sermon->church_id) {
+                $this->notificationService->sendToChurch(
+                    $sermon->church_id,
+                    'new_sermon',
+                    [
+                        'title' => 'Nouvelle prédication disponible',
+                        'body' => "« {$sermon->title} » par {$sermon->preacher_name}",
+                        'data' => [
+                            'sermon_id' => $sermon->id,
+                            'church_id' => $sermon->church_id,
+                            'type' => 'new_sermon',
+                        ],
+                    ]
+                );
+                Log::info('Admin: Push notification sent for published sermon', ['sermon_id' => $sermon->id]);
+            }
+        } catch (\Exception $e) {
+            Log::error('Admin: Failed to send push notification', [
+                'sermon_id' => $sermon->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 }

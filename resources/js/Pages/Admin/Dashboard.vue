@@ -123,44 +123,11 @@ onMounted(() => {
             <!-- Breadcrumb -->
             <Breadcrumb :items="[{ label: 'Dashboard' }]" />
 
-            <!-- Welcome banner -->
-            <div class="relative overflow-hidden bg-linear-to-r from-primary via-primary-dark to-[#3a2570] rounded-2xl p-6 lg:p-7">
-                <div class="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/4 blur-2xl"></div>
-                <div class="absolute bottom-0 left-1/3 w-36 h-36 bg-accent-warm/10 rounded-full translate-y-1/2 blur-2xl"></div>
-                <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(circle, white 1px, transparent 1px); background-size: 24px 24px;"></div>
-
-                <div class="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-                    <div>
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/15 backdrop-blur-sm text-white/90 text-[11px] font-medium border border-white/10">
-                                <span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
-                                En ligne
-                            </span>
-                        </div>
-                        <h1 class="text-xl lg:text-2xl font-extrabold text-white mb-1">
-                            Bienvenue, {{ $page.props.auth.user?.name }}
-                        </h1>
-                        <p class="text-white/60 text-sm max-w-lg">
-                            Voici un aperçu de votre plateforme. Gérez vos prédications et votre communauté.
-                        </p>
-                    </div>
-                    <Link
-                        href="/admin/users"
-                        class="inline-flex items-center gap-2 px-4 py-2.5 bg-white/15 backdrop-blur-sm text-white rounded-xl text-xs font-semibold border border-white/20 hover:bg-white/25 transition-all duration-200 shadow-lg shadow-black/10 shrink-0"
-                    >
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="icons.users" />
-                        </svg>
-                        Gérer les utilisateurs
-                    </Link>
-                </div>
-            </div>
-
             <!-- Stats Grid -->
             <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
                 <!-- Skeleton -->
                 <template v-if="pageLoading">
-                    <div v-for="n in 4" :key="'skel-stat-'+n" class="bg-white rounded-xl border border-gray-100 px-4 py-3.5">
+                    <div v-for="n in 4" :key="'skel-stat-'+n" class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 px-4 py-3.5">
                         <div class="flex items-center justify-between mb-3">
                             <div class="w-9 h-9 rounded-xl bg-gray-100 animate-pulse"></div>
                             <div class="w-12 h-4 rounded-full bg-gray-100 animate-pulse"></div>
@@ -188,12 +155,12 @@ onMounted(() => {
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
                 <!-- Skeleton Activity -->
                 <template v-if="pageLoading">
-                    <div class="lg:col-span-2 bg-white rounded-2xl border border-gray-200/80 overflow-hidden">
-                        <div class="px-5 py-4 border-b border-gray-100">
+                    <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/80 dark:border-gray-700 overflow-hidden">
+                        <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-700">
                             <div class="h-4 w-32 bg-gray-100 rounded animate-pulse mb-1.5"></div>
                             <div class="h-3 w-52 bg-gray-50 rounded animate-pulse"></div>
                         </div>
-                        <div class="divide-y divide-gray-50">
+                        <div class="divide-y divide-gray-50 dark:divide-gray-700/50">
                             <div v-for="n in 4" :key="'skel-act-'+n" class="flex items-center gap-3 px-5 py-3">
                                 <div class="w-8 h-8 rounded-lg bg-gray-100 animate-pulse shrink-0"></div>
                                 <div class="flex-1">
@@ -204,7 +171,7 @@ onMounted(() => {
                         </div>
                     </div>
                     <div class="space-y-5">
-                        <div class="bg-white rounded-2xl border border-gray-200/80 p-5">
+                        <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/80 dark:border-gray-700 p-5">
                             <div class="h-4 w-28 bg-gray-100 rounded animate-pulse mb-3"></div>
                             <div class="space-y-2">
                                 <div class="h-12 bg-gray-50 rounded-xl animate-pulse"></div>
@@ -238,11 +205,11 @@ onMounted(() => {
                         </button>
                     </template>
 
-                    <div class="divide-y divide-gray-50">
+                    <div class="divide-y divide-gray-50 dark:divide-gray-700/50">
                         <div
                             v-for="(item, index) in recentActivity"
                             :key="index"
-                            class="flex items-center gap-3 px-5 py-3 hover:bg-gray-50/50 transition-colors"
+                            class="flex items-center gap-3 px-5 py-3 hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition-colors"
                         >
                             <div
                                 class="flex items-center justify-center w-8 h-8 rounded-lg shrink-0"
@@ -253,7 +220,7 @@ onMounted(() => {
                                 </svg>
                             </div>
                             <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium text-gray-800">{{ item.action }}</p>
+                                <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ item.action }}</p>
                                 <p class="text-[11px] text-gray-400">{{ item.time }}</p>
                             </div>
                             <svg class="w-3.5 h-3.5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -272,7 +239,7 @@ onMounted(() => {
                                 v-for="action in quickActions"
                                 :key="action.label"
                                 :href="action.href"
-                                class="flex items-center gap-3 p-2.5 rounded-xl bg-gray-50 hover:bg-primary/5 border border-gray-100 hover:border-primary/20 transition-all duration-200 group"
+                                class="flex items-center gap-3 p-2.5 rounded-xl bg-gray-50 dark:bg-gray-700/50 hover:bg-primary/5 dark:hover:bg-primary/10 border border-gray-100 dark:border-gray-600 hover:border-primary/20 transition-all duration-200 group"
                             >
                                 <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-all duration-200">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -280,10 +247,10 @@ onMounted(() => {
                                     </svg>
                                 </div>
                                 <div class="flex-1">
-                                    <p class="text-xs font-semibold text-gray-800 group-hover:text-primary transition-colors">{{ action.label }}</p>
-                                    <p class="text-[11px] text-gray-400">{{ action.desc }}</p>
+                                    <p class="text-xs font-semibold text-gray-800 dark:text-gray-200 group-hover:text-primary transition-colors">{{ action.label }}</p>
+                                    <p class="text-[11px] text-gray-400 dark:text-gray-500">{{ action.desc }}</p>
                                 </div>
-                                <svg class="w-3.5 h-3.5 text-gray-300 group-hover:text-primary/50 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-3.5 h-3.5 text-gray-300 dark:text-gray-500 group-hover:text-primary/50 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                 </svg>
                             </Link>
