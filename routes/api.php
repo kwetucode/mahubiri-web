@@ -29,6 +29,7 @@ use App\Http\Controllers\Api\Sermon\CategorySermonController;
 use App\Http\Controllers\Api\Donation\DonationController;
 use App\Http\Controllers\Api\Admin\AdminStatsController;
 use App\Http\Controllers\Api\Admin\AdminManagementController;
+use App\Http\Controllers\Api\Home\HomeController;
 use App\Models\Sermon;
 
 /*
@@ -118,6 +119,9 @@ Route::middleware('auth:sanctum')->prefix('user')->group(function () {
         Route::delete('/', [FcmTokenController::class, 'destroy']);
     });
 });
+
+// Home aggregated endpoint (single request for the entire home screen)
+Route::middleware('auth:sanctum')->get('/home', [HomeController::class, 'index']);
 
 //Churches routes group
 Route::middleware('auth:sanctum')->group(function () {
