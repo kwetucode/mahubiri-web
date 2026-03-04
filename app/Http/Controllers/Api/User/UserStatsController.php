@@ -8,13 +8,14 @@ use App\Models\SermonFavorite;
 use App\Models\SermonView;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class UserStatsController extends Controller
 {
     /**
      * Get current user statistics for dashboard widget
+     * Optimized: single aggregation query instead of multiple separate queries
      *
      * @return JsonResponse
      */
@@ -31,61 +32,11 @@ class UserStatsController extends Controller
                 );
             }
 
-            // Get basic user info
-            $userInfo = [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'avatar_url' => $user->avatar_url ? asset($user->avatar_url) : null,
-            ];
-
-            // Count sermons listened (distinct sermons the user has viewed)
-            $sermonsListenedCount = SermonView::where('user_id', $user->id)
-                ->distinct('sermon_id')
-                ->count('sermon_id');
-
-            // Count total listening time (sum of duration_played)
-            $totalListeningTime = SermonView::where('user_id', $user->id)
-                ->whereNotNull('duration_played')
-                ->sum('duration_played');
-
-            // Count favorites
-            $favoritesCount = SermonFavorite::where('user_id', $user->id)->count();
-
-            // Format listening time (convert seconds to human readable format)
-            $formattedListeningTime = $this->formatDuration($totalListeningTime);
-
-            // Get additional stats
-            $completedSermons = SermonView::where('user_id', $user->id)
-                ->where('completed', true)
-                ->distinct('sermon_id')
-                ->count('sermon_id');
-
-            // Get most recent activity
-            $lastActivity = SermonView::where('user_id', $user->id)
-                ->latest('played_at')
-                ->first();
-
-            $stats = [
-                'user' => $userInfo,
-                'listening_stats' => [
-                    'sermons_listened_count' => $sermonsListenedCount,
-                    'total_listening_time_seconds' => $totalListeningTime,
-                    'total_listening_time_formatted' => $formattedListeningTime,
-                    'favorites_count' => $favoritesCount,
-                    'completed_sermons_count' => $completedSermons,
-                ],
-                'activity' => [
-                    'last_activity_at' => $lastActivity ? $lastActivity->played_at : null,
-                    'is_active_listener' => $sermonsListenedCount > 0,
-                ]
-            ];
-
-            Log::info('User stats retrieved successfully', [
-                'user_id' => $user->id,
-                'sermons_count' => $sermonsListenedCount,
-                'favorites_count' => $favoritesCount,
-            ]);
+            // Cache stats for 5 minutes per user to reduce DB load
+            $cacheKey = "user_stats_{$user->id}";
+            $stats = Cache::remember($cacheKey, 300, function () use ($user) {
+                return $this->buildUserStats($user);
+            });
 
             return $this->successResponse(
                 $stats,
@@ -120,62 +71,10 @@ class UserStatsController extends Controller
                 );
             }
 
-            // Get listening stats by month (last 6 months)
-            $monthlyStats = SermonView::select(
-                DB::raw('DATE_FORMAT(played_at, "%Y-%m") as month'),
-                DB::raw('COUNT(DISTINCT sermon_id) as sermons_count'),
-                DB::raw('SUM(duration_played) as total_duration')
-            )
-                ->where('user_id', $user->id)
-                ->where('played_at', '>=', now()->subMonths(6))
-                ->groupBy('month')
-                ->orderBy('month', 'desc')
-                ->get();
-
-            // Get favorite genres/categories
-            $favoriteCategories = SermonFavorite::join('sermons', 'sermon_favorites.sermon_id', '=', 'sermons.id')
-                ->join('category_sermons', 'sermons.category_sermon_id', '=', 'category_sermons.id')
-                ->select('category_sermons.name', DB::raw('COUNT(*) as count'))
-                ->where('sermon_favorites.user_id', $user->id)
-                ->groupBy('category_sermons.id', 'category_sermons.name')
-                ->orderBy('count', 'desc')
-                ->limit(5)
-                ->get();
-
-            // Get favorite churches
-            $favoriteChurches = SermonFavorite::join('sermons', 'sermon_favorites.sermon_id', '=', 'sermons.id')
-                ->join('churches', 'sermons.church_id', '=', 'churches.id')
-                ->where('churches.is_active', true) // Only active churches
-                ->select('churches.name', 'churches.id', DB::raw('COUNT(*) as favorites_count'))
-                ->where('sermon_favorites.user_id', $user->id)
-                ->groupBy('churches.id', 'churches.name')
-                ->orderBy('favorites_count', 'desc')
-                ->limit(5)
-                ->get();
-
-            $detailedStats = [
-                'monthly_listening' => $monthlyStats->map(function ($stat) {
-                    return [
-                        'month' => $stat->month,
-                        'sermons_listened' => $stat->sermons_count,
-                        'total_duration_seconds' => $stat->total_duration ?? 0,
-                        'total_duration_formatted' => $this->formatDuration($stat->total_duration ?? 0),
-                    ];
-                }),
-                'favorite_categories' => $favoriteCategories->map(function ($category) {
-                    return [
-                        'name' => $category->name,
-                        'favorites_count' => $category->count,
-                    ];
-                }),
-                'favorite_churches' => $favoriteChurches->map(function ($church) {
-                    return [
-                        'id' => $church->id,
-                        'name' => $church->name,
-                        'favorites_count' => $church->favorites_count,
-                    ];
-                }),
-            ];
+            $cacheKey = "user_detailed_stats_{$user->id}";
+            $detailedStats = Cache::remember($cacheKey, 300, function () use ($user) {
+                return $this->buildDetailedStats($user);
+            });
 
             return $this->successResponse(
                 $detailedStats,
@@ -193,10 +92,105 @@ class UserStatsController extends Controller
     }
 
     /**
+     * Build user stats with optimized single aggregation query
+     */
+    private function buildUserStats($user): array
+    {
+        // Single aggregation query instead of 3 separate queries
+        $listeningAgg = SermonView::where('user_id', $user->id)
+            ->select([
+                DB::raw('COUNT(DISTINCT sermon_id) as sermons_listened'),
+                DB::raw('COALESCE(SUM(duration_played), 0) as total_duration'),
+                DB::raw('COUNT(DISTINCT CASE WHEN completed = 1 THEN sermon_id END) as completed_sermons'),
+                DB::raw('MAX(played_at) as last_played_at'),
+            ])
+            ->first();
+
+        $favoritesCount = SermonFavorite::where('user_id', $user->id)->count();
+
+        $sermonsListened = (int) ($listeningAgg->sermons_listened ?? 0);
+        $totalDuration = (int) ($listeningAgg->total_duration ?? 0);
+
+        return [
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'avatar_url' => $user->avatar_url ? asset($user->avatar_url) : null,
+            ],
+            'listening_stats' => [
+                'sermons_listened_count' => $sermonsListened,
+                'total_listening_time_seconds' => $totalDuration,
+                'total_listening_time_formatted' => $this->formatDuration($totalDuration),
+                'favorites_count' => $favoritesCount,
+                'completed_sermons_count' => (int) ($listeningAgg->completed_sermons ?? 0),
+            ],
+            'activity' => [
+                'last_activity_at' => $listeningAgg->last_played_at,
+                'is_active_listener' => $sermonsListened > 0,
+            ],
+        ];
+    }
+
+    /**
+     * Build detailed stats with optimized queries
+     */
+    private function buildDetailedStats($user): array
+    {
+        // Monthly listening stats (last 6 months)
+        $monthlyStats = SermonView::select(
+            DB::raw('DATE_FORMAT(played_at, "%Y-%m") as month'),
+            DB::raw('COUNT(DISTINCT sermon_id) as sermons_count'),
+            DB::raw('COALESCE(SUM(duration_played), 0) as total_duration')
+        )
+            ->where('user_id', $user->id)
+            ->where('played_at', '>=', now()->subMonths(6))
+            ->groupBy('month')
+            ->orderBy('month', 'desc')
+            ->get();
+
+        // Favorite categories
+        $favoriteCategories = SermonFavorite::join('sermons', 'sermon_favorites.sermon_id', '=', 'sermons.id')
+            ->join('category_sermons', 'sermons.category_sermon_id', '=', 'category_sermons.id')
+            ->select('category_sermons.name', DB::raw('COUNT(*) as count'))
+            ->where('sermon_favorites.user_id', $user->id)
+            ->groupBy('category_sermons.id', 'category_sermons.name')
+            ->orderBy('count', 'desc')
+            ->limit(5)
+            ->get();
+
+        // Favorite churches (only active)
+        $favoriteChurches = SermonFavorite::join('sermons', 'sermon_favorites.sermon_id', '=', 'sermons.id')
+            ->join('churches', 'sermons.church_id', '=', 'churches.id')
+            ->where('churches.is_active', true)
+            ->select('churches.name', 'churches.id', DB::raw('COUNT(*) as favorites_count'))
+            ->where('sermon_favorites.user_id', $user->id)
+            ->groupBy('churches.id', 'churches.name')
+            ->orderBy('favorites_count', 'desc')
+            ->limit(5)
+            ->get();
+
+        return [
+            'monthly_listening' => $monthlyStats->map(fn($stat) => [
+                'month' => $stat->month,
+                'sermons_listened' => $stat->sermons_count,
+                'total_duration_seconds' => (int) ($stat->total_duration ?? 0),
+                'total_duration_formatted' => $this->formatDuration((int) ($stat->total_duration ?? 0)),
+            ]),
+            'favorite_categories' => $favoriteCategories->map(fn($cat) => [
+                'name' => $cat->name,
+                'favorites_count' => $cat->count,
+            ]),
+            'favorite_churches' => $favoriteChurches->map(fn($church) => [
+                'id' => $church->id,
+                'name' => $church->name,
+                'favorites_count' => $church->favorites_count,
+            ]),
+        ];
+    }
+
+    /**
      * Format duration from seconds to human readable format
-     *
-     * @param int|null $seconds
-     * @return string
      */
     private function formatDuration(?int $seconds): string
     {
@@ -225,7 +219,7 @@ class UserStatsController extends Controller
         return response()->json([
             'success' => true,
             'data' => $data,
-            'message' => $message
+            'message' => $message,
         ], $status);
     }
 
@@ -237,7 +231,7 @@ class UserStatsController extends Controller
         return response()->json([
             'success' => false,
             'message' => $message,
-            'errors' => $errors
+            'errors' => $errors,
         ], $status);
     }
 }
