@@ -39,7 +39,7 @@ class Role extends Model
      */
     public function hasAdminPrivileges(): bool
     {
-        return in_array($this->name, ['admin']);
+        return in_array($this->name, ['admin', 'church_admin']);
     }
 
     /**

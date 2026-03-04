@@ -66,8 +66,8 @@ Route::prefix('auth')->group(function () {
         ->name('social.login');
 });
 
-// Public audio streaming route (Range/206 support)
-Route::get('/sermons/{sermon}/stream', SermonAudioStreamController::class)
+// Public audio streaming route (Range/206 support, HEAD for pre-flight)
+Route::match(['GET', 'HEAD'], '/sermons/{sermon}/stream', SermonAudioStreamController::class)
     ->whereNumber('sermon')
     ->name('sermons.stream');
 
@@ -245,3 +245,17 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
         Route::post('/bulk-status', [AdminManagementController::class, 'bulkUpdatePreacherStatus']);
     });
 });
+
+// ── Temporary debug endpoint (remove after diagnosing 403s) ────────────────
+Route::get('/debug/stream-check/{sermon}', function (\App\Models\Sermon $sermon, Request $request) {
+    return response()->json([
+        'sermon_id'       => $sermon->id,
+        'is_published'    => $sermon->is_published,
+        'has_audio'       => !empty($sermon->audio_url),
+        'audio_url'       => $sermon->audio_url,
+        'file_exists'     => is_file(storage_path('app/public/' . str_replace('storage/', '', $sermon->audio_url ?? ''))),
+        'auth_header'     => $request->header('Authorization') ? 'present' : 'absent',
+        'server_software' => $_SERVER['SERVER_SOFTWARE'] ?? 'unknown',
+        'mod_security'    => function_exists('apache_get_modules') ? in_array('mod_security2', apache_get_modules()) : 'cannot_detect',
+    ]);
+})->whereNumber('sermon');

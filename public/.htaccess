@@ -1,9 +1,16 @@
-# Disable ModSecurity for API routes (prevents false 403 blocks)
+# Disable ModSecurity for API routes (prevents false 403 blocks on Bearer tokens)
 <IfModule mod_security2.c>
     SecRuleEngine Off
+    # If SecRuleEngine Off is ignored by hosting (AllowOverride),
+    # remove specific OWASP CRS rules that block Authorization headers
+    SecRuleRemoveById 920420
+    SecRuleRemoveById 921110
+    SecRuleRemoveById 942100
+    SecRuleRemoveById 949110
+    SecRuleRemoveById 980130
 </IfModule>
 
-# Alternative: Disable specific ModSecurity rules that block 'stats' paths
+# Legacy mod_security v1 fallback
 <IfModule mod_security.c>
     SecFilterEngine Off
     SecFilterScanPOST Off
@@ -55,12 +62,6 @@
         Header always set Access-Control-Allow-Methods "GET, HEAD, OPTIONS"
         Header always set Access-Control-Allow-Headers "Range, Origin, Accept, Authorization"
         Header always unset Content-Disposition
-    </FilesMatch>
-</IfModule>
-
-<IfModule mod_headers.c>
-    <FilesMatch "\.(mp3|m4a|aac|ogg|wav)$">
-        Header always unset Content-Type
     </FilesMatch>
 </IfModule>
 

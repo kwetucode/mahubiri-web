@@ -6,6 +6,8 @@ import SidebarDropdown from '@/Components/SidebarDropdown.vue';
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
+const isAdmin = computed(() => user.value?.role === 'admin');
+const isChurchAdmin = computed(() => user.value?.role === 'church_admin');
 
 // Notifications
 const unreadCount = computed(() => page.props.notifications?.unread_count ?? 0);
@@ -230,6 +232,7 @@ const currentDate = computed(() => {
                 />
 
                 <SidebarItem
+                    v-if="isAdmin"
                     href="/admin/users"
                     label="Utilisateurs"
                     :icon="icons.users"
@@ -237,6 +240,7 @@ const currentDate = computed(() => {
                 />
 
                 <SidebarItem
+                    v-if="isAdmin"
                     href="/admin/churches"
                     label="Églises & Prédicateurs"
                     :icon="icons.church"
@@ -244,6 +248,7 @@ const currentDate = computed(() => {
                 />
 
                 <SidebarItem
+                    v-if="isAdmin"
                     href="/admin/sermon-categories"
                     label="Catégories sermons"
                     :icon="icons.sermon"
@@ -251,6 +256,22 @@ const currentDate = computed(() => {
                 />
 
                 <SidebarItem
+                    v-if="isChurchAdmin"
+                    href="/admin/church-profile"
+                    label="Mon église"
+                    :icon="icons.church"
+                    :collapsed="sidebarCollapsed"
+                />
+
+                <SidebarItem
+                    href="/admin/sermons"
+                    label="Prédications"
+                    icon="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
+                    :collapsed="sidebarCollapsed"
+                />
+
+                <SidebarItem
+                    v-if="isAdmin"
                     href="/admin/donations"
                     label="Donations"
                     :icon="icons.donation"
@@ -259,6 +280,7 @@ const currentDate = computed(() => {
 
                 <!-- Exemple de dropdown réutilisable -->
                 <SidebarDropdown
+                    v-if="isAdmin"
                     label="Paramètres"
                     :icon="[icons.settings, icons.settingsInner]"
                     :collapsed="sidebarCollapsed"

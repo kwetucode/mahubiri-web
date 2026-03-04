@@ -50,9 +50,9 @@ class AuthController extends Controller
         // Attempt login
         Auth::login($user, $request->boolean('remember'));
 
-        // Verify user is admin
+        // Verify user is admin or church admin
         $user = Auth::user();
-        if ($user->role_id !== RoleType::ADMIN) {
+        if (!in_array($user->role_id, [RoleType::ADMIN, RoleType::CHURCH_ADMIN])) {
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();

@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SermonAudioStreamController extends Controller
 {
-    public function __invoke(Request $request, Sermon $sermon): StreamedResponse
+    public function __invoke(Request $request, Sermon $sermon): StreamedResponse|\Illuminate\Http\Response
     {
         if (!$sermon->is_published || empty($sermon->audio_url)) {
             abort(404);
@@ -62,10 +62,16 @@ class SermonAudioStreamController extends Controller
             'Access-Control-Allow-Origin' => '*',
             'Access-Control-Allow-Methods' => 'GET, HEAD, OPTIONS',
             'Access-Control-Allow-Headers' => 'Range, Origin, Accept, Authorization',
+            'X-Stream-Auth' => 'none',
         ];
 
         if ($status === 206) {
             $headers['Content-Range'] = "bytes {$start}-{$end}/{$fileSize}";
+        }
+
+        // HEAD request: return headers only, no body (pre-flight from players)
+        if ($request->isMethod('HEAD')) {
+            return response()->noContent(200, $headers);
         }
 
         return response()->stream(function () use ($absolutePath, $start, $length): void {

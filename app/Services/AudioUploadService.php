@@ -162,9 +162,9 @@ class AudioUploadService
             throw new InvalidArgumentException('Audio file upload failed: ' . $audio->getErrorMessage());
         }
 
-        // Validate file size (max 100MB)
-        if ($audio->getSize() > 100 * 1024 * 1024) {
-            throw new InvalidArgumentException('Audio file too large. Maximum size is 100MB');
+        // Validate file size (max 200MB)
+        if ($audio->getSize() > 200 * 1024 * 1024) {
+            throw new InvalidArgumentException('Audio file too large. Maximum size is 200MB');
         }
 
         // Validate MIME type
@@ -175,12 +175,30 @@ class AudioUploadService
             'audio/x-wav',
             'audio/mp4',
             'audio/m4a',
+            'audio/x-m4a',
             'audio/aac',
-            'audio/ogg'
+            'audio/ogg',
+            'audio/vorbis',
+            'audio/flac',
+            'audio/x-flac',
+            'application/ogg',
+            'application/octet-stream',
+            'video/mp4', // some m4a files report as video/mp4
         ];
 
-        if (!in_array($audio->getMimeType(), $allowedMimeTypes)) {
-            throw new InvalidArgumentException('Invalid audio file type. Allowed types: MP3, WAV, M4A, AAC, OGG');
+        $detectedMime = $audio->getMimeType();
+        $extension = strtolower($audio->getClientOriginalExtension());
+        $allowedExtensions = ['mp3', 'wav', 'm4a', 'aac', 'ogg', 'flac'];
+
+        Log::debug('Audio upload MIME check', [
+            'detected_mime' => $detectedMime,
+            'extension' => $extension,
+            'original_name' => $audio->getClientOriginalName(),
+        ]);
+
+        // Accept if MIME is in whitelist, OR if MIME is generic but extension is valid
+        if (!in_array($detectedMime, $allowedMimeTypes) && !in_array($extension, $allowedExtensions)) {
+            throw new InvalidArgumentException('Invalid audio file type. Allowed types: MP3, WAV, M4A, AAC, OGG, FLAC');
         }
     }
 
@@ -192,14 +210,15 @@ class AudioUploadService
      **/
     private function normalizeAudioExtension(string $extension): string
     {
-        $allowedExtensions = ['mp3', 'wav', 'm4a', 'aac', 'ogg'];
+        $allowedExtensions = ['mp3', 'wav', 'm4a', 'aac', 'ogg', 'flac'];
         $extension = strtolower($extension);
 
         // Handle special cases
         $extensionMap = [
             'mpeg' => 'mp3',
             'mp4' => 'm4a',
-            'x-m4a' => 'm4a'
+            'x-m4a' => 'm4a',
+            'x-flac' => 'flac',
         ];
 
         if (isset($extensionMap[$extension])) {

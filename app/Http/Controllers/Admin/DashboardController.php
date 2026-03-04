@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Enums\RoleType;
 use App\Models\Church;
 use App\Models\Sermon;
 use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
@@ -18,6 +20,13 @@ class DashboardController extends Controller
      */
     public function index()
     {
+        $user = Auth::user();
+
+        // Church Admin → dedicated church dashboard
+        if ($user->role_id === RoleType::CHURCH_ADMIN) {
+            return $this->churchDashboard($user);
+        }
+
         return Inertia::render('Admin/Dashboard', [
             'stats' => [
                 'totalUsers' => User::count(),
@@ -29,12 +38,92 @@ class DashboardController extends Controller
     }
 
     /**
+     * Church Admin dashboard with church-specific stats.
+     */
+    private function churchDashboard($user)
+    {
+        $church = $user->church;
+
+        if (!$church) {
+            abort(403, 'Aucune église associée à votre compte.');
+        }
+
+        $churchId = $church->id;
+
+        $totalSermons = Sermon::where('church_id', $churchId)->count();
+        $publishedSermons = Sermon::where('church_id', $churchId)->where('is_published', true)->count();
+        $draftSermons = $totalSermons - $publishedSermons;
+        $totalViews = Sermon::where('church_id', $churchId)->withCount('views')->get()->sum('views_count');
+
+        $sermonsThisWeek = Sermon::where('church_id', $churchId)
+            ->where('created_at', '>=', now()->startOfWeek())->count();
+        $sermonsThisMonth = Sermon::where('church_id', $churchId)
+            ->where('created_at', '>=', now()->startOfMonth())->count();
+
+        // Latest sermons (5)
+        $latestSermons = Sermon::where('church_id', $churchId)
+            ->with('category')
+            ->withCount('views')
+            ->orderByDesc('created_at')
+            ->take(5)
+            ->get()
+            ->map(fn (Sermon $s) => [
+                'id' => $s->id,
+                'title' => $s->title,
+                'preacher_name' => $s->preacher_name,
+                'category_name' => $s->category?->name,
+                'is_published' => (bool) $s->is_published,
+                'views_count' => $s->views_count,
+                'duration_formatted' => $s->duration_formatted,
+                'created_at' => $s->created_at->format('d/m/Y'),
+                'created_at_human' => $s->created_at->diffForHumans(),
+            ]);
+
+        // Top sermons by views (5)
+        $topSermons = Sermon::where('church_id', $churchId)
+            ->where('is_published', true)
+            ->withCount('views')
+            ->orderByDesc('views_count')
+            ->take(5)
+            ->get()
+            ->map(fn (Sermon $s) => [
+                'id' => $s->id,
+                'title' => $s->title,
+                'preacher_name' => $s->preacher_name,
+                'views_count' => $s->views_count,
+            ]);
+
+        return Inertia::render('Admin/ChurchDashboard', [
+            'church' => [
+                'id' => $church->id,
+                'name' => $church->name,
+            ],
+            'stats' => [
+                'totalSermons' => $totalSermons,
+                'publishedSermons' => $publishedSermons,
+                'draftSermons' => $draftSermons,
+                'totalViews' => $totalViews,
+                'sermonsThisWeek' => $sermonsThisWeek,
+                'sermonsThisMonth' => $sermonsThisMonth,
+            ],
+            'latestSermons' => $latestSermons,
+            'topSermons' => $topSermons,
+        ]);
+    }
+
+    /**
      * Return chart data for a given model, grouped by day.
      */
     public function chartData(Request $request)
     {
+        $user = Auth::user();
+        $isChurchAdmin = $user->role_id === RoleType::CHURCH_ADMIN;
+
+        // Church admin can only view sermons chart
+        $allowedTypes = $isChurchAdmin ? 'sermons' : 'users,churches,sermons';
+
         $request->validate([
-            'type' => 'required|in:users,churches,sermons',
+            'type' => "required|in:{$allowedTypes}",
             'filter' => 'nullable|string',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
@@ -52,6 +141,11 @@ class DashboardController extends Controller
             'churches' => Church::query(),
             'sermons' => Sermon::query(),
         };
+
+        // Scope to church if CHURCH_ADMIN
+        if ($isChurchAdmin && $type === 'sermons' && $user->church) {
+            $query->where('church_id', $user->church->id);
+        }
 
         // Group by date
         $counts = $query
@@ -83,7 +177,10 @@ class DashboardController extends Controller
         $prevTotal = match ($type) {
             'users' => User::whereBetween('created_at', [$prevStart->startOfDay(), $prevEnd->endOfDay()])->count(),
             'churches' => Church::whereBetween('created_at', [$prevStart->startOfDay(), $prevEnd->endOfDay()])->count(),
-            'sermons' => Sermon::whereBetween('created_at', [$prevStart->startOfDay(), $prevEnd->endOfDay()])->count(),
+            'sermons' => Sermon::query()
+                ->when($isChurchAdmin && $user->church, fn ($q) => $q->where('church_id', $user->church->id))
+                ->whereBetween('created_at', [$prevStart->startOfDay(), $prevEnd->endOfDay()])
+                ->count(),
         };
 
         $trendPercent = $prevTotal > 0
