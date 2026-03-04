@@ -17,223 +17,210 @@ const submit = () => {
 };
 
 const features = [
-    { icon: 'sermons', title: 'Gestion des prédications', desc: 'Publiez, organisez et partagez vos sermons audio avec votre communauté.' },
-    { icon: 'users', title: 'Communauté connectée', desc: 'Gérez vos fidèles, prédicateurs et églises depuis un seul tableau de bord.' },
-    { icon: 'analytics', title: 'Statistiques en temps réel', desc: 'Suivez l\'engagement et les écoutes avec des analytics détaillés.' },
-    { icon: 'notifications', title: 'Notifications push', desc: 'Informez votre communauté des nouveaux contenus instantanément.' },
+    { icon: 'sermons', title: 'Gestion des prédications', desc: 'Publiez et partagez vos sermons audio.' },
+    { icon: 'users', title: 'Communauté connectée', desc: 'Gérez fidèles, prédicateurs et églises.' },
+    { icon: 'analytics', title: 'Statistiques détaillées', desc: 'Suivez l\'engagement en temps réel.' },
+    { icon: 'notifications', title: 'Notifications push', desc: 'Alertez votre communauté instantanément.' },
 ];
 </script>
 
 <template>
-    <div class="h-screen flex bg-white overflow-hidden">
+    <div class="login-page">
         <!-- Left Side - Login Form -->
-        <div class="w-full lg:w-[480px] xl:w-[540px] flex flex-col justify-center px-8 sm:px-12 lg:px-14 py-8 relative z-10">
-            <!-- Logo -->
-            <div class="mb-6">
-                <div class="flex items-center gap-3 mb-6">
-                    <img src="/logo.png" alt="Mahubiri" class="w-10 h-10 object-contain rounded-full" />
+        <div class="login-left">
+            <div class="login-form-wrapper">
+                <!-- Logo -->
+                <div class="login-logo">
+                    <div class="login-logo-icon">
+                        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M16 4L8 10v14h5v-8h6v8h5V10L16 4z" fill="currentColor"/>
+                            <circle cx="16" cy="13" r="2.5" fill="white"/>
+                        </svg>
+                    </div>
                     <div>
-                        <h1 class="text-xl font-bold text-gray-900 tracking-tight">Mahubiri</h1>
-                        <p class="text-[10px] text-gray-400 font-medium uppercase tracking-wider">Administration</p>
+                        <h1 class="login-logo-title">Mahubiri</h1>
+                        <p class="login-logo-sub">Administration</p>
                     </div>
                 </div>
 
-                <h2 class="text-2xl font-extrabold text-gray-900 tracking-tight">Bon retour parmi nous</h2>
-                <p class="text-gray-500 mt-1 text-sm">Connectez-vous pour accéder à votre tableau de bord.</p>
+                <!-- Heading -->
+                <div class="login-heading">
+                    <h2>Bon retour parmi nous</h2>
+                    <p>Connectez-vous pour accéder à votre tableau de bord.</p>
+                </div>
+
+                <!-- Form -->
+                <form @submit.prevent="submit" class="login-form">
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label for="email">Adresse email</label>
+                        <div class="input-wrapper" :class="{ error: form.errors.email }">
+                            <div class="input-icon">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                </svg>
+                            </div>
+                            <input
+                                id="email"
+                                v-model="form.email"
+                                type="email"
+                                autocomplete="email"
+                                required
+                                autofocus
+                                placeholder="admin@mahubiri.com"
+                            />
+                        </div>
+                        <p v-if="form.errors.email" class="field-error">
+                            <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+                            {{ form.errors.email }}
+                        </p>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="form-group">
+                        <label for="password">Mot de passe</label>
+                        <div class="input-wrapper" :class="{ error: form.errors.password }">
+                            <div class="input-icon">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                    <path d="M7 11V7a5 5 0 0110 0v4"/>
+                                </svg>
+                            </div>
+                            <input
+                                id="password"
+                                v-model="form.password"
+                                :type="showPassword ? 'text' : 'password'"
+                                autocomplete="current-password"
+                                required
+                                placeholder="••••••••"
+                            />
+                            <button
+                                type="button"
+                                @click="showPassword = !showPassword"
+                                class="toggle-password"
+                            >
+                                <svg v-if="!showPassword" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                                <svg v-else fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/>
+                                    <line x1="1" y1="1" x2="23" y2="23"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <p v-if="form.errors.password" class="field-error">
+                            <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+                            {{ form.errors.password }}
+                        </p>
+                    </div>
+
+                    <!-- Remember me -->
+                    <div class="form-options">
+                        <label class="remember-label">
+                            <input v-model="form.remember" type="checkbox" />
+                            <span class="custom-check">
+                                <svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </span>
+                            <span>Se souvenir de moi</span>
+                        </label>
+                    </div>
+
+                    <!-- Submit -->
+                    <button type="submit" :disabled="form.processing" class="submit-btn">
+                        <svg v-if="form.processing" class="spinner" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" opacity=".25"/>
+                            <path fill="currentColor" opacity=".75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                        </svg>
+                        <span v-if="form.processing">Connexion en cours...</span>
+                        <template v-else>
+                            <span>Se connecter</span>
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                                <polyline points="12 5 19 12 12 19"/>
+                            </svg>
+                        </template>
+                    </button>
+                </form>
+
+                <!-- Back to home -->
+                <div class="login-footer">
+                    <a href="/" class="back-link">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="19" y1="12" x2="5" y2="12"/>
+                            <polyline points="12 19 5 12 12 5"/>
+                        </svg>
+                        Retour à l'accueil
+                    </a>
+                    <p>&copy; {{ new Date().getFullYear() }} Mahubiri</p>
+                </div>
             </div>
-
-            <!-- Login Form -->
-            <form @submit.prevent="submit" class="space-y-5">
-                <!-- Email -->
-                <div>
-                    <label for="email" class="block text-sm font-semibold text-gray-700 mb-1.5">
-                        Adresse email
-                    </label>
-                    <div class="relative group">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <svg class="w-5 h-5 text-gray-400 group-focus-within:text-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-                            </svg>
-                        </div>
-                        <input
-                            id="email"
-                            v-model="form.email"
-                            type="email"
-                            autocomplete="email"
-                            required
-                            autofocus
-                            class="block w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-50/50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-0 focus:border-primary focus:bg-white transition-all duration-200 text-sm"
-                            :class="{ 'border-red-400 focus:border-red-500 bg-red-50/30': form.errors.email }"
-                            placeholder="admin@mahubiri.com"
-                        />
-                    </div>
-                    <p v-if="form.errors.email" class="mt-2 text-sm text-red-600 flex items-center gap-1">
-                        <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
-                        {{ form.errors.email }}
-                    </p>
-                </div>
-
-                <!-- Password -->
-                <div>
-                    <label for="password" class="block text-sm font-semibold text-gray-700 mb-1.5">
-                        Mot de passe
-                    </label>
-                    <div class="relative group">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <svg class="w-5 h-5 text-gray-400 group-focus-within:text-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                            </svg>
-                        </div>
-                        <input
-                            id="password"
-                            v-model="form.password"
-                            :type="showPassword ? 'text' : 'password'"
-                            autocomplete="current-password"
-                            required
-                            class="block w-full pl-12 pr-14 py-3 border-2 border-gray-200 rounded-xl bg-gray-50/50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-0 focus:border-primary focus:bg-white transition-all duration-200 text-sm"
-                            :class="{ 'border-red-400 focus:border-red-500 bg-red-50/30': form.errors.password }"
-                            placeholder="••••••••"
-                        />
-                        <button
-                            type="button"
-                            @click="showPassword = !showPassword"
-                            class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
-                        >
-                            <svg v-if="!showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                            <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
-                            </svg>
-                        </button>
-                    </div>
-                    <p v-if="form.errors.password" class="mt-2 text-sm text-red-600 flex items-center gap-1">
-                        <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
-                        {{ form.errors.password }}
-                    </p>
-                </div>
-
-                <!-- Remember me -->
-                <div class="flex items-center justify-between">
-                    <label class="flex items-center gap-2.5 cursor-pointer select-none group">
-                        <input
-                            id="remember"
-                            v-model="form.remember"
-                            type="checkbox"
-                            class="w-4.5 h-4.5 rounded-md border-2 border-gray-300 text-primary focus:ring-primary/30 focus:ring-offset-0 cursor-pointer transition-colors"
-                        />
-                        <span class="text-sm text-gray-600 group-hover:text-gray-800 transition-colors">Se souvenir de moi</span>
-                    </label>
-                </div>
-
-                <!-- Submit -->
-                <button
-                    type="submit"
-                    :disabled="form.processing"
-                    class="w-full flex items-center justify-center gap-2 py-3 px-6 bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary text-white font-bold rounded-xl shadow-xl shadow-primary/25 hover:shadow-2xl hover:shadow-primary/30 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 text-sm"
-                >
-                    <svg v-if="form.processing" class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <span v-if="form.processing">Connexion en cours...</span>
-                    <span v-else>Se connecter</span>
-                    <svg v-if="!form.processing" class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                </button>
-            </form>
-
-            <!-- Footer -->
-            <p class="text-center text-xs text-gray-400 mt-6">
-                &copy; {{ new Date().getFullYear() }} Mahubiri. Tous droits réservés.
-            </p>
         </div>
 
-        <!-- Right Side - Hero / Description -->
-        <div class="hidden lg:flex flex-1 relative overflow-hidden">
-            <!-- Login background image -->
-            <img src="/login.png" alt="" class="absolute inset-0 w-full h-full object-cover" />
-            <!-- Gradient overlay -->
-            <div class="absolute inset-0 bg-linear-to-br from-primary/90 via-primary-dark/85 to-[#3a2570]/90"></div>
-
-            <!-- Decorative patterns -->
-            <div class="absolute inset-0 opacity-10">
-                <div class="absolute top-0 right-0 w-125 h-125 rounded-full bg-white/20 -translate-y-1/2 translate-x-1/4 blur-3xl"></div>
-                <div class="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-accent-warm/30 translate-y-1/3 -translate-x-1/4 blur-3xl"></div>
-                <div class="absolute top-1/2 left-1/2 w-[300px] h-[300px] rounded-full bg-white/10 -translate-x-1/2 -translate-y-1/2 blur-2xl"></div>
-            </div>
-
-            <!-- Decorative grid dots -->
-            <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle, white 1px, transparent 1px); background-size: 30px 30px;"></div>
+        <!-- Right Side - Hero -->
+        <div class="login-right">
+            <!-- Background layers -->
+            <div class="right-bg"></div>
+            <div class="right-pattern"></div>
+            <div class="right-glow right-glow-1"></div>
+            <div class="right-glow right-glow-2"></div>
 
             <!-- Content -->
-            <div class="relative z-10 flex flex-col justify-center px-10 xl:px-16 py-8 w-full">
-                <!-- Top badge -->
-                <div class="mb-5">
-                    <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/15 backdrop-blur-sm text-white/90 text-sm font-medium border border-white/10">
-                        <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-                        Plateforme active
-                    </span>
+            <div class="right-content">
+                <!-- Badge -->
+                <div class="right-badge">
+                    <span class="pulse-dot"></span>
+                    Plateforme active
                 </div>
 
-                <h2 class="text-3xl xl:text-4xl font-extrabold text-white leading-tight mb-3">
+                <h2 class="right-title">
                     Gérez vos<br>
-                    <span class="text-accent-warm">prédications</span><br>
+                    <span>prédications</span><br>
                     en toute simplicité
                 </h2>
-                <p class="text-base text-white/70 mb-8 max-w-md leading-relaxed">
+                <p class="right-desc">
                     La plateforme tout-en-un pour publier, organiser et diffuser vos sermons auprès de votre communauté.
                 </p>
 
                 <!-- Feature cards -->
-                <div class="grid grid-cols-1 xl:grid-cols-2 gap-3">
-                    <div
-                        v-for="(feature, index) in features"
-                        :key="index"
-                        class="group flex items-start gap-3 p-3 rounded-xl bg-white/[0.07] backdrop-blur-sm border border-white/10 hover:bg-white/12 transition-all duration-300"
-                    >
-                        <div class="flex items-center justify-center w-9 h-9 rounded-lg bg-white/15 shrink-0 group-hover:bg-white/20 transition-colors">
-                            <!-- Sermons icon -->
-                            <svg v-if="feature.icon === 'sermons'" class="w-5 h-5 text-accent-warm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                <div class="features-grid">
+                    <div v-for="(feature, i) in features" :key="i" class="feature-card">
+                        <div class="feature-icon">
+                            <svg v-if="feature.icon === 'sermons'" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
                             </svg>
-                            <!-- Users icon -->
-                            <svg v-if="feature.icon === 'users'" class="w-5 h-5 text-accent-warm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                            <svg v-if="feature.icon === 'users'" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
                             </svg>
-                            <!-- Analytics icon -->
-                            <svg v-if="feature.icon === 'analytics'" class="w-5 h-5 text-accent-warm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            <svg v-if="feature.icon === 'analytics'" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
                             </svg>
-                            <!-- Notifications icon -->
-                            <svg v-if="feature.icon === 'notifications'" class="w-5 h-5 text-accent-warm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                            <svg v-if="feature.icon === 'notifications'" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/>
                             </svg>
                         </div>
-                        <div class="min-w-0">
-                            <h4 class="text-sm font-semibold text-white mb-0.5">{{ feature.title }}</h4>
-                            <p class="text-xs text-white/50 leading-relaxed">{{ feature.desc }}</p>
+                        <div>
+                            <h4>{{ feature.title }}</h4>
+                            <p>{{ feature.desc }}</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Stats row -->
-                <div class="flex items-center gap-8 mt-8 pt-6 border-t border-white/10">
-                    <div>
-                        <p class="text-2xl font-bold text-white">1000+</p>
-                        <p class="text-xs text-white/50">Prédications</p>
+                <!-- Stats -->
+                <div class="right-stats">
+                    <div class="right-stat">
+                        <span class="right-stat-val">1000+</span>
+                        <span class="right-stat-label">Prédications</span>
                     </div>
-                    <div class="w-px h-10 bg-white/10"></div>
-                    <div>
-                        <p class="text-2xl font-bold text-white">50+</p>
-                        <p class="text-xs text-white/50">Églises</p>
+                    <div class="right-stat-divider"></div>
+                    <div class="right-stat">
+                        <span class="right-stat-val">50+</span>
+                        <span class="right-stat-label">Églises</span>
                     </div>
-                    <div class="w-px h-10 bg-white/10"></div>
-                    <div>
-                        <p class="text-2xl font-bold text-white">5000+</p>
-                        <p class="text-xs text-white/50">Utilisateurs</p>
+                    <div class="right-stat-divider"></div>
+                    <div class="right-stat">
+                        <span class="right-stat-val">5000+</span>
+                        <span class="right-stat-label">Utilisateurs</span>
                     </div>
                 </div>
             </div>
@@ -242,16 +229,332 @@ const features = [
 </template>
 
 <style scoped>
-/* Smooth entrance animation */
-@keyframes fadeInUp {
+/* ── Variables ── */
+:root {
+    --primary: #6B4EAF;
+    --primary-dark: #5a3d96;
+    --accent: #E8B77D;
+    --danger: #ef4444;
+}
+
+/* ── Page layout ── */
+.login-page {
+    display: flex;
+    height: 100vh;
+    background: #ffffff;
+    overflow: hidden;
+    font-family: 'Instrument Sans', system-ui, -apple-system, sans-serif;
+}
+
+/* ── Left Panel ── */
+.login-left {
+    width: 100%;
+    max-width: 520px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 40px 48px;
+    position: relative;
+    z-index: 10;
+    background: #ffffff;
+}
+@media (min-width: 1024px) {
+    .login-left { width: 520px; flex-shrink: 0; }
+}
+@media (max-width: 1023px) {
+    .login-left { max-width: 100%; margin: 0 auto; padding: 32px 24px; }
+}
+
+.login-form-wrapper {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    animation: fadeUp .6s ease both;
+}
+
+/* Logo */
+.login-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 36px;
+}
+.login-logo-icon {
+    width: 44px; height: 44px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #6B4EAF, #8B6FCF);
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 12px rgba(107, 78, 175, 0.3);
+}
+.login-logo-icon svg { width: 24px; height: 24px; }
+.login-logo-title {
+    font-size: 20px; font-weight: 700; color: #111827;
+    letter-spacing: -0.3px; line-height: 1.2;
+}
+.login-logo-sub {
+    font-size: 10px; color: #9ca3af;
+    text-transform: uppercase; letter-spacing: 1.2px; font-weight: 600;
+}
+
+/* Heading */
+.login-heading {
+    margin-bottom: 32px;
+}
+.login-heading h2 {
+    font-size: 26px; font-weight: 800; color: #111827;
+    letter-spacing: -0.5px; margin-bottom: 6px;
+}
+.login-heading p {
+    font-size: 14px; color: #6b7280; line-height: 1.5;
+}
+
+/* ── Form ── */
+.login-form {
+    display: flex; flex-direction: column; gap: 20px;
+}
+.form-group label {
+    display: block; font-size: 13px; font-weight: 600; color: #374151;
+    margin-bottom: 6px;
+}
+.input-wrapper {
+    position: relative; display: flex; align-items: center;
+    border: 2px solid #e5e7eb; border-radius: 14px;
+    background: #f9fafb; transition: all .25s cubic-bezier(.4,0,.2,1);
+    overflow: hidden;
+}
+.input-wrapper:focus-within {
+    border-color: #6B4EAF; background: #fff;
+    box-shadow: 0 0 0 4px rgba(107, 78, 175, 0.08);
+}
+.input-wrapper.error {
+    border-color: #ef4444; background: #fef2f2;
+}
+.input-wrapper.error:focus-within {
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.08);
+}
+.input-icon {
+    display: flex; align-items: center; justify-content: center;
+    width: 48px; flex-shrink: 0; color: #9ca3af;
+    transition: color .25s;
+}
+.input-wrapper:focus-within .input-icon { color: #6B4EAF; }
+.input-icon svg { width: 18px; height: 18px; }
+.input-wrapper input {
+    flex: 1; padding: 13px 16px 13px 0;
+    font-size: 14px; color: #111827; background: transparent;
+    border: none; outline: none; font-family: inherit;
+}
+.input-wrapper input::placeholder { color: #9ca3af; }
+
+.toggle-password {
+    display: flex; align-items: center; justify-content: center;
+    width: 48px; flex-shrink: 0; cursor: pointer;
+    background: none; border: none; color: #9ca3af;
+    transition: color .2s; padding: 0;
+}
+.toggle-password:hover { color: #6b7280; }
+.toggle-password svg { width: 18px; height: 18px; }
+
+.field-error {
+    display: flex; align-items: center; gap: 5px;
+    margin-top: 6px; font-size: 13px; color: #ef4444;
+}
+.field-error svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+/* ── Remember ── */
+.form-options {
+    display: flex; align-items: center;
+}
+.remember-label {
+    display: flex; align-items: center; gap: 10px;
+    cursor: pointer; font-size: 13px; color: #6b7280;
+    user-select: none;
+}
+.remember-label input {
+    position: absolute; opacity: 0; width: 0; height: 0;
+}
+.custom-check {
+    width: 20px; height: 20px; border-radius: 6px;
+    border: 2px solid #d1d5db; display: flex; align-items: center; justify-content: center;
+    transition: all .2s; flex-shrink: 0;
+}
+.custom-check svg { width: 12px; height: 12px; opacity: 0; transition: opacity .15s; }
+.remember-label input:checked ~ .custom-check {
+    background: #6B4EAF; border-color: #6B4EAF;
+}
+.remember-label input:checked ~ .custom-check svg { opacity: 1; }
+.remember-label:hover .custom-check { border-color: #6B4EAF; }
+
+/* ── Submit ── */
+.submit-btn {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%; padding: 14px 24px;
+    background: linear-gradient(135deg, #6B4EAF 0%, #5a3d96 100%);
+    color: #fff; font-size: 14px; font-weight: 700;
+    border: none; border-radius: 14px; cursor: pointer;
+    transition: all .3s cubic-bezier(.4,0,.2,1);
+    box-shadow: 0 4px 16px rgba(107, 78, 175, 0.3);
+    font-family: inherit; line-height: 1;
+}
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(107, 78, 175, 0.35);
+}
+.submit-btn:active { transform: translateY(0); }
+.submit-btn:disabled {
+    opacity: .6; cursor: not-allowed; transform: none !important;
+}
+.submit-btn svg { width: 18px; height: 18px; }
+.spinner { animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Footer ── */
+.login-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 32px; padding-top: 20px;
+    border-top: 1px solid #f3f4f6;
+}
+.login-footer p { font-size: 11px; color: #9ca3af; }
+.back-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 600; color: #6b7280;
+    text-decoration: none; transition: color .2s;
+}
+.back-link:hover { color: #6B4EAF; }
+.back-link svg { width: 14px; height: 14px; }
+
+/* ══════════════════════════════
+   Right Panel
+   ══════════════════════════════ */
+.login-right {
+    display: none; flex: 1; position: relative; overflow: hidden;
+}
+@media (min-width: 1024px) { .login-right { display: flex; } }
+
+.right-bg {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, #6B4EAF 0%, #4a2d8a 40%, #3a2070 100%);
+}
+.right-pattern {
+    position: absolute; inset: 0; opacity: .03;
+    background-image: radial-gradient(circle, #fff 1px, transparent 1px);
+    background-size: 28px 28px;
+}
+.right-glow {
+    position: absolute; border-radius: 50%; filter: blur(100px);
+}
+.right-glow-1 {
+    width: 500px; height: 500px;
+    background: rgba(232, 183, 125, 0.2);
+    top: -15%; right: -10%;
+    animation: floatGlow 15s ease-in-out infinite alternate;
+}
+.right-glow-2 {
+    width: 400px; height: 400px;
+    background: rgba(156, 125, 199, 0.25);
+    bottom: -10%; left: -5%;
+    animation: floatGlow 18s ease-in-out infinite alternate-reverse;
+}
+@keyframes floatGlow {
+    0%   { transform: translate(0, 0) scale(1); }
+    50%  { transform: translate(20px, -30px) scale(1.1); }
+    100% { transform: translate(-10px, 15px) scale(0.95); }
+}
+
+.right-content {
+    position: relative; z-index: 10;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 48px 52px;
+    width: 100%;
+    animation: fadeUp .8s ease .2s both;
+}
+
+/* Badge */
+.right-badge {
+    display: inline-flex; align-items: center; gap: 8px; align-self: flex-start;
+    padding: 7px 16px; border-radius: 999px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    color: rgba(255, 255, 255, 0.9); font-size: 12px; font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 28px;
+}
+.pulse-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #34d399;
+    animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: .5; transform: scale(0.8); }
+}
+
+/* Title */
+.right-title {
+    font-size: clamp(28px, 3vw, 38px); font-weight: 800;
+    color: #fff; line-height: 1.15; letter-spacing: -0.5px;
+    margin-bottom: 14px;
+}
+.right-title span { color: #E8B77D; }
+
+.right-desc {
+    font-size: 15px; color: rgba(255, 255, 255, 0.6);
+    line-height: 1.65; max-width: 440px; margin-bottom: 32px;
+}
+
+/* Features */
+.features-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+}
+.feature-card {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 14px 16px; border-radius: 16px;
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all .3s;
+}
+.feature-card:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+.feature-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: rgba(255, 255, 255, 0.12);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.feature-icon svg { width: 18px; height: 18px; color: #E8B77D; }
+.feature-card h4 {
+    font-size: 13px; font-weight: 700; color: #fff;
+    margin-bottom: 2px;
+}
+.feature-card p {
+    font-size: 11px; color: rgba(255, 255, 255, 0.45); line-height: 1.5;
+}
+
+/* Stats */
+.right-stats {
+    display: flex; align-items: center; gap: 28px;
+    margin-top: 32px; padding-top: 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+.right-stat-val {
+    display: block; font-size: 24px; font-weight: 800; color: #fff;
+}
+.right-stat-label {
+    display: block; font-size: 11px; color: rgba(255, 255, 255, 0.45);
+    margin-top: 2px;
+}
+.right-stat-divider {
+    width: 1px; height: 36px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* ── Animation ── */
+@keyframes fadeUp {
     from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    to   { opacity: 1; transform: translateY(0); }
 }
-form > div, form > button, form > label {
-    animation: fadeInUp 0.5s ease-out both;
-}
-form > div:nth-child(1) { animation-delay: 0.1s; }
-form > div:nth-child(2) { animation-delay: 0.2s; }
-form > div:nth-child(3) { animation-delay: 0.3s; }
-form > button { animation-delay: 0.4s; }
 </style>

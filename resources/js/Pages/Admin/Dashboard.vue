@@ -302,6 +302,64 @@ onMounted(() => {
 
             <!-- Charts Section -->
             <div class="grid grid-cols-1 xl:grid-cols-2 gap-5">
+                <!-- Skeleton charts -->
+                <template v-if="pageLoading">
+                    <div v-for="n in 2" :key="'skel-chart-'+n" class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/80 dark:border-gray-700 overflow-hidden">
+                        <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                            <div>
+                                <div class="h-4 w-40 bg-gray-100 dark:bg-gray-700 rounded animate-pulse mb-1.5"></div>
+                                <div class="h-3 w-28 bg-gray-50 dark:bg-gray-700/50 rounded animate-pulse"></div>
+                            </div>
+                            <div class="flex gap-1.5">
+                                <div v-for="f in 4" :key="'skel-filt-'+n+'-'+f" class="h-7 w-14 bg-gray-100 dark:bg-gray-700 rounded-lg animate-pulse"></div>
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <div class="flex items-end gap-2 mb-4">
+                                <div class="h-8 w-24 bg-gray-100 dark:bg-gray-700 rounded-lg animate-pulse"></div>
+                                <div class="h-5 w-12 bg-gray-50 dark:bg-gray-700/50 rounded-full animate-pulse"></div>
+                            </div>
+                            <!-- Chart skeleton bars -->
+                            <div class="flex items-end gap-2 h-40">
+                                <div v-for="b in 12" :key="'skel-bar-'+n+'-'+b"
+                                    class="flex-1 bg-gray-100 dark:bg-gray-700 rounded-t animate-pulse"
+                                    :style="{ height: (20 + Math.sin(b * 0.8) * 40 + Math.random() * 30) + '%' }"
+                                ></div>
+                            </div>
+                            <div class="flex justify-between mt-3">
+                                <div v-for="l in 6" :key="'skel-lbl-'+n+'-'+l" class="h-2.5 w-8 bg-gray-50 dark:bg-gray-700/50 rounded animate-pulse"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Full-width skeleton chart -->
+                    <div class="xl:col-span-2 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/80 dark:border-gray-700 overflow-hidden">
+                        <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                            <div>
+                                <div class="h-4 w-48 bg-gray-100 dark:bg-gray-700 rounded animate-pulse mb-1.5"></div>
+                                <div class="h-3 w-32 bg-gray-50 dark:bg-gray-700/50 rounded animate-pulse"></div>
+                            </div>
+                            <div class="flex gap-1.5">
+                                <div v-for="f in 4" :key="'skel-filt3-'+f" class="h-7 w-14 bg-gray-100 dark:bg-gray-700 rounded-lg animate-pulse"></div>
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <div class="flex items-end gap-2 mb-4">
+                                <div class="h-8 w-24 bg-gray-100 dark:bg-gray-700 rounded-lg animate-pulse"></div>
+                                <div class="h-5 w-12 bg-gray-50 dark:bg-gray-700/50 rounded-full animate-pulse"></div>
+                            </div>
+                            <div class="flex items-end gap-2 h-52">
+                                <div v-for="b in 20" :key="'skel-bar3-'+b"
+                                    class="flex-1 bg-gray-100 dark:bg-gray-700 rounded-t animate-pulse"
+                                    :style="{ height: (15 + Math.cos(b * 0.5) * 35 + Math.random() * 30) + '%' }"
+                                ></div>
+                            </div>
+                            <div class="flex justify-between mt-3">
+                                <div v-for="l in 10" :key="'skel-lbl3-'+l" class="h-2.5 w-8 bg-gray-50 dark:bg-gray-700/50 rounded animate-pulse"></div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+                <template v-else>
                 <!-- Users Evolution -->
                 <LineChart
                     title="Évolution des utilisateurs"
@@ -363,6 +421,7 @@ onMounted(() => {
                     @filter-change="onSermonsFilterChange"
                     height="280px"
                 />
+                </template>
             </div>
         </div>
     </AdminLayout>

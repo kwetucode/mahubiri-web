@@ -1,0 +1,124 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\Church;
+use App\Models\Sermon;
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class GlobalSearchController extends Controller
+{
+    /**
+     * Perform a global search across sermons, churches, users, etc.
+     * Results are scoped to the authenticated user's role.
+     */
+    public function __invoke(Request $request): JsonResponse
+    {
+        $request->validate([
+            'q' => 'required|string|min:2|max:100',
+        ]);
+
+        $query = trim($request->input('q'));
+        $user = Auth::user();
+        $isAdmin = $user->role === 'admin';
+        $results = [];
+
+        // ── Sermons ──────────────────────────────────────────────
+        $sermonsQuery = Sermon::query()
+            ->with('church:id,name')
+            ->select('id', 'title', 'preacher_name', 'church_id', 'cover_url', 'is_published', 'created_at');
+
+        // Church admins only see their own church's sermons
+        if (!$isAdmin) {
+            $churchId = $user->church_id ?? Church::where('created_by', $user->id)->value('id');
+            if ($churchId) {
+                $sermonsQuery->where('church_id', $churchId);
+            }
+        }
+
+        $sermons = $sermonsQuery
+            ->where(function ($q) use ($query) {
+                $q->where('title', 'LIKE', "%{$query}%")
+                  ->orWhere('preacher_name', 'LIKE', "%{$query}%")
+                  ->orWhere('description', 'LIKE', "%{$query}%");
+            })
+            ->orderByDesc('created_at')
+            ->limit(5)
+            ->get();
+
+        foreach ($sermons as $sermon) {
+            $results[] = [
+                'type' => 'sermon',
+                'id' => $sermon->id,
+                'title' => $sermon->title,
+                'subtitle' => $sermon->preacher_name . ($sermon->church ? ' · ' . $sermon->church->name : ''),
+                'url' => '/admin/sermons/' . $sermon->id . '/edit',
+                'image' => $sermon->cover_url ? asset($sermon->cover_url) : null,
+                'badge' => $sermon->is_published ? 'Publié' : 'Brouillon',
+                'badge_color' => $sermon->is_published ? 'emerald' : 'amber',
+            ];
+        }
+
+        // ── Churches (super admin only) ──────────────────────────
+        if ($isAdmin) {
+            $churches = Church::query()
+                ->select('id', 'name', 'abbreviation', 'city', 'country_name', 'logo_url', 'is_active')
+                ->where(function ($q) use ($query) {
+                    $q->where('name', 'LIKE', "%{$query}%")
+                      ->orWhere('abbreviation', 'LIKE', "%{$query}%")
+                      ->orWhere('visionary_name', 'LIKE', "%{$query}%")
+                      ->orWhere('city', 'LIKE', "%{$query}%");
+                })
+                ->orderBy('name')
+                ->limit(5)
+                ->get();
+
+            foreach ($churches as $church) {
+                $results[] = [
+                    'type' => 'church',
+                    'id' => $church->id,
+                    'title' => $church->name,
+                    'subtitle' => collect([$church->city, $church->country_name])->filter()->implode(', '),
+                    'url' => '/admin/churches/' . $church->id,
+                    'image' => $church->logo_url ? asset($church->logo_url) : null,
+                    'badge' => $church->is_active ? 'Active' : 'Inactive',
+                    'badge_color' => $church->is_active ? 'emerald' : 'red',
+                ];
+            }
+
+            // ── Users (super admin only) ─────────────────────────
+            $users = User::query()
+                ->select('id', 'name', 'email', 'role', 'created_at')
+                ->where(function ($q) use ($query) {
+                    $q->where('name', 'LIKE', "%{$query}%")
+                      ->orWhere('email', 'LIKE', "%{$query}%");
+                })
+                ->orderByDesc('created_at')
+                ->limit(5)
+                ->get();
+
+            foreach ($users as $u) {
+                $results[] = [
+                    'type' => 'user',
+                    'id' => $u->id,
+                    'title' => $u->name,
+                    'subtitle' => $u->email,
+                    'url' => '/admin/users?search=' . urlencode($u->name),
+                    'image' => null,
+                    'badge' => ucfirst(str_replace('_', ' ', $u->role ?? 'user')),
+                    'badge_color' => 'blue',
+                ];
+            }
+        }
+
+        return response()->json([
+            'results' => $results,
+            'count' => count($results),
+            'query' => $query,
+        ]);
+    }
+}

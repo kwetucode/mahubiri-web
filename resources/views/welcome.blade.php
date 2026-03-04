@@ -1,269 +1,453 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="light">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{{ config('app.name', 'Mahubiri') }} — Sermons & Prédications</title>
 
-        <title>{{ config('app.name', 'Mahubiri') }} - Application Mobile de prédications</title>
-
-        <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
+        <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700&display=swap" rel="stylesheet" />
 
-        <!-- Styles / Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-        <!-- Custom Styles -->
         <style>
-            @keyframes fadeInUp {
-                from { opacity: 0; transform: translateY(30px); }
-                to   { opacity: 1; transform: translateY(0); }
-            }
-            @keyframes fadeIn {
-                from { opacity: 0; }
-                to   { opacity: 1; }
-            }
-            @keyframes slideInLeft {
-                from { opacity: 0; transform: translateX(-40px); }
-                to   { opacity: 1; transform: translateX(0); }
-            }
-            @keyframes slideInRight {
-                from { opacity: 0; transform: translateX(40px); }
-                to   { opacity: 1; transform: translateX(0); }
-            }
-            @keyframes float {
-                0%, 100% { transform: translateY(0px); }
-                50%      { transform: translateY(-8px); }
-            }
-            @keyframes scaleIn {
-                from { opacity: 0; transform: scale(0.92); }
-                to   { opacity: 1; transform: scale(1); }
-            }
-            @keyframes shimmer {
-                0%   { background-position: -200% 0; }
-                100% { background-position: 200% 0; }
+            *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+            :root {
+                --primary: #6B4EAF;
+                --primary-light: #9C7DC7;
+                --accent: #E8B77D;
+                --bg: #FAF9FE;
+                --text: #1a1a2e;
+                --muted: #6b7280;
+                --card: #ffffff;
+                --border: rgba(107, 78, 175, 0.08);
             }
 
-            .animate-fadeInUp    { animation: fadeInUp 0.8s ease-out both; }
-            .animate-fadeIn      { animation: fadeIn 1s ease-out both; }
-            .animate-slideInLeft { animation: slideInLeft 0.8s ease-out both; }
-            .animate-slideInRight{ animation: slideInRight 0.8s ease-out both; }
-            .animate-float       { animation: float 4s ease-in-out infinite; }
-            .animate-scaleIn     { animation: scaleIn 0.6s ease-out both; }
+            body {
+                font-family: 'Instrument Sans', system-ui, -apple-system, sans-serif;
+                background: var(--bg);
+                color: var(--text);
+                min-height: 100vh;
+                overflow-x: hidden;
+                -webkit-font-smoothing: antialiased;
+            }
 
-            .animate-delay-100 { animation-delay: 0.1s; }
-            .animate-delay-200 { animation-delay: 0.2s; }
-            .animate-delay-300 { animation-delay: 0.3s; }
-            .animate-delay-400 { animation-delay: 0.4s; }
-            .animate-delay-500 { animation-delay: 0.5s; }
-            .animate-delay-600 { animation-delay: 0.6s; }
+            /* ── Animated background blobs ── */
+            .bg-blobs {
+                position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+            }
+            .blob {
+                position: absolute; border-radius: 50%; filter: blur(80px); opacity: .35;
+                animation: blobFloat 20s ease-in-out infinite alternate;
+            }
+            .blob-1 { width: 500px; height: 500px; background: var(--primary); top: -10%; left: -8%; animation-delay: 0s; }
+            .blob-2 { width: 400px; height: 400px; background: var(--accent); bottom: -5%; right: -5%; animation-delay: -7s; }
+            .blob-3 { width: 300px; height: 300px; background: var(--primary-light); top: 40%; right: 20%; animation-delay: -14s; opacity: .2; }
 
-            .gradient-text {
-                background: linear-gradient(135deg, #6B4EAF 0%, #9C7DC7 50%, #E8B77D 100%);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
+            @keyframes blobFloat {
+                0%   { transform: translate(0, 0) scale(1); }
+                33%  { transform: translate(30px, -40px) scale(1.05); }
+                66%  { transform: translate(-20px, 20px) scale(0.95); }
+                100% { transform: translate(10px, -10px) scale(1.02); }
+            }
+
+            /* ── Layout ── */
+            .page { position: relative; z-index: 1; }
+            .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+            /* ── Nav ── */
+            .nav {
+                display: flex; align-items: center; justify-content: space-between;
+                padding: 20px 0;
+            }
+            .nav-logo {
+                display: flex; align-items: center; gap: 10px;
+                font-size: 22px; font-weight: 700; color: var(--primary);
+                text-decoration: none;
+            }
+            .nav-logo svg { width: 32px; height: 32px; }
+            .nav-badge {
+                display: inline-flex; align-items: center; gap: 6px;
+                padding: 5px 14px; border-radius: 999px; font-size: 11px; font-weight: 600;
+                background: rgba(107, 78, 175, 0.08); color: var(--primary);
+                letter-spacing: 0.5px; text-transform: uppercase;
+            }
+            .nav-actions { display: flex; align-items: center; gap: 12px; }
+            .btn {
+                display: inline-flex; align-items: center; gap: 8px;
+                padding: 10px 22px; border-radius: 12px; font-size: 14px; font-weight: 600;
+                text-decoration: none; transition: all 0.3s cubic-bezier(.4,0,.2,1);
+                cursor: pointer; border: none; line-height: 1;
+            }
+            .btn-primary {
+                background: var(--primary); color: #fff;
+                box-shadow: 0 4px 14px rgba(107, 78, 175, 0.3);
+            }
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 24px rgba(107, 78, 175, 0.35);
+            }
+            .btn-ghost {
+                background: transparent; color: var(--muted);
+                border: 1.5px solid rgba(107, 78, 175, 0.15);
+            }
+            .btn-ghost:hover {
+                border-color: var(--primary); color: var(--primary);
+                background: rgba(107, 78, 175, 0.04);
+            }
+            .btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+            /* ── Hero ── */
+            .hero {
+                text-align: center; padding: 80px 0 60px;
+            }
+            .hero-pill {
+                display: inline-flex; align-items: center; gap: 8px;
+                padding: 6px 18px; border-radius: 999px;
+                background: rgba(107, 78, 175, 0.07); color: var(--primary);
+                font-size: 13px; font-weight: 600; margin-bottom: 28px;
+                animation: fadeUp .8s ease both;
+            }
+            .hero-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+            .hero h1 {
+                font-size: clamp(40px, 7vw, 72px); font-weight: 700;
+                line-height: 1.08; letter-spacing: -1.5px; margin-bottom: 20px;
+                animation: fadeUp .8s ease .1s both;
+            }
+            .hero h1 .gradient {
+                background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 50%, var(--accent) 100%);
+                -webkit-background-clip: text; -webkit-text-fill-color: transparent;
                 background-clip: text;
             }
-
-            .hero-gradient {
-                background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 30%, #e6e3f5 60%, #faf5ff 100%);
+            .hero p {
+                font-size: 18px; color: var(--muted); max-width: 540px; margin: 0 auto 36px;
+                line-height: 1.65; animation: fadeUp .8s ease .2s both;
+            }
+            .hero-cta {
+                display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap;
+                animation: fadeUp .8s ease .35s both;
             }
 
-            .card-shine {
-                position: relative;
-                overflow: hidden;
+            /* ── Stats ribbon ── */
+            .stats {
+                display: grid; grid-template-columns: repeat(3, 1fr);
+                gap: 1px; background: var(--border); border-radius: 20px;
+                overflow: hidden; margin: 60px auto 0; max-width: 680px;
+                box-shadow: 0 1px 3px rgba(0,0,0,.04);
+                animation: fadeUp .8s ease .5s both;
             }
-            .card-shine::before {
-                content: '';
-                position: absolute;
-                top: 0; left: -100%; width: 50%; height: 100%;
-                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-                transition: left 0.6s ease;
-                z-index: 1;
+            .stat {
+                background: var(--card); padding: 28px 20px; text-align: center;
             }
-            .card-shine:hover::before {
-                left: 100%;
+            .stat-val { font-size: 28px; font-weight: 700; color: var(--primary); }
+            .stat-label { font-size: 12px; color: var(--muted); margin-top: 4px; font-weight: 500; }
+
+            /* ── Features ── */
+            .features { padding: 100px 0 80px; }
+            .section-header { text-align: center; margin-bottom: 56px; }
+            .section-header h2 { font-size: 32px; font-weight: 700; margin-bottom: 12px; letter-spacing: -0.5px; }
+            .section-header p { font-size: 16px; color: var(--muted); max-width: 480px; margin: 0 auto; }
+
+            .features-grid {
+                display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 20px;
+            }
+            .feature-card {
+                padding: 32px 28px; border-radius: 20px;
+                background: var(--card); border: 1px solid var(--border);
+                transition: all .35s cubic-bezier(.4,0,.2,1);
+                position: relative; overflow: hidden;
+            }
+            .feature-card::after {
+                content: ''; position: absolute; inset: 0;
+                background: linear-gradient(135deg, rgba(107,78,175,.03), transparent);
+                opacity: 0; transition: opacity .35s;
+            }
+            .feature-card:hover {
+                transform: translateY(-6px);
+                box-shadow: 0 20px 40px rgba(107, 78, 175, 0.08);
+                border-color: rgba(107, 78, 175, 0.15);
+            }
+            .feature-card:hover::after { opacity: 1; }
+            .feature-icon {
+                width: 48px; height: 48px; border-radius: 14px; margin-bottom: 20px;
+                display: flex; align-items: center; justify-content: center;
+                font-size: 24px; position: relative; z-index: 1;
+            }
+            .feature-card h3 {
+                font-size: 17px; font-weight: 700; margin-bottom: 8px;
+                position: relative; z-index: 1;
+            }
+            .feature-card p {
+                font-size: 14px; color: var(--muted); line-height: 1.65;
+                position: relative; z-index: 1;
             }
 
-            .badge-shimmer {
-                background: linear-gradient(90deg, #6B4EAF, #9C7DC7, #6B4EAF);
-                background-size: 200% 100%;
-                animation: shimmer 3s ease-in-out infinite;
+            /* ── Hero Image ── */
+            .hero-image-section { padding: 0 0 100px; }
+            .hero-image-wrapper {
+                max-width: 960px; margin: 0 auto;
+                border-radius: 24px; overflow: hidden;
+                transition: transform .5s cubic-bezier(.4,0,.2,1);
+            }
+            .hero-image-wrapper:hover {
+                transform: translateY(-6px);
+            }
+            .hero-image-wrapper img {
+                width: 100%; height: auto; display: block;
+                object-fit: cover;
+            }
+
+            /* ── CTA ── */
+            .cta-section {
+                padding: 80px 0;
+            }
+            .cta-box {
+                text-align: center; padding: 60px 40px;
+                border-radius: 28px; position: relative; overflow: hidden;
+                background: linear-gradient(135deg, var(--primary), #8B6FCF);
+                color: #fff;
+            }
+            .cta-box::before {
+                content: ''; position: absolute; inset: 0;
+                background: radial-gradient(circle at 30% 50%, rgba(255,255,255,0.1), transparent 60%);
+            }
+            .cta-box h2 { font-size: 30px; font-weight: 700; margin-bottom: 14px; position: relative; }
+            .cta-box p { font-size: 16px; opacity: .85; margin-bottom: 32px; max-width: 420px; margin-left: auto; margin-right: auto; position: relative; }
+            .btn-white {
+                background: #fff; color: var(--primary); font-weight: 700;
+                box-shadow: 0 4px 14px rgba(0,0,0,.1);
+            }
+            .btn-white:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+
+            /* ── Contact ── */
+            .contact { padding: 0 0 80px; }
+            .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 700px; margin: 0 auto; }
+            .contact-card {
+                display: flex; align-items: center; gap: 16px;
+                padding: 24px; border-radius: 18px;
+                background: var(--card); border: 1px solid var(--border);
+                text-decoration: none; color: inherit;
+                transition: all .3s cubic-bezier(.4,0,.2,1);
+            }
+            .contact-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 12px 32px rgba(107, 78, 175, 0.08);
+                border-color: rgba(107, 78, 175, 0.2);
+            }
+            .contact-icon {
+                width: 48px; height: 48px; border-radius: 14px;
+                display: flex; align-items: center; justify-content: center;
+                background: rgba(107, 78, 175, 0.08); color: var(--primary);
+                transition: all .3s;
+            }
+            .contact-card:hover .contact-icon { background: var(--primary); color: #fff; }
+            .contact-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+            .contact-value { font-size: 15px; font-weight: 600; margin-top: 2px; }
+
+            /* ── Footer ── */
+            .footer {
+                text-align: center; padding: 40px 0; font-size: 13px; color: var(--muted);
+                border-top: 1px solid var(--border);
+            }
+            .footer span { font-weight: 600; color: var(--primary); }
+            .footer .sub { font-size: 11px; margin-top: 8px; opacity: .7; }
+
+            /* ── Animations ── */
+            @keyframes fadeUp {
+                from { opacity: 0; transform: translateY(24px); }
+                to   { opacity: 1; transform: translateY(0); }
+            }
+
+            /* ── Responsive ── */
+            @media (max-width: 768px) {
+                .hero { padding: 50px 0 40px; }
+                .stats { grid-template-columns: repeat(3, 1fr); max-width: 100%; }
+                .stat { padding: 20px 12px; }
+                .stat-val { font-size: 22px; }
+                .hero-image-wrapper { border-radius: 16px; }
+                .contact-grid { grid-template-columns: 1fr; }
+                .nav-badge { display: none; }
+                .cta-box { padding: 40px 24px; }
+                .features-grid { grid-template-columns: 1fr; }
             }
         </style>
     </head>
-    <body class="font-sans min-h-screen text-gray-800" style="background: linear-gradient(180deg, #f8f7fc 0%, #ffffff 40%, #f5f3ff 100%);">
-
-        {{-- ── Bannière Beta ── --}}
-        <div class="badge-shimmer text-white text-center py-3 px-4 font-semibold text-sm tracking-wider uppercase shadow-md">
-            ⚠️ Application en Mode Test — Version Bêta ⚠️
+    <body>
+        <!-- Animated background -->
+        <div class="bg-blobs">
+            <div class="blob blob-1"></div>
+            <div class="blob blob-2"></div>
+            <div class="blob blob-3"></div>
         </div>
 
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="page">
+            <div class="container">
 
-            {{-- ── Hero ── --}}
-            <header class="hero-gradient rounded-3xl py-16 md:py-24 px-6 text-center mb-16 shadow-sm">
-                <h1 class="text-5xl md:text-7xl font-bold mb-5 gradient-text animate-fadeInUp leading-tight">
-                    Mahubiri
-                </h1>
-                <p class="text-lg md:text-2xl text-gray-600 mb-8 font-medium animate-fadeInUp animate-delay-200 max-w-2xl mx-auto">
-                    Écoutez des Sermons Inspirants Où Que Vous Soyez
-                </p>
-                <span class="inline-flex items-center gap-2 bg-primary text-white px-7 py-3 rounded-full text-sm font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 transform hover:scale-105 animate-scaleIn animate-delay-400">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                    Version 1.0.0 (Beta)
-                </span>
-            </header>
+                {{-- ── Nav ── --}}
+                <nav class="nav">
+                    <a href="/" class="nav-logo">
+                        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="32" height="32" rx="8" fill="currentColor" opacity=".1"/>
+                            <path d="M16 6L10 11v10h4v-6h4v6h4V11L16 6z" fill="currentColor"/>
+                            <circle cx="16" cy="14" r="2" fill="white"/>
+                        </svg>
+                        Mahubiri
+                    </a>
 
-            {{-- ── Aperçu de l'Application ── --}}
-            <section class="mb-20">
-                <h2 class="text-3xl md:text-4xl font-bold text-center mb-4 text-gray-800">
-                    Aperçu de l'Application
-                </h2>
-                <p class="text-center text-gray-500 mb-12 max-w-xl mx-auto">
-                    Découvrez l'interface élégante et intuitive de Mahubiri
-                </p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-5xl mx-auto">
-                    {{-- Screenshot 1 --}}
-                    <div class="group card-shine bg-white rounded-3xl p-6 md:p-8 shadow-lg hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 transform hover:-translate-y-3 border border-gray-100 animate-slideInLeft">
-                        <div class="relative overflow-hidden rounded-2xl mb-6 bg-gradient-to-br from-purple-50 to-indigo-50 p-3">
-                            <img src="{{ asset('home.png') }}"
-                                 alt="Page d'accueil Mahubiri"
-                                 class="w-full h-auto rounded-xl shadow-xl group-hover:scale-[1.03] transition-transform duration-500"
-                                 onerror="this.parentElement.innerHTML='<div class=\'flex items-center justify-center h-80 rounded-xl\'><div class=\'text-center\'><svg class=\'w-16 h-16 mx-auto mb-4 text-primary/40\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z\'></path></svg><p class=\'text-gray-400 text-sm\'>Aperçu non disponible</p></div></div>'">
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <span class="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 text-xl">🏠</span>
-                            <div>
-                                <h3 class="text-xl font-bold text-gray-800">Page d'Accueil</h3>
-                                <p class="text-gray-500 text-sm">Sermons récents et contenus populaires</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Screenshot 2 --}}
-                    <div class="group card-shine bg-white rounded-3xl p-6 md:p-8 shadow-lg hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 transform hover:-translate-y-3 border border-gray-100 animate-slideInRight">
-                        <div class="relative overflow-hidden rounded-2xl mb-6 bg-gradient-to-br from-purple-50 to-indigo-50 p-3">
-                            <img src="{{ asset('login.png') }}"
-                                 alt="Page de connexion Mahubiri"
-                                 class="w-full h-auto rounded-xl shadow-xl group-hover:scale-[1.03] transition-transform duration-500"
-                                 onerror="this.parentElement.innerHTML='<div class=\'flex items-center justify-center h-80 rounded-xl\'><div class=\'text-center\'><svg class=\'w-16 h-16 mx-auto mb-4 text-primary/40\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z\'></path></svg><p class=\'text-gray-400 text-sm\'>Aperçu non disponible</p></div></div>'">
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <span class="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 text-xl">🔐</span>
-                            <div>
-                                <h3 class="text-xl font-bold text-gray-800">Connexion</h3>
-                                <p class="text-gray-500 text-sm">Authentification simple et sécurisée</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {{-- ── Description ── --}}
-            <section class="max-w-4xl mx-auto mb-20">
-                <div class="bg-white rounded-3xl shadow-lg p-8 md:p-12 border border-gray-100 animate-fadeInUp relative overflow-hidden">
-                    {{-- Accent bar --}}
-                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-primary-light to-accent-warm"></div>
-                    <p class="text-lg md:text-xl text-gray-700 mb-6 leading-relaxed">
-                        <strong class="text-primary">Mahubiri</strong> est votre application mobile de référence pour découvrir, écouter et partager
-                        des sermons et enseignements spirituels inspirants. Connectez-vous avec des prédicateurs du monde entier
-                        et enrichissez votre vie spirituelle quotidienne.
-                    </p>
-                    <p class="text-base md:text-lg text-gray-500 leading-relaxed">
-                        Disponible sur Android et iOS, Mahubiri vous offre une expérience intuitive et fluide pour accéder
-                        à des milliers de sermons, créer vos playlists favorites et suivre vos prédicateurs préférés.
-                    </p>
-                </div>
-            </section>
-
-            {{-- ── Fonctionnalités ── --}}
-            <section class="mb-20">
-                <h2 class="text-3xl md:text-4xl font-bold text-center mb-4 text-gray-800 animate-fadeInUp">
-                    Fonctionnalités Principales
-                </h2>
-                <p class="text-center text-gray-500 mb-12 max-w-xl mx-auto">
-                    Tout ce dont vous avez besoin pour une expérience spirituelle enrichissante
-                </p>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-                    @php
-                        $features = [
-                            ['icon' => '🎧', 'title' => 'Écoute Illimitée', 'desc' => 'Accédez à une vaste bibliothèque de sermons et enseignements en streaming ou en téléchargement.', 'color' => 'from-violet-500/10 to-purple-500/10'],
-                            ['icon' => '⭐', 'title' => 'Favoris & Playlists', 'desc' => 'Créez vos propres playlists et sauvegardez vos sermons préférés pour y accéder facilement.', 'color' => 'from-amber-500/10 to-orange-500/10'],
-                            ['icon' => '👤', 'title' => 'Profils de Prédicateurs', 'desc' => 'Découvrez des profils de prédicateurs détaillés et suivez vos prédicateurs favoris.', 'color' => 'from-blue-500/10 to-cyan-500/10'],
-                            ['icon' => '🔔', 'title' => 'Notifications', 'desc' => 'Recevez des notifications push pour les nouveaux sermons de vos prédicateurs suivis.', 'color' => 'from-rose-500/10 to-pink-500/10'],
-                            ['icon' => '🔍', 'title' => 'Recherche Avancée', 'desc' => 'Trouvez facilement des sermons par thème, prédicateur, église ou date de publication.', 'color' => 'from-emerald-500/10 to-teal-500/10'],
-                            ['icon' => '🌐', 'title' => 'Multi-langues', 'desc' => 'Interface disponible en français, anglais, swahili et d\'autres langues à venir.', 'color' => 'from-indigo-500/10 to-violet-500/10'],
-                        ];
-                    @endphp
-
-                    @foreach ($features as $i => $feature)
-                        <div class="group bg-white rounded-2xl p-6 border border-gray-100 hover:border-primary/30 transition-all duration-300 transform hover:-translate-y-2 hover:shadow-xl hover:shadow-primary/5 animate-fadeInUp animate-delay-{{ ($i + 1) * 100 }}">
-                            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br {{ $feature['color'] }} flex items-center justify-center text-3xl mb-5 group-hover:scale-110 transition-transform duration-300">
-                                {{ $feature['icon'] }}
-                            </div>
-                            <h4 class="text-lg font-bold mb-2 text-gray-800 group-hover:text-primary transition-colors duration-300">
-                                {{ $feature['title'] }}
-                            </h4>
-                            <p class="text-gray-500 leading-relaxed text-sm">
-                                {{ $feature['desc'] }}
-                            </p>
-                        </div>
-                    @endforeach
-                </div>
-            </section>
-
-            {{-- ── Contact ── --}}
-            <section class="mb-20">
-                <div class="max-w-4xl mx-auto bg-gradient-to-br from-primary/5 via-white to-primary-light/5 rounded-3xl shadow-lg p-8 md:p-12 border border-primary/10 animate-scaleIn">
-                    <h2 class="text-3xl md:text-4xl font-bold text-center mb-3 text-gray-800">
-                        Contactez-nous
-                    </h2>
-                    <p class="text-center text-gray-500 mb-10">
-                        Une question ou une suggestion ? N'hésitez pas à nous écrire.
-                    </p>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {{-- Email --}}
-                        <a href="mailto:kwetucode@gmail.com" class="group flex items-center gap-4 bg-white rounded-2xl p-6 shadow-sm hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 transform hover:-translate-y-1 border border-gray-100">
-                            <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors duration-300">
-                                <svg class="w-6 h-6 text-primary group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                                </svg>
-                            </div>
-                            <div class="text-left">
-                                <p class="text-xs text-gray-400 font-medium uppercase tracking-wider">Email</p>
-                                <p class="text-base font-semibold text-gray-700 group-hover:text-primary transition-colors duration-300">
-                                    kwetucode@gmail.com
-                                </p>
-                            </div>
-                        </a>
-
-                        {{-- Téléphone --}}
-                        <a href="tel:+243971330007" class="group flex items-center gap-4 bg-white rounded-2xl p-6 shadow-sm hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 transform hover:-translate-y-1 border border-gray-100">
-                            <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors duration-300">
-                                <svg class="w-6 h-6 text-primary group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
-                                </svg>
-                            </div>
-                            <div class="text-left">
-                                <p class="text-xs text-gray-400 font-medium uppercase tracking-wider">Téléphone</p>
-                                <p class="text-base font-semibold text-gray-700 group-hover:text-primary transition-colors duration-300">
-                                    +243 971 330 007
-                                </p>
-                            </div>
+                    <div class="nav-actions">
+                        <span class="nav-badge">
+                            <span style="width:5px;height:5px;border-radius:50%;background:var(--accent);"></span>
+                            Beta v1.0
+                        </span>
+                        <a href="/admin/login" class="btn btn-primary">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/>
+                                <polyline points="10 17 15 12 10 7"/>
+                                <line x1="15" y1="12" x2="3" y2="12"/>
+                            </svg>
+                            Se connecter
                         </a>
                     </div>
-                </div>
-            </section>
+                </nav>
+
+                {{-- ── Hero ── --}}
+                <section class="hero">
+                    <div class="hero-pill">
+                        <span class="dot"></span>
+                        Application mobile de prédications
+                    </div>
+                    <h1>
+                        Écoutez des sermons<br><span class="gradient">inspirants partout</span>
+                    </h1>
+                    <p>
+                        Découvrez, écoutez et partagez des milliers de prédications depuis votre smartphone. Connectez-vous avec des prédicateurs du monde entier.
+                    </p>
+                    <div class="hero-cta">
+                        <a href="/admin/login" class="btn btn-primary">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                <path d="M7 11V7a5 5 0 0110 0v4"/>
+                            </svg>
+                            Espace Admin
+                        </a>
+                        <a href="#features" class="btn btn-ghost">
+                            En savoir plus
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                                <polyline points="12 5 19 12 12 19"/>
+                            </svg>
+                        </a>
+                    </div>
+
+                    {{-- Stats ribbon --}}
+                    <div class="stats">
+                        <div class="stat">
+                            <div class="stat-val">1000+</div>
+                            <div class="stat-label">Sermons disponibles</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-val">50+</div>
+                            <div class="stat-label">Prédicateurs</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-val">3</div>
+                            <div class="stat-label">Langues</div>
+                        </div>
+                    </div>
+                </section>
+
+                {{-- ── Features ── --}}
+                <section class="features" id="features">
+                    <div class="section-header">
+                        <h2>Tout pour votre vie spirituelle</h2>
+                        <p>Une expérience complète pour accéder aux enseignements qui comptent</p>
+                    </div>
+
+                    <div class="features-grid">
+                        @php
+                            $features = [
+                                ['icon' => '🎧', 'title' => 'Écoute illimitée', 'desc' => 'Streamez ou téléchargez des sermons depuis une bibliothèque riche et variée.', 'bg' => 'rgba(139,111,207,.1)'],
+                                ['icon' => '⭐', 'title' => 'Favoris & Playlists', 'desc' => 'Organisez vos sermons préférés en playlists personnalisées pour y revenir facilement.', 'bg' => 'rgba(232,183,125,.15)'],
+                                ['icon' => '👤', 'title' => 'Profils prédicateurs', 'desc' => 'Suivez vos prédicateurs favoris et recevez leurs nouveaux sermons en avant-première.', 'bg' => 'rgba(59,130,246,.1)'],
+                                ['icon' => '🔔', 'title' => 'Notifications push', 'desc' => 'Soyez alerté dès qu\'un nouveau sermon est publié par vos prédicateurs suivis.', 'bg' => 'rgba(244,63,94,.08)'],
+                                ['icon' => '🔍', 'title' => 'Recherche avancée', 'desc' => 'Filtrez par thème, prédicateur, église ou date pour trouver le sermon parfait.', 'bg' => 'rgba(16,185,129,.1)'],
+                                ['icon' => '🌐', 'title' => 'Multi-langues', 'desc' => 'Français, anglais, swahili — et d\'autres langues à venir très bientôt.', 'bg' => 'rgba(99,102,241,.1)'],
+                            ];
+                        @endphp
+                        @foreach ($features as $f)
+                            <div class="feature-card">
+                                <div class="feature-icon" style="background: {{ $f['bg'] }}">{{ $f['icon'] }}</div>
+                                <h3>{{ $f['title'] }}</h3>
+                                <p>{{ $f['desc'] }}</p>
+                            </div>
+                        @endforeach
+                    </div>
+                </section>
+
+                {{-- ── Hero Image ── --}}
+                <section class="hero-image-section">
+                    <div class="section-header">
+                        <h2>Aperçu de l'application</h2>
+                        <p>Une interface épurée et intuitive pensée pour vous</p>
+                    </div>
+                    <div class="hero-image-wrapper">
+                        <img src="{{ asset('hero.png') }}" alt="Mahubiri - Application de prédications"
+                             onerror="this.parentElement.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:320px;color:#9ca3af;font-size:14px;\'>Aperçu non disponible</div>'">
+                    </div>
+                </section>
+
+                {{-- ── CTA Admin ── --}}
+                <section class="cta-section">
+                    <div class="cta-box">
+                        <h2>Vous êtes administrateur ?</h2>
+                        <p>Connectez-vous à votre espace de gestion pour publier des sermons et gérer votre église.</p>
+                        <a href="/admin/login" class="btn btn-white" style="position:relative;">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            </svg>
+                            Accéder au tableau de bord
+                        </a>
+                    </div>
+                </section>
+
+                {{-- ── Contact ── --}}
+                <section class="contact">
+                    <div class="section-header">
+                        <h2>Contactez-nous</h2>
+                        <p>Une question ou une suggestion ? Écrivez-nous.</p>
+                    </div>
+                    <div class="contact-grid">
+                        <a href="mailto:kwetucode@gmail.com" class="contact-card">
+                            <div class="contact-icon">
+                                <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="contact-label">Email</div>
+                                <div class="contact-value">kwetucode@gmail.com</div>
+                            </div>
+                        </a>
+                        <a href="tel:+243971330007" class="contact-card">
+                            <div class="contact-icon">
+                                <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="contact-label">Téléphone</div>
+                                <div class="contact-value">+243 971 330 007</div>
+                            </div>
+                        </a>
+                    </div>
+                </section>
+            </div>
 
             {{-- ── Footer ── --}}
-            <footer class="text-center py-10 mt-8 border-t border-gray-200">
-                <p class="text-gray-500 mb-1">
-                    &copy; {{ date('Y') }} <span class="font-semibold text-primary">Mahubiri</span>. Tous droits réservés.
-                </p>
-                <p class="text-xs text-gray-400 mt-2">
-                    Cette application est actuellement en phase de test. Certaines fonctionnalités peuvent être instables.
-                </p>
+            <footer class="footer">
+                <div class="container">
+                    <p>&copy; {{ date('Y') }} <span>Mahubiri</span>. Tous droits réservés.</p>
+                    <p class="sub">Application en phase de test — Certaines fonctionnalités peuvent évoluer.</p>
+                </div>
             </footer>
         </div>
     </body>

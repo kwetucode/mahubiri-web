@@ -20,6 +20,31 @@ class ChurchProfileController extends Controller
 
         abort_unless($church, 403, 'Aucune église associée à votre compte.');
 
+        $totalSermons = $church->sermons()->count();
+        $publishedSermons = $church->sermons()->where('is_published', true)->count();
+        $draftSermons = $totalSermons - $publishedSermons;
+        $totalViews = $church->sermonViews()->count();
+        $totalFavorites = \App\Models\SermonFavorite::whereIn('sermon_id', $church->sermons()->select('id'))->count();
+        $sermonsThisMonth = $church->sermons()->where('created_at', '>=', now()->startOfMonth())->count();
+        $viewsThisMonth = $church->sermonViews()->where('sermon_views.created_at', '>=', now()->startOfMonth())->count();
+
+        // Top 3 most viewed sermons
+        $topSermons = $church->sermons()
+            ->where('is_published', true)
+            ->withCount('views')
+            ->orderByDesc('views_count')
+            ->take(3)
+            ->get()
+            ->map(fn ($s) => [
+                'id' => $s->id,
+                'title' => $s->title,
+                'preacher_name' => $s->preacher_name,
+                'views_count' => $s->views_count,
+            ]);
+
+        // Latest sermon date
+        $latestSermon = $church->sermons()->latest()->first();
+
         return Inertia::render('Admin/ChurchProfile', [
             'church' => [
                 'id'             => $church->id,
@@ -34,9 +59,21 @@ class ChurchProfileController extends Controller
                 'address'        => $church->address,
                 'is_active'      => $church->is_active,
                 'is_featured'    => $church->is_featured,
-                'sermons_count'  => $church->sermons()->count(),
+                'sermons_count'  => $totalSermons,
                 'created_at'     => $church->created_at?->format('d/m/Y'),
             ],
+            'stats' => [
+                'totalSermons'     => $totalSermons,
+                'publishedSermons' => $publishedSermons,
+                'draftSermons'     => $draftSermons,
+                'totalViews'       => $totalViews,
+                'totalFavorites'   => $totalFavorites,
+                'sermonsThisMonth' => $sermonsThisMonth,
+                'viewsThisMonth'   => $viewsThisMonth,
+                'publicationRate'  => $totalSermons > 0 ? round(($publishedSermons / $totalSermons) * 100) : 0,
+                'lastSermonDate'   => $latestSermon?->created_at?->diffForHumans(),
+            ],
+            'topSermons' => $topSermons,
         ]);
     }
 

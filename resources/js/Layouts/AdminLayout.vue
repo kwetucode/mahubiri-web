@@ -3,6 +3,8 @@ import { computed, ref, onMounted, onUnmounted, watch } from 'vue';
 import { usePage, Link, router } from '@inertiajs/vue3';
 import SidebarItem from '@/Components/SidebarItem.vue';
 import SidebarDropdown from '@/Components/SidebarDropdown.vue';
+import GlobalSearch from '@/Components/GlobalSearch.vue';
+import PageLoader from '@/Components/PageLoader.vue';
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
@@ -117,7 +119,18 @@ const currentPath = computed(() => {
     return window.location.pathname;
 });
 
+const showLogoutModal = ref(false);
+
+const confirmLogout = () => {
+    showLogoutModal.value = true;
+};
+
+const cancelLogout = () => {
+    showLogoutModal.value = false;
+};
+
 const logout = () => {
+    showLogoutModal.value = false;
     router.post('/admin/logout');
 };
 
@@ -176,6 +189,9 @@ const currentDate = computed(() => {
 
 <template>
     <div class="min-h-screen bg-gray-50/50 dark:bg-gray-900 transition-colors duration-300">
+        <!-- Page transition loader -->
+        <PageLoader />
+
         <!-- Mobile overlay -->
         <Transition
             enter-active-class="transition-opacity duration-300"
@@ -352,7 +368,7 @@ const currentDate = computed(() => {
                             <p class="text-[11px] text-gray-400 dark:text-gray-500 truncate">{{ user?.email }}</p>
                         </div>
                         <button
-                            @click="logout"
+                            @click="confirmLogout"
                             class="p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 transition-all duration-200"
                             title="Déconnexion"
                         >
@@ -361,6 +377,17 @@ const currentDate = computed(() => {
                             </svg>
                         </button>
                     </template>
+                    <!-- Logout button when sidebar is collapsed -->
+                    <button
+                        v-if="sidebarCollapsed"
+                        @click="confirmLogout"
+                        class="p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 transition-all duration-200"
+                        title="Déconnexion"
+                    >
+                        <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                    </button>
                 </div>
             </div>
         </aside>
@@ -391,14 +418,8 @@ const currentDate = computed(() => {
                     </div>
 
                     <div class="flex items-center gap-3">
-                        <!-- Search (decorative) -->
-                        <div class="hidden md:flex items-center gap-2 px-4 py-2 bg-gray-100/80 dark:bg-gray-700/50 rounded-xl text-gray-400 dark:text-gray-500 text-sm min-w-[200px]">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                            <span>Rechercher...</span>
-                            <kbd class="ml-auto px-1.5 py-0.5 bg-white dark:bg-gray-600 rounded text-[10px] font-mono text-gray-400 dark:text-gray-500 border border-gray-200 dark:border-gray-600">⌘K</kbd>
-                        </div>
+                        <!-- Global Search -->
+                        <GlobalSearch />
 
                         <!-- Notification bell -->
                         <div class="relative" ref="notifDropdownRef">
@@ -504,6 +525,60 @@ const currentDate = computed(() => {
                 <slot />
             </main>
         </div>
+
+        <!-- Logout Confirmation Modal -->
+        <Transition
+            enter-active-class="transition-opacity duration-200"
+            enter-from-class="opacity-0"
+            enter-to-class="opacity-100"
+            leave-active-class="transition-opacity duration-150"
+            leave-from-class="opacity-100"
+            leave-to-class="opacity-0"
+        >
+            <div v-if="showLogoutModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                <!-- Backdrop -->
+                <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" @click="cancelLogout"></div>
+
+                <!-- Modal -->
+                <Transition
+                    appear
+                    enter-active-class="transition-all duration-300 ease-out"
+                    enter-from-class="opacity-0 scale-90 translate-y-4"
+                    enter-to-class="opacity-100 scale-100 translate-y-0"
+                    leave-active-class="transition-all duration-200 ease-in"
+                    leave-from-class="opacity-100 scale-100 translate-y-0"
+                    leave-to-class="opacity-0 scale-90 translate-y-4"
+                >
+                    <div v-if="showLogoutModal" class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-sm w-full p-6 text-center">
+                        <!-- Icon -->
+                        <div class="mx-auto w-14 h-14 rounded-full bg-red-50 dark:bg-red-900/30 flex items-center justify-center mb-4">
+                            <svg class="w-7 h-7 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                        </div>
+
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-1">Se déconnecter ?</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Vous allez être redirigé vers la page de connexion.</p>
+
+                        <!-- Actions -->
+                        <div class="flex gap-3">
+                            <button
+                                @click="cancelLogout"
+                                class="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                            >
+                                Annuler
+                            </button>
+                            <button
+                                @click="logout"
+                                class="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-red-500 hover:bg-red-600 shadow-lg shadow-red-500/25 transition-colors"
+                            >
+                                Déconnexion
+                            </button>
+                        </div>
+                    </div>
+                </Transition>
+            </div>
+        </Transition>
     </div>
 </template>
 

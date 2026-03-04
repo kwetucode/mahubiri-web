@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\CategorySermonController;
 use App\Http\Controllers\Admin\AdminSermonController;
 use App\Http\Controllers\Admin\ChurchProfileController;
+use App\Http\Controllers\Admin\GlobalSearchController;
 use App\Http\Controllers\Admin\SettingsController;
 
 /*
@@ -52,6 +53,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     // Settings
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
+
+    // Global search
+    Route::get('/search', GlobalSearchController::class)->name('search');
 
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
