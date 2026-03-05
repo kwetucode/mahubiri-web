@@ -344,7 +344,7 @@ const closePlayer = () => {
                                 class="flex items-center justify-center w-9 h-9 bg-linear-to-br from-primary/12 to-primary/4 rounded-lg"
                             >
                                 <svg class="w-4 h-4 text-primary/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
                                 </svg>
                             </div>
                             <!-- Loading / Play overlay -->
@@ -445,16 +445,20 @@ const closePlayer = () => {
                                 <path d="M8 5v14l11-7z" />
                             </svg>
                         </button>
+                        <!-- Edit button: icon only if oubliée -->
                         <Link
                             :href="`/admin/sermons/${row.id}/edit`"
-                            class="inline-flex items-center px-2 py-1.5 text-[11px] font-semibold rounded-lg bg-primary/10 text-primary hover:bg-primary/15 transition-colors"
+                            class="inline-flex items-center p-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/15 transition-colors"
+                            :title="'Modifier'"
                         >
-                            <svg class="w-3.5 h-3.5 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
-                            Modifier
+                            <span v-if="row.audio_url" class="ml-1 text-[11px] font-semibold">Modifier</span>
                         </Link>
+                        <!-- Delete button only if not oubliée -->
                         <button
+                            v-if="row.audio_url"
                             @click="requestDelete(row)"
                             class="inline-flex items-center p-1.5 text-xs font-semibold rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
                         >
