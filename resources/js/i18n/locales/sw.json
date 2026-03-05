@@ -512,7 +512,8 @@
         "messagePlaceholder": "Ujumbe wa kuambatana na mchango wako...",
         "submit": "Toa mchango",
         "processing": "Inashughulikiwa...",
-        "sandboxWarning": "Hali ya majaribio imewezeshwa — Hakuna malipo halisi yatakayofanywa."
+        "sandboxWarning": "Hali ya majaribio imewezeshwa — Hakuna malipo halisi yatakayofanywa.",
+        "successTitle": "Mchango umetumwa kwa mafanikio"
     },
     "storageUpgrade": {
         "title": "Ongeza hifadhi",

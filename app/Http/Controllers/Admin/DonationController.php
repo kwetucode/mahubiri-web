@@ -174,7 +174,7 @@ class DonationController extends Controller
                     ? 'Don effectué avec succès (mode test).'
                     : 'Paiement initié. Veuillez valider la transaction sur votre téléphone.';
 
-                return redirect()->route('donations.index')
+                return redirect()->route('donations.create')
                     ->with('success', $message);
             }
 

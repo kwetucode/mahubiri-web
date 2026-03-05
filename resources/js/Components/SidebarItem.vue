@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 
 const props = defineProps({
     /** Route path */
@@ -33,11 +33,26 @@ const props = defineProps({
         type: String,
         default: 'bg-red-500 text-white',
     },
+    /** When true, only exact path match will be considered active */
+    exact: {
+        type: Boolean,
+        default: false,
+    },
 });
 
-const currentPath = computed(() => window.location.pathname);
+const currentPath = computed(() => {
+    try {
+        const url = usePage().url;
+        return url ? new URL(url, window.location.origin).pathname : window.location.pathname;
+    } catch {
+        return window.location.pathname;
+    }
+});
 
 const isActive = computed(() => {
+    if (props.exact) {
+        return currentPath.value === props.href;
+    }
     return currentPath.value === props.href || currentPath.value.startsWith(props.href + '/');
 });
 

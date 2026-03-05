@@ -512,7 +512,8 @@
         "messagePlaceholder": "Un message pour accompagner votre don...",
         "submit": "Faire le don",
         "processing": "Traitement en cours...",
-        "sandboxWarning": "Mode test activé — Aucun paiement réel ne sera effectué."
+        "sandboxWarning": "Mode test activé — Aucun paiement réel ne sera effectué.",
+        "successTitle": "Don envoyé avec succès"
     },
     "storageUpgrade": {
         "title": "Augmenter le stockage",

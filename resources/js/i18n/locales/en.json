@@ -512,7 +512,8 @@
         "messagePlaceholder": "A message to accompany your donation...",
         "submit": "Make donation",
         "processing": "Processing...",
-        "sandboxWarning": "Test mode enabled — No real payment will be made."
+        "sandboxWarning": "Test mode enabled — No real payment will be made.",
+        "successTitle": "Donation sent successfully"
     },
     "storageUpgrade": {
         "title": "Increase storage",

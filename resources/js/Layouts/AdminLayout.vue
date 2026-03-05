@@ -7,6 +7,7 @@ import SidebarDropdown from '@/Components/SidebarDropdown.vue';
 import GlobalSearch from '@/Components/GlobalSearch.vue';
 import LocaleSwitcher from '@/Components/LocaleSwitcher.vue';
 import PageLoader from '@/Components/PageLoader.vue';
+import FlashToast from '@/Components/FlashToast.vue';
 
 const { t, locale } = useI18n();
 
@@ -197,6 +198,9 @@ const currentDate = computed(() => {
         <!-- Page transition loader -->
         <PageLoader />
 
+        <!-- Flash toast notifications -->
+        <FlashToast />
+
         <!-- Mobile overlay -->
         <Transition
             enter-active-class="transition-opacity duration-300"
@@ -298,6 +302,7 @@ const currentDate = computed(() => {
                     :label="t('nav.donations')"
                     :icon="icons.donation"
                     :collapsed="sidebarCollapsed"
+                    exact
                 />
 
                 <SidebarItem

@@ -20,6 +20,9 @@ const form = useForm({
     message: '',
 });
 
+const showSuccessModal = ref(false);
+const successMessage = ref('');
+
 const selectedCountry = computed(() => {
     return props.countries?.find(c => c.code === form.country_code) ?? props.countries?.[0];
 });
@@ -36,7 +39,20 @@ const phonePrefix = computed(() => selectedCountry.value?.phone_prefix ?? '+243'
 const submit = () => {
     form.post('/admin/donations', {
         preserveScroll: true,
+        onSuccess: (page) => {
+            const flash = page.props?.flash;
+            if (flash?.success) {
+                successMessage.value = flash.success;
+                showSuccessModal.value = true;
+                form.reset();
+            }
+        },
     });
+};
+
+const closeSuccessModal = () => {
+    showSuccessModal.value = false;
+    successMessage.value = '';
 };
 </script>
 
@@ -182,5 +198,49 @@ const submit = () => {
                 </div>
             </form>
         </div>
+
+        <!-- Success Modal -->
+        <Teleport to="body">
+            <Transition
+                enter-active-class="transition-opacity duration-200"
+                enter-from-class="opacity-0"
+                enter-to-class="opacity-100"
+                leave-active-class="transition-opacity duration-150"
+                leave-from-class="opacity-100"
+                leave-to-class="opacity-0"
+            >
+                <div v-if="showSuccessModal" class="fixed inset-0 z-[9998] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" @click.self="closeSuccessModal">
+                    <Transition
+                        enter-active-class="transition-all duration-200 ease-out"
+                        enter-from-class="opacity-0 scale-95"
+                        enter-to-class="opacity-100 scale-100"
+                        leave-active-class="transition-all duration-150 ease-in"
+                        leave-from-class="opacity-100 scale-100"
+                        leave-to-class="opacity-0 scale-95"
+                        appear
+                    >
+                        <div v-if="showSuccessModal" class="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden">
+                            <div class="p-6 text-center">
+                                <div class="mx-auto flex items-center justify-center w-14 h-14 rounded-full bg-emerald-100 mb-4">
+                                    <svg class="w-7 h-7 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-bold text-gray-900 mb-2">{{ t('donationCreate.successTitle') }}</h3>
+                                <p class="text-sm text-gray-600 leading-relaxed">{{ successMessage }}</p>
+                            </div>
+                            <div class="px-6 pb-5 flex gap-3">
+                                <button
+                                    @click="closeSuccessModal"
+                                    class="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors"
+                                >
+                                    {{ t('common.close') }}
+                                </button>
+                            </div>
+                        </div>
+                    </Transition>
+                </div>
+            </Transition>
+        </Teleport>
     </AdminLayout>
 </template>
