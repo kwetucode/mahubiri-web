@@ -67,9 +67,17 @@ Route::prefix('auth')->group(function () {
 });
 
 // Public audio streaming route (Range/206 support, HEAD for pre-flight)
+// withoutMiddleware: skip ForceJsonResponse (forces Accept:json — wrong for audio),
+// OptimizeApiResponse (tries to read streamed body for ETag), and HandleWafErrors.
+// These middlewares add overhead and are designed for JSON API responses, not binary audio.
 Route::match(['GET', 'HEAD'], '/sermons/{sermon}/stream', SermonAudioStreamController::class)
     ->whereNumber('sermon')
-    ->name('sermons.stream');
+    ->name('sermons.stream')
+    ->withoutMiddleware([
+        \App\Http\Middleware\ForceJsonResponse::class,
+        \App\Http\Middleware\OptimizeApiResponse::class,
+        \App\Http\Middleware\HandleWafErrors::class,
+    ]);
 
 // Protected authentication routes
 Route::middleware('auth:sanctum')->prefix('user')->group(function () {
