@@ -8,7 +8,7 @@ const props = defineProps({
     coverUrl: { type: String, default: null },
 });
 
-const emit = defineEmits(['close']);
+const emit = defineEmits(['close', 'loading']);
 
 const audio = ref(null);
 const isPlaying = ref(false);
@@ -92,12 +92,13 @@ const toggleMute = () => {
     audio.value.muted = isMuted.value;
 };
 
-const onPlay = () => { isPlaying.value = true; isLoading.value = false; };
+const setLoading = (val) => { isLoading.value = val; emit('loading', val); };
+const onPlay = () => { isPlaying.value = true; setLoading(false); };
 const onPause = () => { isPlaying.value = false; };
 const onTimeUpdate = () => { if (audio.value && !isSeeking.value && !audio.value.seeking) currentTime.value = audio.value.currentTime; };
-const onLoadedMetadata = () => { if (audio.value) { duration.value = audio.value.duration; isLoading.value = false; } };
-const onWaiting = () => { isLoading.value = true; };
-const onCanPlay = () => { isLoading.value = false; };
+const onLoadedMetadata = () => { if (audio.value) { duration.value = audio.value.duration; setLoading(false); } };
+const onWaiting = () => { setLoading(true); };
+const onCanPlay = () => { setLoading(false); };
 const onEnded = () => { isPlaying.value = false; currentTime.value = 0; };
 const onError = () => {
     isLoading.value = false;
@@ -122,7 +123,7 @@ watch(() => props.src, (newSrc) => {
     duration.value = 0;
     isPlaying.value = false;
     if (newSrc && audio.value) {
-        isLoading.value = true;
+        setLoading(true);
         audio.value.load();
         audio.value.play().catch(() => {});
     }

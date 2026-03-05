@@ -43,6 +43,7 @@ class AdminSermonController extends Controller
         $sortBy = $request->input('sort_by', 'created_at');
         $sortDirection = $request->input('sort_direction', 'desc');
         $status = $request->input('status'); // published, draft, all
+        $category = $request->input('category'); // category_sermon_id
 
         if (!in_array($sortDirection, ['asc', 'desc'])) {
             $sortDirection = 'desc';
@@ -66,6 +67,7 @@ class AdminSermonController extends Controller
             })
             ->when($status === 'published', fn ($q) => $q->where('is_published', true))
             ->when($status === 'draft', fn ($q) => $q->where('is_published', false))
+            ->when($category, fn ($q) => $q->where('category_sermon_id', $category))
             ->orderBy($sortBy, $sortDirection)
             ->paginate($perPage)
             ->withQueryString()
@@ -93,6 +95,7 @@ class AdminSermonController extends Controller
 
         return Inertia::render('Admin/Sermons/Index', [
             'sermons' => $sermons,
+            'categories' => CategorySermon::orderBy('name')->get(['id', 'name']),
             'stats' => [
                 'total' => $totalSermons,
                 'published' => $publishedCount,
@@ -108,6 +111,7 @@ class AdminSermonController extends Controller
                 'sort_by' => $sortBy,
                 'sort_direction' => $sortDirection,
                 'status' => $status,
+                'category' => $category,
             ],
         ]);
     }
