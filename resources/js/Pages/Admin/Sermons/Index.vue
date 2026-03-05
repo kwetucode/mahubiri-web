@@ -65,9 +65,7 @@ const columns = [
     { key: 'title', label: 'Prédication', sortable: true },
     { key: 'preacher_name', label: 'Prédicateur', sortable: true, hidden: 'hidden md:table-cell' },
     { key: 'category_name', label: 'Catégorie', hidden: 'hidden lg:table-cell' },
-    { key: 'duration_formatted', label: 'Durée', sortable: true, hidden: 'hidden md:table-cell' },
     { key: 'is_published', label: 'Statut', sortable: true },
-    { key: 'created_at', label: 'Date', sortable: true, hidden: 'hidden lg:table-cell' },
 ];
 
 const rows = computed(() => props.sermons?.data ?? []);
@@ -354,7 +352,9 @@ const closePlayer = () => {
                             <p class="text-[13px] font-semibold text-gray-900 dark:text-gray-100 truncate leading-tight">{{ row.title }}</p>
                             <p class="text-[11px] text-gray-400 truncate mt-0.5">
                                 {{ row.views_count ?? 0 }} écoute{{ (row.views_count ?? 0) > 1 ? 's' : '' }}
-                                <span v-if="row.size" class="ml-1">· {{ formatSize(row.size) }}</span>
+                                <span v-if="row.size"> · {{ formatSize(row.size) }}</span>
+                                <span v-if="row.duration_formatted"> · {{ row.duration_formatted }}</span>
+                                <span v-if="row.created_at_human || row.created_at"> · {{ row.created_at_human || row.created_at }}</span>
                             </p>
                         </div>
                     </div>
@@ -376,11 +376,6 @@ const closePlayer = () => {
                     <span v-else class="text-[13px] text-gray-300 dark:text-gray-600">—</span>
                 </template>
 
-                <!-- Duration cell -->
-                <template #cell-duration_formatted="{ row }">
-                    <span class="text-[13px] text-gray-600 dark:text-gray-400">{{ row.duration_formatted || '—' }}</span>
-                </template>
-
                 <!-- Status cell -->
                 <template #cell-is_published="{ row }">
                     <Toggle
@@ -390,11 +385,6 @@ const closePlayer = () => {
                         color="emerald"
                         @change="togglePublish(row)"
                     />
-                </template>
-
-                <!-- Created at cell -->
-                <template #cell-created_at="{ row }">
-                    <span class="text-[13px] text-gray-500 dark:text-gray-400">{{ row.created_at_human || row.created_at }}</span>
                 </template>
 
                 <!-- Actions -->
