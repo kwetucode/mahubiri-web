@@ -2,6 +2,9 @@
 import { computed } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 
+// usePage() MUST be called at setup top-level (inject() context)
+const page = usePage();
+
 const props = defineProps({
     /** Route path */
     href: {
@@ -41,12 +44,10 @@ const props = defineProps({
 });
 
 const currentPath = computed(() => {
-    try {
-        const url = usePage().url;
-        return url ? new URL(url, window.location.origin).pathname : window.location.pathname;
-    } catch {
-        return window.location.pathname;
-    }
+    const url = page.url;
+    if (!url) return '/';
+    // Strip query string to get clean pathname
+    return url.split('?')[0];
 });
 
 const isActive = computed(() => {

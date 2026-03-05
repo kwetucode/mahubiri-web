@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
-import { useForm, router, Link } from '@inertiajs/vue3';
+import { useForm, router, Link, Head } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import Breadcrumb from '@/Components/Breadcrumb.vue';
 import { useI18n } from 'vue-i18n';
@@ -57,6 +57,7 @@ const closeSuccessModal = () => {
 </script>
 
 <template>
+    <Head :title="t('donationCreate.title')" />
     <AdminLayout :title="t('donationCreate.title')">
         <div class="max-w-2xl mx-auto space-y-6">
             <!-- Breadcrumb -->

@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import { useForm, Head } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import Breadcrumb from '@/Components/Breadcrumb.vue';
 import { useI18n } from 'vue-i18n';
@@ -81,6 +81,7 @@ const planBgColors = ['bg-blue-50 border-blue-200', 'bg-primary/5 border-primary
 </script>
 
 <template>
+    <Head :title="t('storageUpgrade.title')" />
     <AdminLayout :title="t('storageUpgrade.title')">
         <div class="space-y-6 max-w-5xl mx-auto">
             <!-- Breadcrumb -->

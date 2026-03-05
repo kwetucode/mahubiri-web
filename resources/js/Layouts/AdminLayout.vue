@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref, onMounted, onUnmounted, watch } from 'vue';
-import { usePage, Link, router, Head } from '@inertiajs/vue3';
+import { usePage, Link, router } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import SidebarItem from '@/Components/SidebarItem.vue';
 import SidebarDropdown from '@/Components/SidebarDropdown.vue';
@@ -194,7 +194,6 @@ const currentDate = computed(() => {
 </script>
 
 <template>
-    <Head :title="title" />
     <div class="min-h-screen bg-gray-50/50 dark:bg-gray-900 transition-colors duration-300">
         <!-- Page transition loader -->
         <PageLoader />
