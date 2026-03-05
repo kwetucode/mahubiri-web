@@ -215,9 +215,8 @@ defineExpose({ openSearch });
                                 v-model="query"
                                 @keydown="handleKeydown"
                                 type="text"
-                                class="flex-1 py-4 bg-transparent text-[15px] text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 outline-none border-none font-medium transition-all duration-150
-                                    ring-2 ring-transparent focus:ring-primary/60 dark:focus:ring-primary-light/60 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-800
-                                    hover:ring-primary/30 dark:hover:ring-primary-light/30 hover:ring-2"
+                                class="flex-1 py-4 bg-transparent text-[15px] text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border-none ring-0 shadow-none outline-none focus:ring-0 focus:outline-none focus:border-none focus-visible:outline-none focus-visible:ring-0 font-medium"
+                                style="outline: none !important; box-shadow: none !important;"
                                 placeholder="Rechercher sermons, églises, utilisateurs..."
                                 autocomplete="off"
                             />

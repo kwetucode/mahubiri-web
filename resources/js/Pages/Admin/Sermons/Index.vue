@@ -420,45 +420,46 @@ const closePlayer = () => {
 
                 <!-- Actions -->
                 <template #actions="{ row }">
-                    <div class="flex items-center gap-1">
+                    <div class="flex items-center gap-1.5">
                         <!-- Play button -->
                         <button
                             v-if="row.audio_url"
                             @click="playSermon(row)"
                             :disabled="loadingSermonUrl === row.audio_url"
-                            class="inline-flex items-center p-1.5 text-xs font-semibold rounded-lg transition-colors"
+                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-sm font-semibold transition-all duration-200 shadow-sm"
                             :class="loadingSermonUrl === row.audio_url
-                                ? 'bg-amber-50 text-amber-500 cursor-wait'
+                                ? 'bg-amber-100 text-amber-600 cursor-wait ring-1 ring-amber-200'
                                 : playerSrc === row.audio_url
-                                    ? 'bg-primary/15 text-primary ring-1 ring-primary/30'
-                                    : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100'"
+                                    ? 'bg-primary text-white ring-2 ring-primary/40 shadow-primary/25'
+                                    : 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-emerald-500/25 hover:shadow-md'"
                             :title="loadingSermonUrl === row.audio_url ? 'Chargement...' : playerSrc === row.audio_url ? 'En lecture...' : 'Écouter'"
                         >
-                            <svg v-if="loadingSermonUrl === row.audio_url" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <svg v-if="loadingSermonUrl === row.audio_url" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
                             </svg>
-                            <svg v-else-if="playerSrc === row.audio_url" class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                            <svg v-else-if="playerSrc === row.audio_url" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
                             </svg>
-                            <svg v-else class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                            <svg v-else class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M8 5v14l11-7z" />
                             </svg>
                         </button>
-                        <!-- Edit button: icon only if oubliée -->
+                        <!-- Edit button: icon only si publié -->
                         <Link
                             :href="`/admin/sermons/${row.id}/edit`"
-                            class="inline-flex items-center p-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/15 transition-colors"
+                            class="inline-flex items-center justify-center h-8 rounded-lg bg-blue-500 text-white hover:bg-blue-600 shadow-sm shadow-blue-500/25 hover:shadow-md transition-all duration-200"
+                            :class="row.is_published ? 'w-8' : 'px-2.5 gap-1.5'"
                             :title="'Modifier'"
                         >
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
-                            <span v-if="row.audio_url" class="ml-1 text-[11px] font-semibold">Modifier</span>
+                            <span v-if="!row.is_published" class="text-[11px] font-semibold">Modifier</span>
                         </Link>
-                        <!-- Delete button only if not oubliée -->
+                        <!-- Delete button: masqué si publié -->
                         <button
-                            v-if="row.audio_url"
+                            v-if="!row.is_published"
                             @click="requestDelete(row)"
                             class="inline-flex items-center p-1.5 text-xs font-semibold rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
                         >
