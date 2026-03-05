@@ -5,6 +5,7 @@ import AdminLayout from '@/Layouts/AdminLayout.vue';
 import Breadcrumb from '@/Components/Breadcrumb.vue';
 import Card from '@/Components/Card.vue';
 import Toggle from '@/Components/Toggle.vue';
+import AudioPlayer from '@/Components/AudioPlayer.vue';
 import axios from 'axios';
 
 const props = defineProps({
@@ -52,6 +53,17 @@ const coverInput = ref(null);
 
 // Current audio info
 const hasExistingAudio = computed(() => !!props.sermon.audio_url);
+
+// Audio player state
+const playerSrc = ref(null);
+const playCurrentAudio = () => {
+    if (props.sermon.audio_url) {
+        playerSrc.value = props.sermon.audio_url;
+    }
+};
+const closePlayer = () => {
+    playerSrc.value = null;
+};
 
 // Handle audio file selection
 const onAudioChange = (e) => {
@@ -352,11 +364,19 @@ const submit = async () => {
                     <div class="space-y-3">
                         <!-- Current audio info -->
                         <div v-if="hasExistingAudio && !audioPreview" class="flex items-center gap-4 p-4 bg-blue-50/60 dark:bg-blue-900/20 border border-blue-200/60 dark:border-blue-800/40 rounded-xl">
-                            <div class="w-11 h-11 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
-                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                            <button
+                                type="button"
+                                @click="playCurrentAudio"
+                                class="relative group w-11 h-11 rounded-lg bg-blue-100 flex items-center justify-center shrink-0 hover:bg-blue-200 transition-colors cursor-pointer"
+                                title="Écouter la prédication"
+                            >
+                                <svg v-if="playerSrc" class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
                                 </svg>
-                            </div>
+                                <svg v-else class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z" />
+                                </svg>
+                            </button>
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">Audio actuel</p>
                                 <p class="text-xs text-gray-500 dark:text-gray-400">
@@ -492,6 +512,15 @@ const submit = async () => {
                     </button>
                 </div>
             </form>
+
+            <!-- Floating Audio Player -->
+            <AudioPlayer
+                :src="playerSrc"
+                :title="sermon.title"
+                :preacher="sermon.preacher_name"
+                :cover-url="sermon.cover_url"
+                @close="closePlayer"
+            />
         </div>
     </AdminLayout>
 </template>

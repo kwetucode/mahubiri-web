@@ -7,6 +7,7 @@ import SearchInput from '@/Components/SearchInput.vue';
 import Toggle from '@/Components/Toggle.vue';
 import ConfirmModal from '@/Components/ConfirmModal.vue';
 import Breadcrumb from '@/Components/Breadcrumb.vue';
+import AudioPlayer from '@/Components/AudioPlayer.vue';
 import axios from 'axios';
 
 const props = defineProps({
@@ -132,6 +133,27 @@ const statusTabs = [
     { key: 'published', label: 'Publiées' },
     { key: 'draft', label: 'Brouillons' },
 ];
+
+// --- Audio Player ---
+const playerSrc = ref(null);
+const playerTitle = ref('');
+const playerPreacher = ref('');
+const playerCover = ref(null);
+
+const playSermon = (row) => {
+    if (!row.audio_url) return;
+    playerSrc.value = row.audio_url;
+    playerTitle.value = row.title;
+    playerPreacher.value = row.preacher_name;
+    playerCover.value = row.cover_url || null;
+};
+
+const closePlayer = () => {
+    playerSrc.value = null;
+    playerTitle.value = '';
+    playerPreacher.value = '';
+    playerCover.value = null;
+};
 </script>
 
 <template>
@@ -283,20 +305,51 @@ const statusTabs = [
                 <!-- Title cell -->
                 <template #cell-title="{ row }">
                     <div class="flex items-center gap-2.5">
-                        <div
-                            v-if="row.cover_url"
-                            class="w-9 h-9 rounded-lg overflow-hidden shrink-0 ring-1 ring-gray-200/80"
+                        <!-- Cover with play overlay -->
+                        <button
+                            @click.stop="playSermon(row)"
+                            class="relative group shrink-0"
+                            :class="{ 'cursor-not-allowed opacity-50': !row.audio_url }"
+                            :disabled="!row.audio_url"
+                            :title="row.audio_url ? 'Écouter' : 'Aucun audio'"
                         >
-                            <img :src="row.cover_url" :alt="row.title" class="w-full h-full object-cover" />
-                        </div>
-                        <div
-                            v-else
-                            class="flex items-center justify-center w-9 h-9 bg-linear-to-br from-primary/12 to-primary/4 rounded-lg shrink-0"
-                        >
-                            <svg class="w-4 h-4 text-primary/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
-                            </svg>
-                        </div>
+                            <div
+                                v-if="row.cover_url"
+                                class="w-9 h-9 rounded-lg overflow-hidden ring-1 ring-gray-200/80"
+                            >
+                                <img :src="row.cover_url" :alt="row.title" class="w-full h-full object-cover" />
+                            </div>
+                            <div
+                                v-else
+                                class="flex items-center justify-center w-9 h-9 bg-linear-to-br from-primary/12 to-primary/4 rounded-lg"
+                            >
+                                <svg class="w-4 h-4 text-primary/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                                </svg>
+                            </div>
+                            <!-- Play overlay on hover -->
+                            <div
+                                v-if="row.audio_url"
+                                class="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                                <svg
+                                    v-if="playerSrc === row.audio_url"
+                                    class="w-4 h-4 text-white"
+                                    fill="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+                                </svg>
+                                <svg
+                                    v-else
+                                    class="w-4 h-4 text-white"
+                                    fill="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path d="M8 5v14l11-7z" />
+                                </svg>
+                            </div>
+                        </button>
                         <div class="min-w-0">
                             <p class="text-[13px] font-semibold text-gray-900 dark:text-gray-100 truncate leading-tight">{{ row.title }}</p>
                             <p class="text-[11px] text-gray-400 truncate mt-0.5">
@@ -369,6 +422,15 @@ const statusTabs = [
             </DataTable>
             </template>
         </div>
+
+        <!-- Floating Audio Player -->
+        <AudioPlayer
+            :src="playerSrc"
+            :title="playerTitle"
+            :preacher="playerPreacher"
+            :cover-url="playerCover"
+            @close="closePlayer"
+        />
 
         <!-- Delete confirmation modal -->
         <ConfirmModal
