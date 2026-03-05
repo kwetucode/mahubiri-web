@@ -1,12 +1,15 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import Breadcrumb from '@/Components/Breadcrumb.vue';
 import Card from '@/Components/Card.vue';
 import Toggle from '@/Components/Toggle.vue';
 import AudioPlayer from '@/Components/AudioPlayer.vue';
 import axios from 'axios';
+
+const { t } = useI18n();
 
 const props = defineProps({
     sermon: Object,
@@ -72,12 +75,12 @@ const onAudioChange = (e) => {
 
     const validTypes = ['audio/mpeg', 'audio/wav', 'audio/mp4', 'audio/x-m4a', 'audio/aac', 'audio/ogg', 'audio/flac'];
     if (!validTypes.includes(file.type) && !file.name.match(/\.(mp3|wav|m4a|aac|ogg|flac)$/i)) {
-        errors.value.audio_file = 'Format audio non supporté.';
+        errors.value.audio_file = t('sermons.create.errors.audioFormat');
         return;
     }
 
     if (file.size > 200 * 1024 * 1024) {
-        errors.value.audio_file = 'Le fichier audio ne doit pas dépasser 200 MB.';
+        errors.value.audio_file = t('sermons.create.errors.audioSize');
         return;
     }
 
@@ -96,12 +99,12 @@ const onCoverChange = (e) => {
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-        errors.value.cover_file = 'Veuillez sélectionner une image.';
+        errors.value.cover_file = t('sermons.create.errors.imageSelect');
         return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-        errors.value.cover_file = "L'image ne doit pas dépasser 5 MB.";
+        errors.value.cover_file = t('sermons.create.errors.imageSize');
         return;
     }
 
@@ -144,13 +147,13 @@ const submit = async () => {
     errors.value = {};
 
     if (!form.value.title.trim()) {
-        errors.value.title = 'Le titre est requis.';
+        errors.value.title = t('sermons.create.errors.titleRequired');
     }
     if (!form.value.preacher_name.trim()) {
-        errors.value.preacher_name = 'Le nom du prédicateur est requis.';
+        errors.value.preacher_name = t('sermons.create.errors.preacherRequired');
     }
     if (!form.value.category_sermon_id) {
-        errors.value.category_sermon_id = 'La catégorie est requise.';
+        errors.value.category_sermon_id = t('sermons.create.errors.categoryRequired');
     }
 
     if (Object.keys(errors.value).length > 0) return;
@@ -195,7 +198,7 @@ const submit = async () => {
                 errors.value[key] = Array.isArray(messages) ? messages[0] : messages;
             }
         } else {
-            errors.value.general = 'Une erreur est survenue lors de la mise à jour.';
+            errors.value.general = t('sermons.edit.errors.updateFailed');
         }
     } finally {
         submitting.value = false;
@@ -204,11 +207,11 @@ const submit = async () => {
 </script>
 
 <template>
-    <AdminLayout title="Modifier la prédication">
+    <AdminLayout :title="t('sermons.edit.title')">
         <div class="max-w-3xl mx-auto space-y-5">
             <!-- Breadcrumb -->
             <Breadcrumb :items="[
-                { label: 'Prédications', href: '/admin/sermons' },
+                { label: t('sermons.title'), href: '/admin/sermons' },
                 { label: sermon.title },
             ]" />
 
@@ -236,18 +239,18 @@ const submit = async () => {
                         </div>
                         <div class="text-center">
                             <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">
-                                {{ uploadPhase === 'uploading' ? 'Envoi en cours...' : 'Traitement du fichier...' }}
+                                {{ uploadPhase === 'uploading' ? t('sermons.create.uploadPhase1') : t('sermons.create.uploadPhase2') }}
                             </h3>
                             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                                 {{ uploadPhase === 'uploading'
-                                    ? 'Veuillez patienter pendant l\'envoi du fichier audio.'
-                                    : 'Extraction des métadonnées audio en cours...'
+                                    ? t('sermons.create.uploadWait')
+                                    : t('sermons.create.uploadPhase3')
                                 }}
                             </p>
                         </div>
                         <div class="space-y-2">
                             <div class="flex justify-between text-sm">
-                                <span class="font-medium text-gray-700 dark:text-gray-300">Progression</span>
+                                <span class="font-medium text-gray-700 dark:text-gray-300">{{ t('sermons.create.progress') }}</span>
                                 <span class="font-bold" :class="uploadProgress >= 100 ? 'text-emerald-600' : 'text-primary'">
                                     {{ uploadProgress }}%
                                 </span>
@@ -277,12 +280,12 @@ const submit = async () => {
 
             <form @submit.prevent="submit" class="space-y-5">
                 <!-- Basic Info -->
-                <Card title="Informations générales" subtitle="Modifier les détails de la prédication">
+                <Card :title="t('sermons.create.information')" :subtitle="t('sermons.edit.subtitle')">
                     <div class="space-y-4">
                         <!-- Title -->
                         <div>
                             <label for="title" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-                                Titre <span class="text-red-500">*</span>
+                                {{ t('sermons.create.titleLabel') }} <span class="text-red-500">*</span>
                             </label>
                             <input
                                 id="title"
@@ -297,7 +300,7 @@ const submit = async () => {
                         <!-- Preacher name -->
                         <div>
                             <label for="preacher_name" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-                                Nom du prédicateur <span class="text-red-500">*</span>
+                                {{ t('sermons.create.preacherLabel') }} <span class="text-red-500">*</span>
                             </label>
                             <input
                                 id="preacher_name"
@@ -312,7 +315,7 @@ const submit = async () => {
                         <!-- Category -->
                         <div>
                             <label for="category" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-                                Catégorie <span class="text-red-500">*</span>
+                                {{ t('sermons.create.categoryLabel') }} <span class="text-red-500">*</span>
                             </label>
                             <select
                                 id="category"
@@ -320,7 +323,7 @@ const submit = async () => {
                                 class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-gray-100 focus:bg-white dark:focus:bg-gray-600 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                                 :class="{ 'border-red-300 bg-red-50/50': errors.category_sermon_id }"
                             >
-                                <option value="">Sélectionner une catégorie</option>
+                                <option value="">{{ t('common.select') }}</option>
                                 <option v-for="cat in categories" :key="cat.id" :value="cat.id">
                                     {{ cat.name }}
                                 </option>
@@ -331,7 +334,7 @@ const submit = async () => {
                         <!-- Description -->
                         <div>
                             <label for="description" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-                                Description
+                                {{ t('sermons.create.descriptionLabel') }}
                             </label>
                             <textarea
                                 id="description"
@@ -344,7 +347,7 @@ const submit = async () => {
                         <!-- Couleur -->
                         <div>
                             <label for="color" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
-                                Couleur <span class="text-gray-400 dark:text-gray-500 font-normal">(optionnelle)</span>
+                                {{ t('sermons.create.colorLabel') }} <span class="text-gray-400 dark:text-gray-500 font-normal">({{ t('common.optional') }})</span>
                             </label>
                             <div class="flex items-center gap-3">
                                 <input
@@ -360,7 +363,7 @@ const submit = async () => {
                 </Card>
 
                 <!-- Audio Upload -->
-                <Card title="Fichier audio" subtitle="Remplacer le fichier audio existant (optionnel)">
+                <Card :title="t('sermons.create.audioFile')" :subtitle="t('sermons.edit.replaceAudioSubtitle')">
                     <div class="space-y-3">
                         <!-- Current audio info -->
                         <div v-if="hasExistingAudio && !audioPreview" class="flex items-center gap-4 p-4 bg-blue-50/60 dark:bg-blue-900/20 border border-blue-200/60 dark:border-blue-800/40 rounded-xl">
@@ -368,7 +371,7 @@ const submit = async () => {
                                 type="button"
                                 @click="playCurrentAudio"
                                 class="relative group w-11 h-11 rounded-lg bg-blue-100 flex items-center justify-center shrink-0 hover:bg-blue-200 transition-colors cursor-pointer"
-                                title="Écouter la prédication"
+                                :title="t('sermons.listen')"
                             >
                                 <svg v-if="playerSrc" class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
@@ -378,13 +381,13 @@ const submit = async () => {
                                 </svg>
                             </button>
                             <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">Audio actuel</p>
+                                <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{ t('sermons.edit.currentAudio') }}</p>
                                 <p class="text-xs text-gray-500 dark:text-gray-400">
                                     {{ sermon.duration_formatted || '—' }}
                                     <span v-if="sermon.size"> · {{ formatFileSize(sermon.size) }}</span>
                                 </p>
                             </div>
-                            <span class="px-2 py-1 text-[10px] font-semibold text-blue-700 bg-blue-100 rounded-md uppercase">actuel</span>
+                            <span class="px-2 py-1 text-[10px] font-semibold text-blue-700 bg-blue-100 rounded-md uppercase">{{ t('sermons.edit.current') }}</span>
                         </div>
 
                         <!-- New audio dropzone -->
@@ -403,7 +406,7 @@ const submit = async () => {
                                     </svg>
                                 </div>
                                 <p class="text-sm font-medium text-gray-600 dark:text-gray-300">
-                                    {{ hasExistingAudio ? 'Remplacer le fichier audio' : 'Ajouter un fichier audio' }}
+                                    {{ hasExistingAudio ? t('sermons.edit.replaceAudio') : t('sermons.edit.addAudio') }}
                                 </p>
                                 <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">MP3, WAV, M4A, AAC, OGG, FLAC — max 200 MB</p>
                             </div>
@@ -418,7 +421,7 @@ const submit = async () => {
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">{{ audioPreview.name }}</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">{{ audioPreview.size }} — Nouveau fichier</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">{{ audioPreview.size }} — {{ t('sermons.edit.newFile') }}</p>
                             </div>
                             <button
                                 type="button"
@@ -436,7 +439,7 @@ const submit = async () => {
                 </Card>
 
                 <!-- Cover Image -->
-                <Card title="Image de couverture" subtitle="Modifier ou ajouter une image d'illustration">
+                <Card :title="t('sermons.create.cover')" :subtitle="t('sermons.edit.coverSubtitle')">
                     <div>
                         <div v-if="!coverPreview" class="relative">
                             <input
@@ -452,13 +455,13 @@ const submit = async () => {
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                     </svg>
                                 </div>
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Ajouter / Modifier la couverture</p>
+                                <p class="text-sm font-medium text-gray-600 dark:text-gray-300">{{ t('sermons.edit.addModifyCover') }}</p>
                                 <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">JPG, PNG, WebP — max 5 MB</p>
                             </div>
                         </div>
 
                         <div v-else class="relative inline-block">
-                            <img :src="coverPreview" alt="Couverture" class="w-40 h-40 object-cover rounded-xl ring-1 ring-gray-200" />
+                            <img :src="coverPreview" :alt="t('sermons.create.cover')" class="w-40 h-40 object-cover rounded-xl ring-1 ring-gray-200" />
                             <button
                                 type="button"
                                 @click="removeCover"
@@ -475,11 +478,11 @@ const submit = async () => {
                 </Card>
 
                 <!-- Publication -->
-                <Card title="Publication" subtitle="Contrôler la visibilité de la prédication">
+                <Card :title="t('sermons.edit.publication')" :subtitle="t('sermons.edit.publicationSubtitle')">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">Publiée</p>
-                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Si désactivé, la prédication sera masquée pour les utilisateurs</p>
+                            <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ t('sermons.edit.published') }}</p>
+                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{{ t('sermons.edit.publishedDesc') }}</p>
                         </div>
                         <Toggle v-model="form.is_published" color="emerald" />
                     </div>
@@ -494,7 +497,7 @@ const submit = async () => {
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                         </svg>
-                        Annuler
+                        {{ t('common.cancel') }}
                     </Link>
                     <button
                         type="submit"
@@ -508,7 +511,7 @@ const submit = async () => {
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
                         </svg>
-                        {{ submitting ? 'Mise à jour...' : 'Enregistrer les modifications' }}
+                        {{ submitting ? t('sermons.edit.updating') : t('sermons.edit.update') }}
                     </button>
                 </div>
             </form>

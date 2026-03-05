@@ -7,8 +7,10 @@ import Breadcrumb from '@/Components/Breadcrumb.vue';
 import { usePage, Link } from '@inertiajs/vue3';
 import { computed, ref, onMounted } from 'vue';
 import axios from 'axios';
+import { useI18n } from 'vue-i18n';
 
 const page = usePage();
+const { t } = useI18n();
 const stats = computed(() => page.props.stats);
 const pageLoading = ref(true);
 
@@ -30,21 +32,21 @@ const icons = {
 };
 
 const statCards = computed(() => [
-    { label: 'Total utilisateurs', value: stats.value.totalUsers, icon: icons.users, color: 'primary', trend: '+12%', trendUp: true },
-    { label: "Aujourd'hui", value: stats.value.usersToday, icon: icons.clock, color: 'emerald', trend: '+3', trendUp: true },
-    { label: 'Cette semaine', value: stats.value.usersThisWeek, icon: icons.calendar, color: 'blue', trend: '+8%', trendUp: true },
-    { label: 'Ce mois', value: stats.value.usersThisMonth, icon: icons.chart, color: 'amber', trend: '+15%', trendUp: true },
+    { label: t('dashboard.totalUsers'), value: stats.value.totalUsers, icon: icons.users, color: 'primary', trend: '+12%', trendUp: true },
+    { label: t('dashboard.today'), value: stats.value.usersToday, icon: icons.clock, color: 'emerald', trend: '+3', trendUp: true },
+    { label: t('dashboard.thisWeek'), value: stats.value.usersThisWeek, icon: icons.calendar, color: 'blue', trend: '+8%', trendUp: true },
+    { label: t('dashboard.thisMonth'), value: stats.value.usersThisMonth, icon: icons.chart, color: 'amber', trend: '+15%', trendUp: true },
 ]);
 
 const quickActions = [
-    { label: 'Voir les utilisateurs', href: '/admin/users', icon: icons.users, desc: 'Gérer les comptes' },
+    { label: t('dashboard.viewUsers'), href: '/admin/users', icon: icons.users, desc: t('dashboard.manageAccounts') },
 ];
 
 const recentActivity = [
-    { action: 'Nouvel utilisateur inscrit', time: 'Il y a 5 min', type: 'user', icon: icons.userAdd },
-    { action: 'Prédication publiée', time: 'Il y a 30 min', type: 'sermon', icon: icons.mic },
-    { action: 'Nouveau commentaire', time: 'Il y a 1h', type: 'comment', icon: icons.chat },
-    { action: 'Mise à jour du profil', time: 'Il y a 2h', type: 'update', icon: icons.refresh },
+    { action: t('dashboard.newUser'), time: 'Il y a 5 min', type: 'user', icon: icons.userAdd },
+    { action: t('dashboard.sermonPublished'), time: 'Il y a 30 min', type: 'sermon', icon: icons.mic },
+    { action: t('dashboard.newComment'), time: 'Il y a 1h', type: 'comment', icon: icons.chat },
+    { action: t('dashboard.profileUpdate'), time: 'Il y a 2h', type: 'update', icon: icons.refresh },
 ];
 
 const activityColors = {
@@ -56,10 +58,10 @@ const activityColors = {
 
 // Chart filter options
 const filterOptions = [
-    { label: 'Semaine', value: 'this_week' },
-    { label: 'Ce mois', value: 'this_month' },
-    { label: 'Mois dernier', value: 'last_month' },
-    { label: '3 mois', value: 'last_3_months' },
+    { label: t('common.week'), value: 'this_week' },
+    { label: t('common.thisMonth'), value: 'this_month' },
+    { label: t('common.lastMonth'), value: 'last_month' },
+    { label: t('common.threeMonths'), value: 'last_3_months' },
 ];
 
 // --- Users chart ---
@@ -118,10 +120,10 @@ onMounted(() => {
 </script>
 
 <template>
-    <AdminLayout title="Dashboard">
+    <AdminLayout :title="t('dashboard.title')">
         <div class="space-y-6">
             <!-- Breadcrumb -->
-            <Breadcrumb :items="[{ label: 'Dashboard' }]" />
+            <Breadcrumb :items="[{ label: t('dashboard.title') }]" />
 
             <!-- Stats Grid -->
             <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
@@ -195,13 +197,13 @@ onMounted(() => {
                 <!-- Recent Activity -->
                 <Card
                     class="lg:col-span-2"
-                    title="Activité récente"
-                    subtitle="Les dernières actions sur la plateforme"
+                    :title="t('dashboard.recentActivity')"
+                    :subtitle="t('dashboard.recentActivitySubtitle')"
                     no-padding
                 >
                     <template #header-actions>
                         <button class="text-[11px] font-semibold text-primary hover:text-primary-dark transition-colors">
-                            Tout voir
+                            {{ t('common.viewAll') }}
                         </button>
                     </template>
 
@@ -233,7 +235,7 @@ onMounted(() => {
                 <!-- Right column -->
                 <div class="space-y-5">
                     <!-- Quick Actions -->
-                    <Card title="Actions rapides">
+                    <Card :title="t('dashboard.quickActions')">
                         <div class="space-y-2">
                             <Link
                                 v-for="action in quickActions"
@@ -262,15 +264,15 @@ onMounted(() => {
                         <template #header>
                             <div class="flex items-center gap-2">
                                 <div class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></div>
-                                <h3 class="text-xs font-semibold text-white/90">Système</h3>
+                                <h3 class="text-xs font-semibold text-white/90">{{ t('dashboard.system') }}</h3>
                             </div>
                         </template>
 
                         <div class="px-5 py-3.5 space-y-3">
                             <div>
                                 <div class="flex justify-between text-[11px] mb-1">
-                                    <span class="text-white/60">Serveur</span>
-                                    <span class="text-green-400 font-medium">Actif</span>
+                                    <span class="text-white/60">{{ t('dashboard.server') }}</span>
+                                    <span class="text-green-400 font-medium">{{ t('dashboard.active') }}</span>
                                 </div>
                                 <div class="h-1 bg-white/10 rounded-full overflow-hidden">
                                     <div class="h-full bg-linear-to-r from-green-400 to-emerald-500 rounded-full" style="width: 28%"></div>
@@ -278,7 +280,7 @@ onMounted(() => {
                             </div>
                             <div>
                                 <div class="flex justify-between text-[11px] mb-1">
-                                    <span class="text-white/60">Stockage</span>
+                                    <span class="text-white/60">{{ t('dashboard.storage') }}</span>
                                     <span class="text-accent-warm font-medium">45%</span>
                                 </div>
                                 <div class="h-1 bg-white/10 rounded-full overflow-hidden">
@@ -362,8 +364,8 @@ onMounted(() => {
                 <template v-else>
                 <!-- Users Evolution -->
                 <LineChart
-                    title="Évolution des utilisateurs"
-                    subtitle="Inscriptions par jour"
+                    :title="t('dashboard.usersChart')"
+                    :subtitle="t('dashboard.usersChartSubtitle')"
                     :labels="usersChart.labels"
                     :data="usersChart.data"
                     color="#6B4EAF"
@@ -382,8 +384,8 @@ onMounted(() => {
 
                 <!-- Churches Evolution -->
                 <LineChart
-                    title="Évolution des églises"
-                    subtitle="Nouvelles églises par jour"
+                    :title="t('dashboard.churchesChart')"
+                    :subtitle="t('dashboard.churchesChartSubtitle')"
                     :labels="churchesChart.labels"
                     :data="churchesChart.data"
                     color="#10B981"
@@ -403,8 +405,8 @@ onMounted(() => {
                 <!-- Sermons Evolution (full width) -->
                 <LineChart
                     class="xl:col-span-2"
-                    title="Évolution des prédications"
-                    subtitle="Publications par jour"
+                    :title="t('dashboard.sermonsChart')"
+                    :subtitle="t('dashboard.sermonsChartSubtitle')"
                     :labels="sermonsChart.labels"
                     :data="sermonsChart.data"
                     color="#3B82F6"

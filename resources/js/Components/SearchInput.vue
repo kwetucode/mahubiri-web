@@ -1,5 +1,8 @@
 <script setup>
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const props = defineProps({
     /** v-model value */
@@ -10,7 +13,7 @@ const props = defineProps({
     /** Placeholder text */
     placeholder: {
         type: String,
-        default: 'Rechercher...',
+        default: '',
     },
     /** Max width class */
     maxWidth: {
@@ -78,7 +81,7 @@ const sizeClasses = computed(() => {
         <input
             v-model="inputValue"
             type="text"
-            :placeholder="placeholder"
+            :placeholder="placeholder || t('common.search')"
             :disabled="disabled"
             class="block w-full border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-0 focus:border-primary transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             :class="sizeClasses.input"

@@ -8,6 +8,9 @@ import Toggle from '@/Components/Toggle.vue';
 import ConfirmModal from '@/Components/ConfirmModal.vue';
 import Breadcrumb from '@/Components/Breadcrumb.vue';
 import axios from 'axios';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const props = defineProps({
     churches: Object,
@@ -64,24 +67,24 @@ const handleSort = ({ key, direction }) => {
 };
 
 // --- Churches columns ---
-const churchColumns = [
-    { key: 'name', label: 'Église', sortable: true },
-    { key: 'is_featured', label: 'Mise en avant', sortable: true, hidden: 'hidden md:table-cell' },
-    { key: 'city', label: 'Localisation', sortable: true, hidden: 'hidden md:table-cell' },
-    { key: 'sermons_count', label: 'Prédications' },
-    { key: 'is_active', label: 'Statut', sortable: true, hidden: 'hidden sm:table-cell' },
-    { key: 'created_at', label: 'Inscrit', sortable: true, hidden: 'hidden lg:table-cell' },
-];
+const churchColumns = computed(() => [
+    { key: 'name', label: t('churches.church'), sortable: true },
+    { key: 'is_featured', label: t('common.featured'), sortable: true, hidden: 'hidden md:table-cell' },
+    { key: 'city', label: t('common.location'), sortable: true, hidden: 'hidden md:table-cell' },
+    { key: 'sermons_count', label: t('churches.sermons') },
+    { key: 'is_active', label: t('common.status'), sortable: true, hidden: 'hidden sm:table-cell' },
+    { key: 'created_at', label: t('common.registered'), sortable: true, hidden: 'hidden lg:table-cell' },
+]);
 
 // --- Preachers columns ---
-const preacherColumns = [
-    { key: 'user_name', label: 'Prédicateur' },
-    { key: 'ministry_type', label: 'Ministère', hidden: 'hidden md:table-cell' },
-    { key: 'city', label: 'Localisation', sortable: true, hidden: 'hidden md:table-cell' },
-    { key: 'sermons_count', label: 'Prédications' },
-    { key: 'is_active', label: 'Statut', sortable: true, hidden: 'hidden sm:table-cell' },
-    { key: 'created_at', label: 'Inscrit', sortable: true, hidden: 'hidden lg:table-cell' },
-];
+const preacherColumns = computed(() => [
+    { key: 'user_name', label: t('churches.preacher') },
+    { key: 'ministry_type', label: t('churches.ministry'), hidden: 'hidden md:table-cell' },
+    { key: 'city', label: t('common.location'), sortable: true, hidden: 'hidden md:table-cell' },
+    { key: 'sermons_count', label: t('churches.sermons') },
+    { key: 'is_active', label: t('common.status'), sortable: true, hidden: 'hidden sm:table-cell' },
+    { key: 'created_at', label: t('common.registered'), sortable: true, hidden: 'hidden lg:table-cell' },
+]);
 
 const currentData = computed(() => {
     return activeTab.value === 'churches' ? props.churches : props.preachers;
@@ -96,15 +99,15 @@ const isLoading = computed(() => {
 });
 
 const currentColumns = computed(() => {
-    return activeTab.value === 'churches' ? churchColumns : preacherColumns;
+    return activeTab.value === 'churches' ? churchColumns.value : preacherColumns.value;
 });
 
 const totalLabel = computed(() => {
     if (!currentData.value) return '';
     const total = currentData.value.total;
     return activeTab.value === 'churches'
-        ? `${total} église${total > 1 ? 's' : ''}`
-        : `${total} prédicateur${total > 1 ? 's' : ''}`;
+        ? `${total} ${t('churches.church')}${total > 1 ? 's' : ''}`
+        : `${total} ${t('churches.preacher')}${total > 1 ? 's' : ''}`;
 });
 
 const ministryColors = {
@@ -120,18 +123,18 @@ const getMinistryColor = (type) => {
     return ministryColors[type] || 'bg-gray-50 text-gray-700 ring-1 ring-gray-600/10';
 };
 
-const tabs = [
+const tabs = computed(() => [
     {
         key: 'churches',
-        label: 'Églises',
+        label: t('churches.churches'),
         icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
     },
     {
         key: 'preachers',
-        label: 'Prédicateurs indépendants',
+        label: t('churches.independentPreachers'),
         icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
     },
-];
+]);
 
 // --- Toggle active state ---
 const showConfirmModal = ref(false);
@@ -193,11 +196,11 @@ const toggleFeatured = async (row) => {
 </script>
 
 <template>
-    <AdminLayout title="Églises & Prédicateurs">
+    <AdminLayout :title="t('churches.title')">
         <div class="space-y-5">
             <!-- Breadcrumb -->
             <Breadcrumb :items="[
-                { label: activeTab === 'churches' ? 'Églises' : 'Prédicateurs indépendants' },
+                { label: activeTab === 'churches' ? t('churches.churches') : t('churches.independentPreachers') },
             ]" />
 
             <!-- Skeleton -->
@@ -259,8 +262,8 @@ const toggleFeatured = async (row) => {
                             </svg>
                         </div>
                         <div>
-                            <h1 class="text-lg font-bold text-gray-900 leading-tight">Églises & Prédicateurs</h1>
-                            <p class="text-xs text-gray-500 mt-0.5">Gérer vos communautés et ministères indépendants</p>
+                            <h1 class="text-lg font-bold text-gray-900 leading-tight">{{ t('churches.title') }}</h1>
+                            <p class="text-xs text-gray-500 mt-0.5">{{ t('churches.subtitle') }}</p>
                         </div>
                     </div>
                     <span
@@ -304,8 +307,8 @@ const toggleFeatured = async (row) => {
                         <SearchInput
                             v-model="search"
                             :placeholder="activeTab === 'churches'
-                                ? 'Rechercher par nom, abréviation, visionnaire, ville...'
-                                : 'Rechercher par nom, ministère, email, ville...'"
+                                ? t('churches.searchPlaceholder')
+                                : t('churches.searchPreacherPlaceholder')"
                         />
                     </div>
                 </div>
@@ -321,8 +324,8 @@ const toggleFeatured = async (row) => {
                 :pagination="churches"
                 :sort-by="sortBy"
                 :sort-direction="sortDirection"
-                empty-title="Aucune église trouvée"
-                :empty-subtitle="search ? 'Essayez un autre terme de recherche' : 'Aucune église enregistrée'"
+                :empty-title="t('churches.noChurchFound')"
+                :empty-subtitle="search ? t('common.tryAnotherSearch') : t('churches.noChurchRegistered')"
                 empty-icon="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
                 @sort="handleSort"
             >
@@ -350,7 +353,7 @@ const toggleFeatured = async (row) => {
                             <p class="text-[11px] text-gray-400 truncate mt-0.5">
                                 {{ row.visionary_name || row.created_by_name || '—' }}
                             </p>
-                            <p v-if="row.is_featured" class="text-[10px] text-amber-600 font-semibold mt-0.5">★ Église mise en avant</p>
+                            <p v-if="row.is_featured" class="text-[10px] text-amber-600 font-semibold mt-0.5">★ {{ t('churches.featuredChurch') }}</p>
                         </div>
                     </div>
                 </template>
@@ -409,7 +412,7 @@ const toggleFeatured = async (row) => {
                         :href="`/admin/churches/${row.id}`"
                         class="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-lg bg-primary/10 text-primary hover:bg-primary/15 transition-colors"
                     >
-                        Détails
+                        {{ t('common.details') }}
                     </Link>
                 </template>
             </DataTable>
@@ -424,8 +427,8 @@ const toggleFeatured = async (row) => {
                 :pagination="preachers"
                 :sort-by="sortBy"
                 :sort-direction="sortDirection"
-                empty-title="Aucun prédicateur trouvé"
-                :empty-subtitle="search ? 'Essayez un autre terme de recherche' : 'Aucun prédicateur indépendant enregistré'"
+                :empty-title="t('churches.noPreacherFound')"
+                :empty-subtitle="search ? t('common.tryAnotherSearch') : t('churches.noPreacherRegistered')"
                 empty-icon="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                 @sort="handleSort"
             >
@@ -507,12 +510,12 @@ const toggleFeatured = async (row) => {
         <!-- Confirm deactivation modal -->
         <ConfirmModal
             v-model:show="showConfirmModal"
-            :title="toggleTarget?._type === 'preachers' ? 'Désactiver ce prédicateur ?' : 'Désactiver cette église ?'"
+            :title="toggleTarget?._type === 'preachers' ? t('churches.confirmDeactivatePreacher') : t('churches.confirmDeactivateChurch')"
             :message="toggleTarget?._type === 'preachers'
-                ? `Vous êtes sur le point de désactiver le prédicateur &laquo; ${toggleTarget?.user_name || toggleTarget?.ministry_name} &raquo;. Il ne sera plus visible pour les utilisateurs. Vous pourrez le réactiver à tout moment.`
-                : `Vous êtes sur le point de désactiver l'église &laquo; ${toggleTarget?.name} &raquo;. Elle ne sera plus visible pour les utilisateurs. Vous pourrez la réactiver à tout moment.`"
-            confirm-text="Désactiver"
-            cancel-text="Annuler"
+                ? t('churches.deactivatePreacherMessage', { name: toggleTarget?.user_name || toggleTarget?.ministry_name })
+                : t('churches.deactivateChurchMessage', { name: toggleTarget?.name })"
+            :confirm-text="t('common.deactivate')"
+            :cancel-text="t('common.cancel')"
             variant="warning"
             :loading="toggleLoading"
             icon="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"

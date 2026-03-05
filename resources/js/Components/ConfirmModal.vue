@@ -1,12 +1,15 @@
 <script setup>
 import { watch, onMounted, onUnmounted } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const props = defineProps({
     show: { type: Boolean, default: false },
-    title: { type: String, default: 'Confirmer l\'action' },
+    title: { type: String, default: '' },
     message: { type: String, default: '' },
-    confirmText: { type: String, default: 'Confirmer' },
-    cancelText: { type: String, default: 'Annuler' },
+    confirmText: { type: String, default: '' },
+    cancelText: { type: String, default: '' },
     variant: { type: String, default: 'danger', validator: (v) => ['danger', 'warning', 'info', 'primary'].includes(v) },
     loading: { type: Boolean, default: false },
     icon: { type: String, default: '' },
@@ -140,7 +143,7 @@ const maxWidthClass = {
 
                                 <!-- Text -->
                                 <div class="flex-1 min-w-0">
-                                    <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">{{ title }}</h3>
+                                    <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">{{ title || t('common.confirmAction') }}</h3>
                                     <p v-if="message" class="mt-2 text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
                                         {{ message }}
                                     </p>
@@ -155,7 +158,7 @@ const maxWidthClass = {
                                     :disabled="loading"
                                     class="px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 disabled:opacity-50"
                                 >
-                                    {{ cancelText }}
+                                    {{ cancelText || t('common.cancel') }}
                                 </button>
                                 <button
                                     @click="confirm"
@@ -172,7 +175,7 @@ const maxWidthClass = {
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
                                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                                     </svg>
-                                    {{ confirmText }}
+                                    {{ confirmText || t('common.confirm') }}
                                 </button>
                             </div>
                         </div>

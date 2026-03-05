@@ -1,9 +1,12 @@
 <script setup>
 import { ref, computed, watch, onBeforeUnmount } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const props = defineProps({
     src: { type: String, default: null },
-    title: { type: String, default: 'Prédication' },
+    title: { type: String, default: '' },
     preacher: { type: String, default: '' },
     coverUrl: { type: String, default: null },
 });
@@ -104,7 +107,7 @@ const onError = () => {
     isLoading.value = false;
     isPlaying.value = false;
     hasError.value = true;
-    errorMessage.value = 'Impossible de lire ce fichier audio.';
+    errorMessage.value = t('player.playError');
 };
 
 const close = () => {
@@ -209,7 +212,7 @@ onBeforeUnmount(() => {
                         <button
                             @click="skip(-10)"
                             class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                            title="Reculer 10s"
+                            :title="t('player.rewind')"
                         >
                             <svg class="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.333 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z" />
@@ -248,7 +251,7 @@ onBeforeUnmount(() => {
                         <button
                             @click="skip(10)"
                             class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                            title="Avancer 10s"
+                            :title="t('player.forward')"
                         >
                             <svg class="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5.933 11.2a1 1 0 010 1.6L.6 16.8A1 1 0 010 16V8a1 1 0 011.6-.8l5.333 4zm8 0a1 1 0 010 1.6l-5.333 4A1 1 0 017 16V8a1 1 0 011.6-.8l5.333 4z" transform="translate(3)" />
@@ -285,7 +288,7 @@ onBeforeUnmount(() => {
                     <button
                         @click="close"
                         class="p-2 rounded-lg text-gray-400 dark:text-gray-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors ml-1"
-                        title="Fermer le lecteur"
+                        :title="t('player.closePlayer')"
                     >
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />

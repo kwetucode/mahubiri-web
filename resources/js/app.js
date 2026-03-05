@@ -11,6 +11,7 @@ if (savedTheme === 'dark') {
 
 import { createApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
+import i18n from './i18n';
 
 createInertiaApp({
     title: (title) => title ? `${title} - Mahubiri Admin` : 'Mahubiri Admin',
@@ -21,6 +22,7 @@ createInertiaApp({
     setup({ el, App, props, plugin }) {
         createApp({ render: () => h(App, props) })
             .use(plugin)
+            .use(i18n)
             .mount(el);
     },
     progress: false,

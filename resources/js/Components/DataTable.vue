@@ -1,5 +1,8 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const props = defineProps({
     /** Colonnes du tableau: [{ key, label, hidden?, class?, sortable? }] */
@@ -25,7 +28,7 @@ const props = defineProps({
     /** Texte affiché quand le tableau est vide */
     emptyTitle: {
         type: String,
-        default: 'Aucun résultat trouvé',
+        default: '',
     },
     emptySubtitle: {
         type: String,
@@ -136,7 +139,7 @@ const isSorted = (col) => props.sortBy === col.key;
                         </th>
                         <!-- Actions column -->
                         <th v-if="$slots.actions" class="text-right py-4 px-6 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                            Actions
+                            {{ t('common.actions') }}
                         </th>
                     </tr>
                 </thead>
@@ -199,7 +202,7 @@ const isSorted = (col) => props.sortBy === col.key;
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="emptyIcon" />
                                     </svg>
                                 </div>
-                                <p class="text-gray-600 dark:text-gray-300 font-semibold mb-1">{{ emptyTitle }}</p>
+                                <p class="text-gray-600 dark:text-gray-300 font-semibold mb-1">{{ emptyTitle || t('common.noResults') }}</p>
                                 <p v-if="emptySubtitle" class="text-gray-400 dark:text-gray-500 text-sm">{{ emptySubtitle }}</p>
                             </div>
                         </td>
@@ -214,9 +217,9 @@ const isSorted = (col) => props.sortBy === col.key;
             class="border-t border-gray-100 dark:border-gray-700 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 bg-gray-50/50 dark:bg-gray-800/50"
         >
             <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">
-                Affichage de <span class="text-gray-700 dark:text-gray-300">{{ pagination.from }}</span>
-                à <span class="text-gray-700 dark:text-gray-300">{{ pagination.to }}</span>
-                sur <span class="text-gray-700 dark:text-gray-300">{{ pagination.total }}</span> résultats
+                {{ t('pagination.showing') }} <span class="text-gray-700 dark:text-gray-300">{{ pagination.from }}</span>
+                {{ t('pagination.to') }} <span class="text-gray-700 dark:text-gray-300">{{ pagination.to }}</span>
+                {{ t('pagination.of') }} <span class="text-gray-700 dark:text-gray-300">{{ pagination.total }}</span> {{ t('pagination.results') }}
             </p>
             <div class="flex items-center gap-1">
                 <template v-for="link in pagination.links" :key="link.label">

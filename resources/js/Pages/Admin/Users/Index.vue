@@ -1,10 +1,13 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue';
 import { router, usePage, Link } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import DataTable from '@/Components/DataTable.vue';
 import SearchInput from '@/Components/SearchInput.vue';
 import Breadcrumb from '@/Components/Breadcrumb.vue';
+
+const { t } = useI18n();
 
 const props = defineProps({
     users: Object,
@@ -50,11 +53,11 @@ const handleSort = ({ key, direction }) => {
 };
 
 const columns = [
-    { key: 'name', label: 'Utilisateur', sortable: true },
-    { key: 'role', label: 'Rôle', sortable: true },
-    { key: 'phone', label: 'Téléphone', hidden: 'hidden md:table-cell', sortable: true },
-    { key: 'email_verified', label: 'Email vérifié', hidden: 'hidden sm:table-cell', sortable: true },
-    { key: 'created_at', label: 'Inscrit', hidden: 'hidden lg:table-cell', sortable: true },
+    { key: 'name', label: t('users.user'), sortable: true },
+    { key: 'role', label: t('users.role'), sortable: true },
+    { key: 'phone', label: t('users.phone'), hidden: 'hidden md:table-cell', sortable: true },
+    { key: 'email_verified', label: t('users.emailVerified'), hidden: 'hidden sm:table-cell', sortable: true },
+    { key: 'created_at', label: t('users.registered'), hidden: 'hidden lg:table-cell', sortable: true },
 ];
 
 const roleColors = {
@@ -72,11 +75,11 @@ const getRoleColor = (role) => {
 </script>
 
 <template>
-    <AdminLayout title="Utilisateurs">
+    <AdminLayout :title="t('users.title')">
         <div class="space-y-6">
             <!-- Breadcrumb -->
             <Breadcrumb :items="[
-                { label: 'Utilisateurs' },
+                { label: t('users.title') },
             ]" />
 
             <!-- Skeleton: Header + Search + Table -->
@@ -116,15 +119,15 @@ const getRoleColor = (role) => {
             <!-- Header -->
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 class="text-2xl font-extrabold text-gray-900">Utilisateurs</h1>
-                    <p class="text-gray-500 mt-1 text-sm">Derniers comptes créés sur l'application</p>
+                    <h1 class="text-2xl font-extrabold text-gray-900">{{ t('users.title') }}</h1>
+                    <p class="text-gray-500 mt-1 text-sm">{{ t('users.subtitle') }}</p>
                 </div>
                 <div class="flex items-center gap-3">
                     <span class="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-xl text-sm font-bold ring-1 ring-primary/20">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                         </svg>
-                        {{ users.total }} utilisateur{{ users.total > 1 ? 's' : '' }}
+                        {{ users.total }} {{ t('users.userCount', users.total) }}
                     </span>
                 </div>
             </div>
@@ -133,7 +136,7 @@ const getRoleColor = (role) => {
             <div class="flex flex-col sm:flex-row gap-3">
                 <SearchInput
                     v-model="search"
-                    placeholder="Rechercher par nom, email ou téléphone..."
+                    :placeholder="t('users.searchPlaceholder')"
                 />
             </div>
 
@@ -145,8 +148,8 @@ const getRoleColor = (role) => {
                 :pagination="users"
                 :sort-by="sortBy"
                 :sort-direction="sortDirection"
-                empty-title="Aucun utilisateur trouvé"
-                :empty-subtitle="search ? 'Essayez un autre terme de recherche' : ''"
+                :empty-title="t('users.noUserFound')"
+                :empty-subtitle="search ? t('common.noResults') : ''"
                 empty-icon="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
                 @sort="handleSort"
             >
@@ -186,13 +189,13 @@ const getRoleColor = (role) => {
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
                         </svg>
-                        <span class="text-xs font-semibold">Vérifié</span>
+                        <span class="text-xs font-semibold">{{ t('common.verified') }}</span>
                     </span>
                     <span v-else class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-50 text-gray-400 ring-1 ring-gray-200">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span class="text-xs font-medium">Non vérifié</span>
+                        <span class="text-xs font-medium">{{ t('common.notVerified') }}</span>
                     </span>
                 </template>
 

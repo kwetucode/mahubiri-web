@@ -1,10 +1,14 @@
 <script setup>
 import { computed, ref, onMounted, onUnmounted, watch } from 'vue';
 import { usePage, Link, router } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
 import SidebarItem from '@/Components/SidebarItem.vue';
 import SidebarDropdown from '@/Components/SidebarDropdown.vue';
 import GlobalSearch from '@/Components/GlobalSearch.vue';
+import LocaleSwitcher from '@/Components/LocaleSwitcher.vue';
 import PageLoader from '@/Components/PageLoader.vue';
+
+const { t, locale } = useI18n();
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
@@ -176,9 +180,10 @@ onUnmounted(() => {
     document.removeEventListener('mousedown', handleClickOutside);
 });
 
-// Current date for header
+// Current date for header — reacts to locale changes
+const localeMap = { fr: 'fr-FR', en: 'en-GB', sw: 'sw-TZ' };
 const currentDate = computed(() => {
-    return new Date().toLocaleDateString('fr-FR', {
+    return new Date().toLocaleDateString(localeMap[locale.value] || 'fr-FR', {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
@@ -229,7 +234,7 @@ const currentDate = computed(() => {
                 >
                     <div v-show="!sidebarCollapsed" class="min-w-0">
                         <h1 class="text-lg font-bold text-gray-900 dark:text-white truncate">Mahubiri</h1>
-                        <p class="text-[11px] text-gray-400 font-medium uppercase tracking-wider">Administration</p>
+                        <p class="text-[11px] text-gray-400 font-medium uppercase tracking-wider">{{ t('layout.administration') }}</p>
                     </div>
                 </Transition>
             </div>
@@ -237,12 +242,12 @@ const currentDate = computed(() => {
             <!-- Navigation -->
             <nav class="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto overflow-x-hidden">
                 <p v-show="!sidebarCollapsed" class="px-3 mb-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
-                    Menu principal
+                    {{ t('layout.mainMenu') }}
                 </p>
 
                 <SidebarItem
                     href="/admin/dashboard"
-                    label="Dashboard"
+                    :label="t('nav.dashboard')"
                     :icon="icons.dashboard"
                     :collapsed="sidebarCollapsed"
                 />
@@ -250,7 +255,7 @@ const currentDate = computed(() => {
                 <SidebarItem
                     v-if="isAdmin"
                     href="/admin/users"
-                    label="Utilisateurs"
+                    :label="t('nav.users')"
                     :icon="icons.users"
                     :collapsed="sidebarCollapsed"
                 />
@@ -258,7 +263,7 @@ const currentDate = computed(() => {
                 <SidebarItem
                     v-if="isAdmin"
                     href="/admin/churches"
-                    label="Églises & Prédicateurs"
+                    :label="t('nav.churches')"
                     :icon="icons.church"
                     :collapsed="sidebarCollapsed"
                 />
@@ -266,7 +271,7 @@ const currentDate = computed(() => {
                 <SidebarItem
                     v-if="isAdmin"
                     href="/admin/sermon-categories"
-                    label="Catégories sermons"
+                    :label="t('nav.sermonCategories')"
                     :icon="icons.sermon"
                     :collapsed="sidebarCollapsed"
                 />
@@ -274,14 +279,14 @@ const currentDate = computed(() => {
                 <SidebarItem
                     v-if="isChurchAdmin"
                     href="/admin/church-profile"
-                    label="Mon église"
+                    :label="t('nav.myChurch')"
                     :icon="icons.church"
                     :collapsed="sidebarCollapsed"
                 />
 
                 <SidebarItem
                     href="/admin/sermons"
-                    label="Prédications"
+                    :label="t('nav.sermons')"
                     icon="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
                     :collapsed="sidebarCollapsed"
                 />
@@ -289,7 +294,7 @@ const currentDate = computed(() => {
                 <SidebarItem
                     v-if="isAdmin"
                     href="/admin/donations"
-                    label="Donations"
+                    :label="t('nav.donations')"
                     :icon="icons.donation"
                     :collapsed="sidebarCollapsed"
                 />
@@ -297,20 +302,20 @@ const currentDate = computed(() => {
                 <!-- Exemple de dropdown réutilisable -->
                 <SidebarDropdown
                     v-if="isAdmin"
-                    label="Paramètres"
+                    :label="t('nav.settings')"
                     :icon="[icons.settings, icons.settingsInner]"
                     :collapsed="sidebarCollapsed"
                     storage-key="settings"
                 >
                     <SidebarItem
                         href="/admin/settings/general"
-                        label="Général"
+                        :label="t('nav.general')"
                         icon="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
                         :collapsed="false"
                     />
                     <SidebarItem
                         href="/admin/settings/security"
-                        label="Sécurité"
+                        :label="t('nav.security')"
                         :icon="icons.shield"
                         :collapsed="false"
                     />
@@ -333,7 +338,7 @@ const currentDate = computed(() => {
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="icons.settings" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="icons.settingsInner" />
                     </svg>
-                    <span v-show="!sidebarCollapsed" class="truncate">Paramètres</span>
+                    <span v-show="!sidebarCollapsed" class="truncate">{{ t('nav.settings') }}</span>
                 </Link>
                 <button
                     @click="toggleSidebar"
@@ -347,7 +352,7 @@ const currentDate = computed(() => {
                     >
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
                     </svg>
-                    <span v-show="!sidebarCollapsed" class="truncate">Réduire</span>
+                    <span v-show="!sidebarCollapsed" class="truncate">{{ t('layout.collapse') }}</span>
                 </button>
             </div>
 
@@ -453,13 +458,13 @@ const currentDate = computed(() => {
                                 >
                                     <!-- Header -->
                                     <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-700">
-                                        <h3 class="text-sm font-bold text-gray-900 dark:text-gray-100">Notifications</h3>
+                                        <h3 class="text-sm font-bold text-gray-900 dark:text-gray-100">{{ t('layout.notifications') }}</h3>
                                         <button
                                             v-if="unreadCount > 0"
                                             @click="markAllAsRead"
                                             class="text-xs font-medium text-primary hover:text-primary-dark transition-colors"
                                         >
-                                            Tout marquer comme lu
+                                            {{ t('layout.markAllRead') }}
                                         </button>
                                     </div>
 
@@ -481,7 +486,7 @@ const currentDate = computed(() => {
                                             <svg class="w-10 h-10 mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                                             </svg>
-                                            <p class="text-xs">Aucune notification</p>
+                                            <p class="text-xs">{{ t('layout.noNotifications') }}</p>
                                         </div>
 
                                         <!-- Items -->
@@ -511,10 +516,13 @@ const currentDate = computed(() => {
                             </Transition>
                         </div>
 
+                        <!-- Locale switcher -->
+                        <LocaleSwitcher />
+
                         <!-- Admin badge -->
                         <span class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-primary/10 text-primary ring-1 ring-primary/20">
                             <span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
-                            Admin
+                            {{ t('layout.admin') }}
                         </span>
                     </div>
                 </div>
@@ -557,8 +565,8 @@ const currentDate = computed(() => {
                             </svg>
                         </div>
 
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-1">Se déconnecter ?</h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Vous allez être redirigé vers la page de connexion.</p>
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-1">{{ t('auth.logoutConfirm') }}</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">{{ t('auth.logoutMessage') }}</p>
 
                         <!-- Actions -->
                         <div class="flex gap-3">
@@ -566,13 +574,13 @@ const currentDate = computed(() => {
                                 @click="cancelLogout"
                                 class="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                             >
-                                Annuler
+                                {{ t('common.cancel') }}
                             </button>
                             <button
                                 @click="logout"
                                 class="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-red-500 hover:bg-red-600 shadow-lg shadow-red-500/25 transition-colors"
                             >
-                                Déconnexion
+                                {{ t('auth.logout') }}
                             </button>
                         </div>
                     </div>

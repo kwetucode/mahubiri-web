@@ -1,11 +1,14 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import Breadcrumb from '@/Components/Breadcrumb.vue';
 import Card from '@/Components/Card.vue';
 import Toggle from '@/Components/Toggle.vue';
 import axios from 'axios';
+
+const { t } = useI18n();
 
 const props = defineProps({
     categories: Array,
@@ -58,13 +61,13 @@ const onAudioChange = (e) => {
     // Validate file type
     const validTypes = ['audio/mpeg', 'audio/wav', 'audio/mp4', 'audio/x-m4a', 'audio/aac', 'audio/ogg', 'audio/flac'];
     if (!validTypes.includes(file.type) && !file.name.match(/\.(mp3|wav|m4a|aac|ogg|flac)$/i)) {
-        errors.value.audio_file = 'Format audio non supporté. Utilisez MP3, WAV, M4A, AAC, OGG ou FLAC.';
+        errors.value.audio_file = t('sermons.create.errors.audioFormat');
         return;
     }
 
     // Validate file size (200MB max)
     if (file.size > 200 * 1024 * 1024) {
-        errors.value.audio_file = 'Le fichier audio ne doit pas dépasser 200 MB.';
+        errors.value.audio_file = t('sermons.create.errors.audioSize');
         return;
     }
 
@@ -84,12 +87,12 @@ const onCoverChange = (e) => {
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-        errors.value.cover_file = 'Veuillez sélectionner une image.';
+        errors.value.cover_file = t('sermons.create.errors.imageSelect');
         return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-        errors.value.cover_file = "L'image ne doit pas dépasser 5 MB.";
+        errors.value.cover_file = t('sermons.create.errors.imageSize');
         return;
     }
 
@@ -137,16 +140,16 @@ const submit = async () => {
 
     // Client-side validation
     if (!form.value.title.trim()) {
-        errors.value.title = 'Le titre est requis.';
+        errors.value.title = t('sermons.create.errors.titleRequired');
     }
     if (!form.value.preacher_name.trim()) {
-        errors.value.preacher_name = 'Le nom du prédicateur est requis.';
+        errors.value.preacher_name = t('sermons.create.errors.preacherRequired');
     }
     if (!form.value.category_sermon_id) {
-        errors.value.category_sermon_id = 'La catégorie est requise.';
+        errors.value.category_sermon_id = t('sermons.create.errors.categoryRequired');
     }
     if (!audioFile.value) {
-        errors.value.audio_file = 'Le fichier audio est requis.';
+        errors.value.audio_file = t('sermons.create.errors.audioRequired');
     }
 
     if (Object.keys(errors.value).length > 0) return;
@@ -193,7 +196,7 @@ const submit = async () => {
         } else if (e.response?.data?.errors?.general) {
             errors.value.general = e.response.data.errors.general;
         } else {
-            errors.value.general = 'Une erreur est survenue lors de la création.';
+            errors.value.general = t('sermons.create.errors.createError');
         }
     } finally {
         submitting.value = false;
@@ -202,12 +205,12 @@ const submit = async () => {
 </script>
 
 <template>
-    <AdminLayout title="Nouvelle prédication">
+    <AdminLayout :title="t('sermons.create.title')">
         <div class="max-w-5xl mx-auto space-y-4">
             <!-- Breadcrumb -->
             <Breadcrumb :items="[
-                { label: 'Prédications', href: '/admin/sermons' },
-                { label: 'Nouvelle prédication' },
+                { label: t('sermons.title'), href: '/admin/sermons' },
+                { label: t('sermons.create.title') },
             ]" />
 
             <!-- Upload progress overlay -->
@@ -234,18 +237,18 @@ const submit = async () => {
                         </div>
                         <div class="text-center">
                             <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">
-                                {{ uploadPhase === 'uploading' ? 'Envoi en cours...' : 'Traitement du fichier...' }}
+                                {{ uploadPhase === 'uploading' ? t('sermons.create.uploadPhase1') : t('sermons.create.uploadPhase2') }}
                             </h3>
                             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                                 {{ uploadPhase === 'uploading'
-                                    ? 'Veuillez patienter pendant l\'envoi du fichier audio.'
-                                    : 'Extraction des métadonnées audio en cours...'
+                                    ? t('sermons.create.uploadWait')
+                                    : t('sermons.create.uploadPhase3')
                                 }}
                             </p>
                         </div>
                         <div class="space-y-2">
                             <div class="flex justify-between text-sm">
-                                <span class="font-medium text-gray-700 dark:text-gray-300">Progression</span>
+                                <span class="font-medium text-gray-700 dark:text-gray-300">{{ t('sermons.create.progress') }}</span>
                                 <span class="font-bold" :class="uploadProgress >= 100 ? 'text-emerald-600' : 'text-primary'">
                                     {{ uploadProgress }}%
                                 </span>
@@ -277,19 +280,19 @@ const submit = async () => {
                 <div class="grid grid-cols-1 lg:grid-cols-5 gap-4">
                     <!-- Left column: Main fields (3/5) -->
                     <div class="lg:col-span-3 space-y-4">
-                        <Card title="Informations" noPadding>
+                        <Card :title="t('sermons.create.information')" noPadding>
                             <div class="p-5 space-y-3">
                                 <!-- Title -->
                                 <div>
                                     <label for="title" class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">
-                                        Titre <span class="text-red-500">*</span>
+                                        {{ t('sermons.create.titleLabel') }} <span class="text-red-500">*</span>
                                     </label>
                                     <input
                                         id="title"
                                         v-model="form.title"
                                         type="text"
                                         class="w-full px-3.5 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:bg-white dark:focus:bg-gray-600 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                                        placeholder="Ex: La puissance de la prière"
+                                        :placeholder="t('sermons.create.titlePlaceholder')"
                                         :class="{ 'border-red-300 bg-red-50/50': errors.title }"
                                     />
                                     <p v-if="errors.title" class="mt-1 text-xs text-red-500">{{ errors.title }}</p>
@@ -299,21 +302,21 @@ const submit = async () => {
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div>
                                         <label for="preacher_name" class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">
-                                            Prédicateur <span class="text-red-500">*</span>
+                                            {{ t('sermons.create.preacherLabel') }} <span class="text-red-500">*</span>
                                         </label>
                                         <input
                                             id="preacher_name"
                                             v-model="form.preacher_name"
                                             type="text"
                                             class="w-full px-3.5 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:bg-white dark:focus:bg-gray-600 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                                            placeholder="Pasteur Jean Mulumba"
+                                            :placeholder="t('sermons.create.preacherPlaceholder')"
                                             :class="{ 'border-red-300 bg-red-50/50': errors.preacher_name }"
                                         />
                                         <p v-if="errors.preacher_name" class="mt-1 text-xs text-red-500">{{ errors.preacher_name }}</p>
                                     </div>
                                     <div>
                                         <label for="category" class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">
-                                            Catégorie <span class="text-red-500">*</span>
+                                            {{ t('sermons.create.categoryLabel') }} <span class="text-red-500">*</span>
                                         </label>
                                         <select
                                             id="category"
@@ -321,7 +324,7 @@ const submit = async () => {
                                             class="w-full px-3.5 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:bg-white dark:focus:bg-gray-600 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                                             :class="{ 'border-red-300 bg-red-50/50': errors.category_sermon_id }"
                                         >
-                                            <option value="">Sélectionner</option>
+                                            <option value="">{{ t('common.select') }}</option>
                                             <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
                                         </select>
                                         <p v-if="errors.category_sermon_id" class="mt-1 text-xs text-red-500">{{ errors.category_sermon_id }}</p>
@@ -331,21 +334,21 @@ const submit = async () => {
                                 <!-- Description (compact) -->
                                 <div>
                                     <label for="description" class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">
-                                        Description <span class="text-gray-400 dark:text-gray-500 font-normal">(optionnelle)</span>
+                                        {{ t('sermons.create.descriptionLabel') }} <span class="text-gray-400 dark:text-gray-500 font-normal">({{ t('common.optional') }})</span>
                                     </label>
                                     <textarea
                                         id="description"
                                         v-model="form.description"
                                         rows="3"
                                         class="w-full px-3.5 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:bg-white dark:focus:bg-gray-600 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none"
-                                        placeholder="Décrivez brièvement le contenu..."
+                                        :placeholder="t('sermons.create.descriptionPlaceholder')"
                                     ></textarea>
                                 </div>
 
                                 <!-- Couleur -->
                                 <div>
                                     <label for="color" class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">
-                                        Couleur <span class="text-gray-400 dark:text-gray-500 font-normal">(optionnelle)</span>
+                                        {{ t('sermons.create.colorLabel') }} <span class="text-gray-400 dark:text-gray-500 font-normal">({{ t('common.optional') }})</span>
                                     </label>
                                     <div class="flex items-center gap-3">
                                         <input
@@ -361,7 +364,7 @@ const submit = async () => {
                         </Card>
 
                         <!-- Audio Upload (compact) -->
-                        <Card title="Fichier audio" noPadding>
+                        <Card :title="t('sermons.create.audioFile')" noPadding>
                             <div class="p-5">
                                 <!-- Dropzone -->
                                 <div v-if="!audioPreview" class="relative">
@@ -382,7 +385,7 @@ const submit = async () => {
                                             </svg>
                                         </div>
                                         <div>
-                                            <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">Cliquez pour ajouter le fichier audio</p>
+                                            <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ t('sermons.create.audioDropzone') }}</p>
                                             <p class="text-xs text-gray-400 dark:text-gray-500">MP3, WAV, M4A, AAC, OGG, FLAC — max 200 MB</p>
                                         </div>
                                     </div>
@@ -414,7 +417,7 @@ const submit = async () => {
                     <!-- Right column: Media + Publish (2/5) -->
                     <div class="lg:col-span-2 space-y-4">
                         <!-- Cover Image (compact) -->
-                        <Card title="Couverture" noPadding>
+                        <Card :title="t('sermons.create.cover')" noPadding>
                             <div class="p-5">
                                 <div v-if="!coverPreview" class="relative">
                                     <input
@@ -433,13 +436,13 @@ const submit = async () => {
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                             </svg>
                                         </div>
-                                        <p class="text-xs font-medium text-gray-600 dark:text-gray-300">Ajouter une image</p>
+                                        <p class="text-xs font-medium text-gray-600 dark:text-gray-300">{{ t('sermons.create.coverDropzone') }}</p>
                                         <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">JPG, PNG, WebP — max 5 MB</p>
                                     </div>
                                 </div>
 
                                 <div v-else class="relative">
-                                    <img :src="coverPreview" alt="Couverture" class="w-full h-36 object-cover rounded-xl ring-1 ring-gray-200" />
+                                    <img :src="coverPreview" :alt="t('sermons.create.cover')" class="w-full h-36 object-cover rounded-xl ring-1 ring-gray-200" />
                                     <button
                                         type="button"
                                         @click="removeCover"
@@ -459,8 +462,8 @@ const submit = async () => {
                         <Card noPadding>
                             <div class="p-5 flex items-center justify-between">
                                 <div>
-                                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">Publier immédiatement</p>
-                                    <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">Sinon, enregistré comme brouillon</p>
+                                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ t('sermons.create.publishNow') }}</p>
+                                    <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">{{ t('sermons.create.publishNowDesc') }}</p>
                                 </div>
                                 <Toggle v-model="form.is_published" color="emerald" />
                             </div>
@@ -475,7 +478,7 @@ const submit = async () => {
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                                 </svg>
-                                Annuler
+                                {{ t('common.cancel') }}
                             </Link>
                             <button
                                 type="submit"
@@ -489,7 +492,7 @@ const submit = async () => {
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
                                 </svg>
-                                {{ submitting ? 'Envoi...' : 'Créer' }}
+                                {{ submitting ? t('common.sending') : t('common.create') }}
                             </button>
                         </div>
                     </div>

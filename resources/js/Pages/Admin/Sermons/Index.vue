@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch, computed, onMounted } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import DataTable from '@/Components/DataTable.vue';
 import SearchInput from '@/Components/SearchInput.vue';
@@ -9,6 +10,8 @@ import ConfirmModal from '@/Components/ConfirmModal.vue';
 import Breadcrumb from '@/Components/Breadcrumb.vue';
 import AudioPlayer from '@/Components/AudioPlayer.vue';
 import axios from 'axios';
+
+const { t } = useI18n();
 
 const props = defineProps({
     sermons: Object,
@@ -68,12 +71,12 @@ const handleSort = ({ key, direction }) => {
     navigate();
 };
 
-const columns = [
-    { key: 'title', label: 'Prédication', sortable: true },
-    { key: 'preacher_name', label: 'Prédicateur', sortable: true, hidden: 'hidden md:table-cell' },
-    { key: 'category_name', label: 'Catégorie', hidden: 'hidden lg:table-cell' },
-    { key: 'is_published', label: 'Statut', sortable: true },
-];
+const columns = computed(() => [
+    { key: 'title', label: t('sermons.sermon'), sortable: true },
+    { key: 'preacher_name', label: t('sermons.preacher'), sortable: true, hidden: 'hidden md:table-cell' },
+    { key: 'category_name', label: t('sermons.category'), hidden: 'hidden lg:table-cell' },
+    { key: 'is_published', label: t('common.status'), sortable: true },
+]);
 
 const rows = computed(() => props.sermons?.data ?? []);
 const isLoading = computed(() => tableLoading.value || !props.sermons);
@@ -133,11 +136,11 @@ const cancelDelete = () => {
     deleteTarget.value = null;
 };
 
-const statusTabs = [
-    { key: '', label: 'Tout' },
-    { key: 'published', label: 'Publiées' },
-    { key: 'draft', label: 'Brouillons' },
-];
+const statusTabs = computed(() => [
+    { key: '', label: t('sermons.allStatus') },
+    { key: 'published', label: t('sermons.published') },
+    { key: 'draft', label: t('sermons.drafts') },
+]);
 
 // --- Audio Player ---
 const playerSrc = ref(null);
@@ -170,11 +173,11 @@ const closePlayer = () => {
 </script>
 
 <template>
-    <AdminLayout title="Prédications">
+    <AdminLayout :title="t('sermons.title')">
         <div class="space-y-4">
             <!-- Breadcrumb -->
             <Breadcrumb :items="[
-                { label: 'Prédications' },
+                { label: t('sermons.title') },
             ]" />
 
             <!-- Skeleton -->
@@ -236,7 +239,7 @@ const closePlayer = () => {
                             </svg>
                         </div>
                         <div>
-                            <h1 class="text-base font-bold text-gray-900 dark:text-gray-100 leading-tight">Prédications</h1>
+                            <h1 class="text-base font-bold text-gray-900 dark:text-gray-100 leading-tight">{{ t('sermons.title') }}</h1>
                             <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">{{ church?.name }}</p>
                         </div>
                     </div>
@@ -247,7 +250,7 @@ const closePlayer = () => {
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                         </svg>
-                        Nouvelle prédication
+                        {{ t('sermons.newSermon') }}
                     </Link>
                 </div>
 
@@ -255,19 +258,19 @@ const closePlayer = () => {
                 <div class="grid grid-cols-2 sm:grid-cols-4 divide-x divide-gray-100 dark:divide-gray-700 border-b border-gray-100 dark:border-gray-700 bg-gray-50/30 dark:bg-gray-800/50">
                     <div class="px-4 py-2.5 text-center">
                         <p class="text-lg font-bold text-gray-900 dark:text-gray-100 leading-none">{{ stats?.total ?? 0 }}</p>
-                        <p class="text-[10px] font-medium text-gray-400 dark:text-gray-500 mt-0.5 uppercase tracking-wider">Total</p>
+                        <p class="text-[10px] font-medium text-gray-400 dark:text-gray-500 mt-0.5 uppercase tracking-wider">{{ t('common.total') }}</p>
                     </div>
                     <div class="px-4 py-2.5 text-center">
                         <p class="text-lg font-bold text-emerald-600 leading-none">{{ stats?.published ?? 0 }}</p>
-                        <p class="text-[10px] font-medium text-gray-400 dark:text-gray-500 mt-0.5 uppercase tracking-wider">Publiées</p>
+                        <p class="text-[10px] font-medium text-gray-400 dark:text-gray-500 mt-0.5 uppercase tracking-wider">{{ t('sermons.published') }}</p>
                     </div>
                     <div class="px-4 py-2.5 text-center">
                         <p class="text-lg font-bold text-amber-600 leading-none">{{ stats?.draft ?? 0 }}</p>
-                        <p class="text-[10px] font-medium text-gray-400 dark:text-gray-500 mt-0.5 uppercase tracking-wider">Brouillons</p>
+                        <p class="text-[10px] font-medium text-gray-400 dark:text-gray-500 mt-0.5 uppercase tracking-wider">{{ t('sermons.drafts') }}</p>
                     </div>
                     <div class="px-4 py-2.5 text-center">
                         <p class="text-lg font-bold text-blue-600 leading-none">{{ stats?.views ?? 0 }}</p>
-                        <p class="text-[10px] font-medium text-gray-400 dark:text-gray-500 mt-0.5 uppercase tracking-wider">Écoutes</p>
+                        <p class="text-[10px] font-medium text-gray-400 dark:text-gray-500 mt-0.5 uppercase tracking-wider">{{ t('sermons.listens') }}</p>
                     </div>
                 </div>
 
@@ -295,13 +298,13 @@ const closePlayer = () => {
                     <div class="flex-1 flex items-center gap-2">
                         <SearchInput
                             v-model="search"
-                            placeholder="Rechercher par titre, prédicateur..."
+                            :placeholder="t('sermons.searchPlaceholder')"
                         />
                         <select
                             v-model="categoryFilter"
                             class="h-9 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-[12px] font-medium text-gray-700 dark:text-gray-300 pl-2.5 pr-7 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors shrink-0"
                         >
-                            <option value="">Toutes catégories</option>
+                            <option value="">{{ t('sermons.allCategories') }}</option>
                             <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
                         </select>
                     </div>
@@ -317,8 +320,8 @@ const closePlayer = () => {
                 :pagination="sermons"
                 :sort-by="sortBy"
                 :sort-direction="sortDirection"
-                empty-title="Aucune prédication trouvée"
-                :empty-subtitle="search ? 'Essayez un autre terme de recherche' : 'Publiez votre première prédication !'"
+                :empty-title="t('sermons.noSermonFound')"
+                :empty-subtitle="search ? t('common.tryOtherSearch') : t('sermons.publishFirst')"
                 empty-icon="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
                 @sort="handleSort"
             >
@@ -331,7 +334,7 @@ const closePlayer = () => {
                             class="relative group shrink-0"
                             :class="{ 'cursor-not-allowed opacity-50': !row.audio_url }"
                             :disabled="!row.audio_url"
-                            :title="row.audio_url ? 'Écouter' : 'Aucun audio'"
+                            :title="row.audio_url ? t('sermons.listen') : t('sermons.noAudio')"
                         >
                             <div
                                 v-if="row.cover_url"
@@ -382,7 +385,7 @@ const closePlayer = () => {
                         <div class="min-w-0">
                             <p class="text-[13px] font-semibold text-gray-900 dark:text-gray-100 truncate leading-tight">{{ row.title }}</p>
                             <p class="text-[11px] text-gray-400 truncate mt-0.5">
-                                {{ row.views_count ?? 0 }} écoute{{ (row.views_count ?? 0) > 1 ? 's' : '' }}
+                                {{ row.views_count ?? 0 }} {{ (row.views_count ?? 0) > 1 ? t('sermons.listensPlural') : t('sermons.listenSingular') }}
                                 <span v-if="row.size"> · {{ formatSize(row.size) }}</span>
                                 <span v-if="row.duration_formatted"> · {{ row.duration_formatted }}</span>
                                 <span v-if="row.created_at_human || row.created_at"> · {{ row.created_at_human || row.created_at }}</span>
@@ -432,7 +435,7 @@ const closePlayer = () => {
                                 : playerSrc === row.audio_url
                                     ? 'bg-primary text-white ring-2 ring-primary/40 shadow-primary/25'
                                     : 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-emerald-500/25 hover:shadow-md'"
-                            :title="loadingSermonUrl === row.audio_url ? 'Chargement...' : playerSrc === row.audio_url ? 'En lecture...' : 'Écouter'"
+                            :title="loadingSermonUrl === row.audio_url ? t('common.loading') : playerSrc === row.audio_url ? t('sermons.playing') : t('sermons.listen')"
                         >
                             <svg v-if="loadingSermonUrl === row.audio_url" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
@@ -450,12 +453,12 @@ const closePlayer = () => {
                             :href="`/admin/sermons/${row.id}/edit`"
                             class="inline-flex items-center justify-center h-8 rounded-lg bg-blue-500 text-white hover:bg-blue-600 shadow-sm shadow-blue-500/25 hover:shadow-md transition-all duration-200"
                             :class="row.is_published ? 'w-8' : 'px-2.5 gap-1.5'"
-                            :title="'Modifier'"
+                            :title="t('common.edit')"
                         >
                             <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
-                            <span v-if="!row.is_published" class="text-[11px] font-semibold">Modifier</span>
+                            <span v-if="!row.is_published" class="text-[11px] font-semibold">{{ t('common.edit') }}</span>
                         </Link>
                         <!-- Delete button: masqué si publié -->
                         <button
@@ -486,10 +489,10 @@ const closePlayer = () => {
         <!-- Delete confirmation modal -->
         <ConfirmModal
             v-model:show="showDeleteModal"
-            title="Supprimer cette prédication ?"
-            :message="`Vous êtes sur le point de supprimer la prédication &laquo; ${deleteTarget?.title} &raquo;. Cette action est irréversible. Les fichiers audio et image associés seront également supprimés.`"
-            confirm-text="Supprimer"
-            cancel-text="Annuler"
+            :title="t('sermons.deleteTitle')"
+            :message="t('sermons.deleteMessage', { title: deleteTarget?.title })"
+            :confirm-text="t('common.delete')"
+            :cancel-text="t('common.cancel')"
             variant="danger"
             :loading="deleteLoading"
             icon="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"

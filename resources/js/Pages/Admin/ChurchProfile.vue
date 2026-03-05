@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useForm, Link } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import StatCard from '@/Components/StatCard.vue';
 import Card from '@/Components/Card.vue';
@@ -11,6 +12,8 @@ const props = defineProps({
     stats: Object,
     topSermons: { type: Array, default: () => [] },
 });
+
+const { t } = useI18n();
 
 const editing = ref(false);
 
@@ -25,12 +28,12 @@ const icons = {
 };
 
 const statCards = computed(() => [
-    { label: 'Total prédications', value: props.stats?.totalSermons ?? 0, icon: icons.mic, color: 'primary' },
-    { label: 'Publiées', value: props.stats?.publishedSermons ?? 0, icon: icons.published, color: 'emerald' },
-    { label: 'Brouillons', value: props.stats?.draftSermons ?? 0, icon: icons.draft, color: 'amber' },
-    { label: 'Écoutes totales', value: props.stats?.totalViews ?? 0, icon: icons.eye, color: 'blue' },
-    { label: 'Favoris', value: props.stats?.totalFavorites ?? 0, icon: icons.heart, color: 'red' },
-    { label: 'Ce mois', value: props.stats?.sermonsThisMonth ?? 0, icon: icons.calendar, color: 'primary' },
+    { label: t('churchProfile.totalSermons'), value: props.stats?.totalSermons ?? 0, icon: icons.mic, color: 'primary' },
+    { label: t('churchProfile.publishedSermons'), value: props.stats?.publishedSermons ?? 0, icon: icons.published, color: 'emerald' },
+    { label: t('churchProfile.draftSermons'), value: props.stats?.draftSermons ?? 0, icon: icons.draft, color: 'amber' },
+    { label: t('churchProfile.totalListens'), value: props.stats?.totalViews ?? 0, icon: icons.eye, color: 'blue' },
+    { label: t('churchProfile.totalFavorites'), value: props.stats?.totalFavorites ?? 0, icon: icons.heart, color: 'red' },
+    { label: t('churchProfile.thisMonth'), value: props.stats?.sermonsThisMonth ?? 0, icon: icons.calendar, color: 'primary' },
 ]);
 
 const form = useForm({
@@ -97,21 +100,21 @@ const submit = () => {
 
 // Info items for view mode
 const infoItems = computed(() => [
-    { label: 'Nom complet', value: props.church.name, icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4' },
-    { label: 'Abréviation', value: props.church.abbreviation, icon: 'M7 20l4-16m2 16l4-16M6 9h14M4 15h14' },
-    { label: 'Visionnaire', value: props.church.visionary_name, icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
-    { label: 'Pays', value: props.church.country_name, icon: 'M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
-    { label: 'Ville', value: props.church.city, icon: 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z' },
-    { label: 'Adresse', value: props.church.address, icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+    { label: t('churchProfile.name'), value: props.church.name, icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4' },
+    { label: t('churchProfile.abbreviation'), value: props.church.abbreviation, icon: 'M7 20l4-16m2 16l4-16M6 9h14M4 15h14' },
+    { label: t('churchProfile.visionary'), value: props.church.visionary_name, icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
+    { label: t('churchProfile.country'), value: props.church.country_name, icon: 'M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
+    { label: t('churchProfile.city'), value: props.church.city, icon: 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z' },
+    { label: t('churchProfile.address'), value: props.church.address, icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
 ]);
 </script>
 
 <template>
-    <AdminLayout title="Mon église">
+    <AdminLayout :title="t('churchProfile.title')">
         <div class="space-y-5">
             <!-- Breadcrumb -->
             <Breadcrumb :items="[
-                { label: 'Mon église' },
+                { label: t('churchProfile.title') },
             ]" />
 
             <!-- Stats Grid (3 cols on md, 6 on xl) -->
@@ -154,7 +157,7 @@ const infoItems = computed(() => [
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                         </svg>
-                                        Modifier
+                                        {{ t('churchProfile.editProfile') }}
                                     </button>
                                     <button
                                         v-else
@@ -164,7 +167,7 @@ const infoItems = computed(() => [
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                         </svg>
-                                        Annuler
+                                        {{ t('churchProfile.cancel') }}
                                     </button>
                                 </div>
                             </div>
@@ -232,14 +235,14 @@ const infoItems = computed(() => [
                                         :class="church.is_active ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/10' : 'bg-red-50 text-red-600 ring-1 ring-red-600/10'"
                                     >
                                         <span class="w-1.5 h-1.5 rounded-full" :class="church.is_active ? 'bg-emerald-500' : 'bg-red-400'"></span>
-                                        {{ church.is_active ? 'Active' : 'Inactive' }}
+                                        {{ church.is_active ? t('churchProfile.active') : t('churchProfile.inactive') }}
                                     </span>
                                     <span v-if="church.is_featured" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 ring-1 ring-amber-600/10">
                                         <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                                        En vedette
+                                        {{ t('churchProfile.featured') }}
                                     </span>
-                                    <span class="text-[11px] text-gray-400 dark:text-gray-500">· {{ church.sermons_count }} prédication{{ church.sermons_count > 1 ? 's' : '' }}</span>
-                                    <span class="text-[11px] text-gray-400 dark:text-gray-500">· Depuis {{ church.created_at }}</span>
+                                    <span class="text-[11px] text-gray-400 dark:text-gray-500">· {{ t('churchProfile.sermonCount', { count: church.sermons_count }) }}</span>
+                                    <span class="text-[11px] text-gray-400 dark:text-gray-500">· {{ t('churchProfile.since', { date: church.created_at }) }}</span>
                                 </div>
                             </div>
 
@@ -262,7 +265,7 @@ const infoItems = computed(() => [
                                     </div>
                                     <div class="min-w-0 flex-1">
                                         <p class="text-[11px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">{{ item.label }}</p>
-                                        <p class="text-[13px] text-gray-900 dark:text-gray-100 mt-0.5">{{ item.value || '—' }}</p>
+                                        <p class="text-[13px] text-gray-900 dark:text-gray-100 mt-0.5">{{ item.value || t('churchProfile.noInfoAvailable') }}</p>
                                     </div>
                                 </div>
 
@@ -275,8 +278,8 @@ const infoItems = computed(() => [
                                             </svg>
                                         </div>
                                         <div class="min-w-0 flex-1">
-                                            <p class="text-[11px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">Description</p>
-                                            <p class="text-[13px] text-gray-900 dark:text-gray-100 mt-0.5 whitespace-pre-line">{{ church.description || '—' }}</p>
+                                            <p class="text-[11px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">{{ t('churchProfile.description') }}</p>
+                                            <p class="text-[13px] text-gray-900 dark:text-gray-100 mt-0.5 whitespace-pre-line">{{ church.description || t('churchProfile.noDescription') }}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -290,19 +293,19 @@ const infoItems = computed(() => [
                                 <div class="grid grid-cols-1 sm:grid-cols-5 gap-4 px-5 py-4">
                                     <div class="sm:col-span-3">
                                         <label class="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">
-                                            Nom de l'église <span class="text-red-400">*</span>
+                                            {{ t('churchProfile.name') }} <span class="text-red-400">*</span>
                                         </label>
                                         <input
                                             v-model="form.name"
                                             type="text"
                                             class="w-full rounded-xl border border-gray-200 dark:border-gray-600 dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
-                                            placeholder="Nom complet de l'église"
+                                            :placeholder="t('churchProfile.namePlaceholder')"
                                         />
                                         <p v-if="form.errors.name" class="text-xs text-red-500 mt-1">{{ form.errors.name }}</p>
                                     </div>
                                     <div class="sm:col-span-2">
                                         <label class="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">
-                                            Abréviation
+                                            {{ t('churchProfile.abbreviation') }}
                                         </label>
                                         <input
                                             v-model="form.abbreviation"
@@ -317,13 +320,13 @@ const infoItems = computed(() => [
                                 <!-- Row: Visionnaire -->
                                 <div class="px-5 py-4">
                                     <label class="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">
-                                        Nom du visionnaire / Pasteur principal
+                                        {{ t('churchProfile.visionary') }}
                                     </label>
                                     <input
                                         v-model="form.visionary_name"
                                         type="text"
                                         class="w-full rounded-xl border border-gray-200 dark:border-gray-600 dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
-                                        placeholder="Nom complet du visionnaire"
+                                        :placeholder="t('churchProfile.visionaryPlaceholder')"
                                     />
                                     <p v-if="form.errors.visionary_name" class="text-xs text-red-500 mt-1">{{ form.errors.visionary_name }}</p>
                                 </div>
@@ -332,7 +335,7 @@ const infoItems = computed(() => [
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 px-5 py-4">
                                     <div>
                                         <label class="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">
-                                            Pays
+                                            {{ t('churchProfile.country') }}
                                         </label>
                                         <input
                                             v-model="form.country_name"
@@ -344,7 +347,7 @@ const infoItems = computed(() => [
                                     </div>
                                     <div>
                                         <label class="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">
-                                            Ville
+                                            {{ t('churchProfile.city') }}
                                         </label>
                                         <input
                                             v-model="form.city"
@@ -359,13 +362,13 @@ const infoItems = computed(() => [
                                 <!-- Row: Adresse -->
                                 <div class="px-5 py-4">
                                     <label class="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">
-                                        Adresse complète
+                                        {{ t('churchProfile.address') }}
                                     </label>
                                     <input
                                         v-model="form.address"
                                         type="text"
                                         class="w-full rounded-xl border border-gray-200 dark:border-gray-600 dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
-                                        placeholder="Rue, avenue, quartier..."
+                                        :placeholder="t('churchProfile.addressPlaceholder')"
                                     />
                                     <p v-if="form.errors.address" class="text-xs text-red-500 mt-1">{{ form.errors.address }}</p>
                                 </div>
@@ -373,13 +376,13 @@ const infoItems = computed(() => [
                                 <!-- Row: Description -->
                                 <div class="px-5 py-4">
                                     <label class="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">
-                                        Description
+                                        {{ t('churchProfile.description') }}
                                     </label>
                                     <textarea
                                         v-model="form.description"
                                         rows="3"
                                         class="w-full rounded-xl border border-gray-200 dark:border-gray-600 dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors resize-none"
-                                        placeholder="Courte description de l'église..."
+                                        :placeholder="t('churchProfile.descriptionPlaceholder')"
                                     ></textarea>
                                     <p v-if="form.errors.description" class="text-xs text-red-500 mt-1">{{ form.errors.description }}</p>
                                 </div>
@@ -391,7 +394,7 @@ const infoItems = computed(() => [
                                         @click="cancelEditing"
                                         class="px-4 py-2 text-xs font-semibold text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
                                     >
-                                        Annuler
+                                        {{ t('churchProfile.cancel') }}
                                     </button>
                                     <button
                                         type="submit"
@@ -405,7 +408,7 @@ const infoItems = computed(() => [
                                         <svg v-else class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                         </svg>
-                                        Enregistrer
+                                        {{ t('churchProfile.save') }}
                                     </button>
                                 </div>
                             </form>
@@ -420,38 +423,38 @@ const infoItems = computed(() => [
                         <template #header>
                             <div class="flex items-center gap-2">
                                 <div class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></div>
-                                <h3 class="text-xs font-semibold text-white/90">Résumé</h3>
+                                <h3 class="text-xs font-semibold text-white/90">{{ t('churchProfile.summary') }}</h3>
                             </div>
                         </template>
                         <div class="px-5 py-3.5 space-y-3">
                             <div class="flex justify-between text-[11px]">
-                                <span class="text-white/60">Prédications</span>
+                                <span class="text-white/60">{{ t('churchProfile.totalSermons') }}</span>
                                 <span class="text-blue-400 font-medium">{{ stats?.totalSermons ?? 0 }} total</span>
                             </div>
                             <div class="flex justify-between text-[11px]">
-                                <span class="text-white/60">Écoutes ce mois</span>
-                                <span class="text-emerald-400 font-medium">{{ stats?.viewsThisMonth ?? 0 }} écoutes</span>
+                                <span class="text-white/60">{{ t('churchProfile.listensThisMonth') }}</span>
+                                <span class="text-emerald-400 font-medium">{{ stats?.viewsThisMonth ?? 0 }} {{ t('churchProfile.listens') }}</span>
                             </div>
                             <div class="flex justify-between text-[11px]">
-                                <span class="text-white/60">Taux de publication</span>
+                                <span class="text-white/60">{{ t('churchProfile.publicationRate') }}</span>
                                 <span class="text-accent-warm font-medium">{{ stats?.publicationRate ?? 0 }}%</span>
                             </div>
                             <div class="flex justify-between text-[11px]">
-                                <span class="text-white/60">Dernier ajout</span>
-                                <span class="text-purple-400 font-medium">{{ stats?.lastSermonDate ?? 'Aucun' }}</span>
+                                <span class="text-white/60">{{ t('churchProfile.lastAdded') }}</span>
+                                <span class="text-purple-400 font-medium">{{ stats?.lastSermonDate ?? t('churchProfile.none') }}</span>
                             </div>
                         </div>
                     </Card>
 
                     <!-- Top 3 prédications -->
-                    <Card title="Top prédications" subtitle="Les plus écoutées" no-padding>
+                    <Card :title="t('churchProfile.topSermons')" :subtitle="t('churchProfile.mostListened')" no-padding>
                         <div v-if="topSermons.length === 0" class="px-5 py-6 text-center">
                             <div class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-2">
                                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" :d="icons.trophy" />
                                 </svg>
                             </div>
-                            <p class="text-xs text-gray-400 dark:text-gray-500">Aucune donnée disponible</p>
+                            <p class="text-xs text-gray-400 dark:text-gray-500">{{ t('churchProfile.noSermons') }}</p>
                         </div>
                         <div v-else class="divide-y divide-gray-50 dark:divide-gray-700/50">
                             <div
@@ -481,7 +484,7 @@ const infoItems = computed(() => [
                     </Card>
 
                     <!-- Quick actions -->
-                    <Card title="Actions rapides">
+                    <Card :title="t('churchProfile.quickActions')">
                         <div class="space-y-2">
                             <Link
                                 href="/admin/sermons/create"
@@ -493,8 +496,8 @@ const infoItems = computed(() => [
                                     </svg>
                                 </div>
                                 <div class="flex-1">
-                                    <p class="text-xs font-semibold text-gray-800 dark:text-gray-200 group-hover:text-primary transition-colors">Nouvelle prédication</p>
-                                    <p class="text-[11px] text-gray-400 dark:text-gray-500">Publier un nouveau sermon</p>
+                                    <p class="text-xs font-semibold text-gray-800 dark:text-gray-200 group-hover:text-primary transition-colors">{{ t('churchProfile.newSermon') }}</p>
+                                    <p class="text-[11px] text-gray-400 dark:text-gray-500">{{ t('churchProfile.publishNewSermon') }}</p>
                                 </div>
                                 <svg class="w-3.5 h-3.5 text-gray-300 dark:text-gray-500 group-hover:text-primary/50 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -510,8 +513,8 @@ const infoItems = computed(() => [
                                     </svg>
                                 </div>
                                 <div class="flex-1">
-                                    <p class="text-xs font-semibold text-gray-800 dark:text-gray-200 group-hover:text-primary transition-colors">Toutes les prédications</p>
-                                    <p class="text-[11px] text-gray-400 dark:text-gray-500">Gérer vos sermons</p>
+                                    <p class="text-xs font-semibold text-gray-800 dark:text-gray-200 group-hover:text-primary transition-colors">{{ t('churchProfile.manageSermons') }}</p>
+                                    <p class="text-[11px] text-gray-400 dark:text-gray-500">{{ t('churchProfile.manageSermonsDesc') }}</p>
                                 </div>
                                 <svg class="w-3.5 h-3.5 text-gray-300 dark:text-gray-500 group-hover:text-primary/50 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -527,8 +530,8 @@ const infoItems = computed(() => [
                                     </svg>
                                 </div>
                                 <div class="flex-1">
-                                    <p class="text-xs font-semibold text-gray-800 dark:text-gray-200 group-hover:text-primary transition-colors">Tableau de bord</p>
-                                    <p class="text-[11px] text-gray-400 dark:text-gray-500">Voir les statistiques</p>
+                                    <p class="text-xs font-semibold text-gray-800 dark:text-gray-200 group-hover:text-primary transition-colors">{{ t('churchProfile.viewDashboard') }}</p>
+                                    <p class="text-[11px] text-gray-400 dark:text-gray-500">{{ t('churchProfile.viewStats') }}</p>
                                 </div>
                                 <svg class="w-3.5 h-3.5 text-gray-300 dark:text-gray-500 group-hover:text-primary/50 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />

@@ -5,12 +5,15 @@ import AdminLayout from '@/Layouts/AdminLayout.vue';
 import DataTable from '@/Components/DataTable.vue';
 import SearchInput from '@/Components/SearchInput.vue';
 import Breadcrumb from '@/Components/Breadcrumb.vue';
+import { useI18n } from 'vue-i18n';
 
 const props = defineProps({
     donations: Object,
     stats: Object,
     filters: Object,
 });
+
+const { t } = useI18n();
 
 const search = ref(props.filters?.search || '');
 const statusFilter = ref(props.filters?.status || '');
@@ -56,28 +59,28 @@ const handleSort = ({ key, direction }) => {
     navigate();
 };
 
-const columns = [
-    { key: 'donor', label: 'Donateur' },
-    { key: 'recipient', label: 'Bénéficiaire', hidden: 'hidden md:table-cell' },
-    { key: 'amount', label: 'Montant', sortable: true },
-    { key: 'status', label: 'Statut', sortable: true },
-    { key: 'created_at', label: 'Date', sortable: true, hidden: 'hidden lg:table-cell' },
-];
+const columns = computed(() => [
+    { key: 'donor', label: t('donations.donor') },
+    { key: 'recipient', label: t('donations.recipient'), hidden: 'hidden md:table-cell' },
+    { key: 'amount', label: t('donations.amount'), sortable: true },
+    { key: 'status', label: t('donations.status'), sortable: true },
+    { key: 'created_at', label: t('donations.date'), sortable: true, hidden: 'hidden lg:table-cell' },
+]);
 
-const statusFilters = [
-    { key: '', label: 'Tous' },
-    { key: 'completed', label: 'Complétées' },
-    { key: 'pending', label: 'En attente' },
-    { key: 'failed', label: 'Échouées' },
-];
+const statusFilters = computed(() => [
+    { key: '', label: t('common.all') },
+    { key: 'completed', label: t('donations.completed') },
+    { key: 'pending', label: t('donations.pending') },
+    { key: 'failed', label: t('donations.failed') },
+]);
 
-const statusStyles = {
-    completed: { bg: 'bg-emerald-50 text-emerald-700 ring-emerald-600/10', dot: 'bg-emerald-500', label: 'Complétée' },
-    pending: { bg: 'bg-amber-50 text-amber-700 ring-amber-600/10', dot: 'bg-amber-500', label: 'En attente' },
-    failed: { bg: 'bg-red-50 text-red-700 ring-red-600/10', dot: 'bg-red-500', label: 'Échouée' },
-};
+const statusStyles = computed(() => ({
+    completed: { bg: 'bg-emerald-50 text-emerald-700 ring-emerald-600/10', dot: 'bg-emerald-500', label: t('donations.completed') },
+    pending: { bg: 'bg-amber-50 text-amber-700 ring-amber-600/10', dot: 'bg-amber-500', label: t('donations.pending') },
+    failed: { bg: 'bg-red-50 text-red-700 ring-red-600/10', dot: 'bg-red-500', label: t('donations.failed') },
+}));
 
-const getStatus = (status) => statusStyles[status] || statusStyles.pending;
+const getStatus = (status) => statusStyles.value[status] || statusStyles.value.pending;
 
 const recipientIcon = (type) => {
     return type === 'church'
@@ -87,25 +90,25 @@ const recipientIcon = (type) => {
 
 const statCards = computed(() => [
     {
-        label: 'Total donations',
+        label: t('donations.total'),
         value: props.stats?.total ?? 0,
         icon: 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z',
         color: 'primary',
     },
     {
-        label: 'Complétées',
+        label: t('donations.completed'),
         value: props.stats?.completed ?? 0,
         icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
         color: 'emerald',
     },
     {
-        label: 'En attente',
+        label: t('donations.pending'),
         value: props.stats?.pending ?? 0,
         icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',
         color: 'amber',
     },
     {
-        label: 'Montant total',
+        label: t('donations.totalAmount'),
         value: props.stats?.total_amount ?? '0 CDF',
         icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
         color: 'blue',
@@ -134,10 +137,10 @@ const statColorMap = {
 </script>
 
 <template>
-    <AdminLayout title="Donations">
+    <AdminLayout :title="t('donations.title')">
         <div class="space-y-5">
             <!-- Breadcrumb -->
-            <Breadcrumb :items="[{ label: 'Donations' }]" />
+            <Breadcrumb :items="[{ label: t('donations.title') }]" />
 
             <!-- Skeleton -->
             <template v-if="pageLoading">
@@ -207,8 +210,8 @@ const statColorMap = {
                             </svg>
                         </div>
                         <div>
-                            <h1 class="text-lg font-bold text-gray-900 leading-tight">Donations</h1>
-                            <p class="text-xs text-gray-500 mt-0.5">Suivi des contributions et paiements reçus</p>
+                            <h1 class="text-lg font-bold text-gray-900 leading-tight">{{ t('donations.title') }}</h1>
+                            <p class="text-xs text-gray-500 mt-0.5">{{ t('donations.subtitle') }}</p>
                         </div>
                     </div>
                     <span
@@ -216,7 +219,7 @@ const statColorMap = {
                         class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 text-emerald-700 rounded-full text-xs font-bold ring-1 ring-emerald-500/15 shrink-0 self-start sm:self-auto"
                     >
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500/60"></span>
-                        {{ donations.total }} donation{{ donations.total > 1 ? 's' : '' }}
+                        {{ t('donations.donationCount', { count: donations.total }) }}
                     </span>
                 </div>
             </div>
@@ -274,7 +277,7 @@ const statColorMap = {
                     <div class="flex-1">
                         <SearchInput
                             v-model="search"
-                            placeholder="Rechercher par nom, email, téléphone, référence..."
+                            :placeholder="t('donations.searchPlaceholder')"
                         />
                     </div>
                 </div>
@@ -289,8 +292,8 @@ const statColorMap = {
                 :pagination="donations"
                 :sort-by="sortBy"
                 :sort-direction="sortDirection"
-                empty-title="Aucune donation trouvée"
-                :empty-subtitle="search || statusFilter ? 'Essayez d\'autres critères de recherche' : 'Aucune donation enregistrée'"
+                :empty-title="t('donations.noDonation')"
+                :empty-subtitle="search || statusFilter ? t('common.tryOtherSearch') : t('donations.noDonationSubtitle')"
                 empty-icon="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
                 @sort="handleSort"
             >

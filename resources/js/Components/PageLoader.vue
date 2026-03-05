@@ -1,6 +1,9 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const loading = ref(false);
 const progress = ref(0);
@@ -73,7 +76,7 @@ onUnmounted(() => {
                         />
                     </svg>
                 </div>
-                <p class="page-loader-text">Chargement...</p>
+                <p class="page-loader-text">{{ t('common.loading') }}</p>
             </div>
         </div>
     </Transition>

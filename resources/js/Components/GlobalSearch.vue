@@ -1,6 +1,9 @@
 <script setup>
 import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const open = ref(false);
 const query = ref('');
@@ -112,7 +115,7 @@ const typeIcon = (type) => {
 };
 
 const typeLabel = (type) => {
-    const labels = { sermon: 'Prédication', church: 'Église', user: 'Utilisateur' };
+    const labels = { sermon: t('globalSearch.sermon'), church: t('globalSearch.church'), user: t('globalSearch.user') };
     return labels[type] || type;
 };
 
@@ -158,7 +161,7 @@ defineExpose({ openSearch });
         <svg class="w-4 h-4 text-gray-400 group-hover:text-primary dark:text-gray-500 dark:group-hover:text-primary-light transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
-        <span class="text-gray-400 dark:text-gray-500">Rechercher...</span>
+        <span class="text-gray-400 dark:text-gray-500">{{ t('common.search') }}</span>
         <kbd class="ml-auto inline-flex items-center px-1.5 py-0.5 bg-gray-100/80 dark:bg-gray-700/80 rounded-md text-[10px] font-mono text-gray-400 dark:text-gray-500 border border-gray-200/60 dark:border-gray-600/60 shadow-[0_1px_0_0_rgba(0,0,0,0.05)] dark:shadow-[0_1px_0_0_rgba(255,255,255,0.03)]">⌘K</kbd>
     </button>
 
@@ -217,7 +220,7 @@ defineExpose({ openSearch });
                                 type="text"
                                 class="flex-1 py-4 bg-transparent text-[15px] text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 border-none ring-0 shadow-none outline-none focus:ring-0 focus:outline-none focus:border-none focus-visible:outline-none focus-visible:ring-0 font-medium"
                                 style="outline: none !important; box-shadow: none !important;"
-                                placeholder="Rechercher sermons, églises, utilisateurs..."
+                                :placeholder="t('globalSearch.placeholder')"
                                 autocomplete="off"
                             />
                             <button
@@ -247,8 +250,8 @@ defineExpose({ openSearch });
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                 </div>
-                                <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">Aucun résultat trouvé</p>
-                                <p class="text-xs text-gray-400 dark:text-gray-500 mt-1 text-center">Essayez avec d'autres mots-clés<br/>ou vérifiez l'orthographe</p>
+                                <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">{{ t('common.noResults') }}</p>
+                                <p class="text-xs text-gray-400 dark:text-gray-500 mt-1 text-center">{{ t('globalSearch.noResultsTip1') }}<br/>{{ t('globalSearch.noResultsTip2') }}</p>
                             </div>
 
                             <!-- Grouped results -->
@@ -316,8 +319,8 @@ defineExpose({ openSearch });
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                     </svg>
                                 </div>
-                                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Recherche rapide</p>
-                                <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-1">Tapez au moins 2 caractères pour commencer</p>
+                                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('globalSearch.quickSearch') }}</p>
+                                <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-1">{{ t('globalSearch.minChars') }}</p>
                             </div>
                         </div>
 
@@ -325,15 +328,15 @@ defineExpose({ openSearch });
                         <div class="flex items-center gap-5 px-5 py-2.5 border-t border-gray-100 dark:border-gray-700/70 bg-gray-50/50 dark:bg-gray-800/50 text-[11px] text-gray-400 dark:text-gray-500">
                             <span class="flex items-center gap-1.5">
                                 <kbd class="inline-flex items-center justify-center min-w-[22px] h-[20px] px-1 bg-white dark:bg-gray-700 rounded-md text-[10px] font-mono border border-gray-200/80 dark:border-gray-600/80 shadow-[0_1px_0_0_rgba(0,0,0,0.05)] dark:shadow-[0_1px_0_0_rgba(255,255,255,0.03)]">↑↓</kbd>
-                                <span class="text-gray-400 dark:text-gray-500">naviguer</span>
+                                <span class="text-gray-400 dark:text-gray-500">{{ t('globalSearch.navigate') }}</span>
                             </span>
                             <span class="flex items-center gap-1.5">
                                 <kbd class="inline-flex items-center justify-center min-w-[22px] h-[20px] px-1 bg-white dark:bg-gray-700 rounded-md text-[10px] font-mono border border-gray-200/80 dark:border-gray-600/80 shadow-[0_1px_0_0_rgba(0,0,0,0.05)] dark:shadow-[0_1px_0_0_rgba(255,255,255,0.03)]">↵</kbd>
-                                <span class="text-gray-400 dark:text-gray-500">ouvrir</span>
+                                <span class="text-gray-400 dark:text-gray-500">{{ t('globalSearch.open') }}</span>
                             </span>
                             <span class="flex items-center gap-1.5">
                                 <kbd class="inline-flex items-center justify-center min-w-[22px] h-[20px] px-1 bg-white dark:bg-gray-700 rounded-md text-[10px] font-mono border border-gray-200/80 dark:border-gray-600/80 shadow-[0_1px_0_0_rgba(0,0,0,0.05)] dark:shadow-[0_1px_0_0_rgba(255,255,255,0.03)]">esc</kbd>
-                                <span class="text-gray-400 dark:text-gray-500">fermer</span>
+                                <span class="text-gray-400 dark:text-gray-500">{{ t('globalSearch.close') }}</span>
                             </span>
                             <span class="ml-auto text-[10px] text-gray-300 dark:text-gray-600 font-medium">Mahubiri Search</span>
                         </div>

@@ -1,9 +1,12 @@
 <script setup>
 import { computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import Breadcrumb from '@/Components/Breadcrumb.vue';
 import DataTable from '@/Components/DataTable.vue';
+
+const { t } = useI18n();
 
 const props = defineProps({
     church: {
@@ -16,21 +19,21 @@ const props = defineProps({
     },
 });
 
-const sermonColumns = [
-    { key: 'title', label: 'Prédication' },
-    { key: 'preacher_name', label: 'Prédicateur' },
-    { key: 'duration_formatted', label: 'Durée', hidden: 'hidden md:table-cell' },
-    { key: 'created_at', label: 'Publié le', hidden: 'hidden sm:table-cell' },
-];
+const sermonColumns = computed(() => [
+    { key: 'title', label: t('churches.sermon') },
+    { key: 'preacher_name', label: t('churches.preacher') },
+    { key: 'duration_formatted', label: t('common.duration'), hidden: 'hidden md:table-cell' },
+    { key: 'created_at', label: t('common.publishedAt'), hidden: 'hidden sm:table-cell' },
+]);
 
 const sermonsRows = computed(() => props.sermons?.data ?? []);
 </script>
 
 <template>
-    <AdminLayout :title="`Détails Église - ${church.name}`">
+    <AdminLayout :title="`${t('churches.show.title')} - ${church.name}`">
         <div class="space-y-5">
             <Breadcrumb :items="[
-                { label: 'Églises', href: '/admin/churches' },
+                { label: t('churches.churches'), href: '/admin/churches' },
                 { label: church.name },
             ]" />
 
@@ -45,7 +48,7 @@ const sermonsRows = computed(() => props.sermons?.data ?? []);
                                 class="w-full h-full object-cover"
                             />
                             <div v-else class="w-full h-full flex items-center justify-center text-gray-400 text-sm font-medium">
-                                Aucun logo
+                                {{ t('churches.show.noLogo') }}
                             </div>
                         </div>
                     </div>
@@ -63,7 +66,7 @@ const sermonsRows = computed(() => props.sermons?.data ?? []);
                                 class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold"
                                 :class="church.is_active ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'"
                             >
-                                {{ church.is_active ? 'Active' : 'Inactive' }}
+                                {{ church.is_active ? t('common.active') : t('common.inactive') }}
                             </span>
                         </div>
 
@@ -73,19 +76,19 @@ const sermonsRows = computed(() => props.sermons?.data ?? []);
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                             <div class="rounded-lg border border-gray-100 bg-gray-50/60 p-3">
-                                <p class="text-xs text-gray-400 mb-1">Visionnaire</p>
+                                <p class="text-xs text-gray-400 mb-1">{{ t('churches.show.visionary') }}</p>
                                 <p class="font-medium text-gray-800">{{ church.visionary_name || '—' }}</p>
                             </div>
                             <div class="rounded-lg border border-gray-100 bg-gray-50/60 p-3">
-                                <p class="text-xs text-gray-400 mb-1">Localisation</p>
+                                <p class="text-xs text-gray-400 mb-1">{{ t('common.location') }}</p>
                                 <p class="font-medium text-gray-800">{{ church.city || church.country_name || '—' }}</p>
                             </div>
                             <div class="rounded-lg border border-gray-100 bg-gray-50/60 p-3">
-                                <p class="text-xs text-gray-400 mb-1">Adresse</p>
+                                <p class="text-xs text-gray-400 mb-1">{{ t('churches.show.address') }}</p>
                                 <p class="font-medium text-gray-800">{{ church.address || '—' }}</p>
                             </div>
                             <div class="rounded-lg border border-gray-100 bg-gray-50/60 p-3">
-                                <p class="text-xs text-gray-400 mb-1">Prédications publiées</p>
+                                <p class="text-xs text-gray-400 mb-1">{{ t('churches.show.publishedSermons') }}</p>
                                 <p class="font-medium text-gray-800">{{ church.published_sermons_count }}</p>
                             </div>
                         </div>
@@ -94,12 +97,12 @@ const sermonsRows = computed(() => props.sermons?.data ?? []);
             </div>
 
             <div class="flex items-center justify-between gap-3">
-                <h2 class="text-base font-semibold text-gray-900">Prédications publiées</h2>
+                <h2 class="text-base font-semibold text-gray-900">{{ t('churches.show.publishedSermons') }}</h2>
                 <Link
                     href="/admin/churches"
                     class="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
                 >
-                    Retour à la liste
+                    {{ t('common.backToList') }}
                 </Link>
             </div>
 
@@ -107,8 +110,8 @@ const sermonsRows = computed(() => props.sermons?.data ?? []);
                 :columns="sermonColumns"
                 :rows="sermonsRows"
                 :pagination="sermons"
-                empty-title="Aucune prédication publiée"
-                empty-subtitle="Cette église n'a pas encore publié de prédication dans l'application."
+                :empty-title="t('churches.show.noSermons')"
+                :empty-subtitle="t('churches.show.noSermonsSubtitle')"
                 empty-icon="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
             >
                 <template #cell-title="{ row }">

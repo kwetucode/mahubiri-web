@@ -7,7 +7,9 @@ import Breadcrumb from '@/Components/Breadcrumb.vue';
 import { usePage, Link } from '@inertiajs/vue3';
 import { computed, ref, onMounted } from 'vue';
 import axios from 'axios';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const page = usePage();
 const church = computed(() => page.props.church);
 const stats = computed(() => page.props.stats);
@@ -34,10 +36,10 @@ const icons = {
 };
 
 const statCards = computed(() => [
-    { label: 'Total prédications', value: stats.value.totalSermons, icon: icons.mic, color: 'primary' },
-    { label: 'Publiées', value: stats.value.publishedSermons, icon: icons.published, color: 'emerald' },
-    { label: 'Brouillons', value: stats.value.draftSermons, icon: icons.draft, color: 'amber' },
-    { label: 'Vues totales', value: stats.value.totalViews, icon: icons.eye, color: 'blue' },
+    { label: t('churchDashboard.totalSermons'), value: stats.value.totalSermons, icon: icons.mic, color: 'primary' },
+    { label: t('churchDashboard.publishedSermons'), value: stats.value.publishedSermons, icon: icons.published, color: 'emerald' },
+    { label: t('churchDashboard.draftSermons'), value: stats.value.draftSermons, icon: icons.draft, color: 'amber' },
+    { label: t('churchDashboard.totalListens'), value: stats.value.totalViews, icon: icons.eye, color: 'blue' },
 ]);
 
 // Sermons chart
@@ -55,11 +57,11 @@ const viewsStartDate = ref('');
 const viewsEndDate = ref('');
 
 const diskStatusColor = computed(() => {
-    if (!diskUsage.value) return { bg: 'bg-emerald-500', text: 'text-emerald-600', light: 'bg-emerald-50', hex: '#10b981', label: 'Normal' };
+    if (!diskUsage.value) return { bg: 'bg-emerald-500', text: 'text-emerald-600', light: 'bg-emerald-50', hex: '#10b981', label: t('churchDashboard.good') };
     const s = diskUsage.value.status;
-    if (s === 'critical') return { bg: 'bg-red-500', text: 'text-red-600', light: 'bg-red-50', hex: '#ef4444', label: 'Critique' };
-    if (s === 'warning') return { bg: 'bg-amber-500', text: 'text-amber-600', light: 'bg-amber-50', hex: '#f59e0b', label: 'Attention' };
-    return { bg: 'bg-emerald-500', text: 'text-emerald-600', light: 'bg-emerald-50', hex: '#10b981', label: 'Normal' };
+    if (s === 'critical') return { bg: 'bg-red-500', text: 'text-red-600', light: 'bg-red-50', hex: '#ef4444', label: t('churchDashboard.critical') };
+    if (s === 'warning') return { bg: 'bg-amber-500', text: 'text-amber-600', light: 'bg-amber-50', hex: '#f59e0b', label: t('churchDashboard.warning') };
+    return { bg: 'bg-emerald-500', text: 'text-emerald-600', light: 'bg-emerald-50', hex: '#10b981', label: t('churchDashboard.good') };
 });
 
 const diskArc = computed(() => {
@@ -69,12 +71,12 @@ const diskArc = computed(() => {
     return { used: used.toFixed(2), gap: (circumference - used).toFixed(2) };
 });
 
-const filterOptions = [
-    { label: 'Semaine', value: 'this_week' },
-    { label: 'Ce mois', value: 'this_month' },
-    { label: 'Mois dernier', value: 'last_month' },
-    { label: '3 mois', value: 'last_3_months' },
-];
+const filterOptions = computed(() => [
+    { label: t('churchDashboard.thisWeek'), value: 'this_week' },
+    { label: t('churchDashboard.thisMonth'), value: 'this_month' },
+    { label: t('churchDashboard.lastMonth'), value: 'last_month' },
+    { label: t('churchDashboard.last3months'), value: 'last_3_months' },
+]);
 
 const fetchChartData = async (type = 'sermons', startDate = '', endDate = '') => {
     const isViews = type === 'views';
@@ -147,8 +149,8 @@ onMounted(() => {
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <!-- Sermons Evolution Chart -->
                 <LineChart
-                    title="Évolution des prédications"
-                    subtitle="Publications par jour"
+                    :title="t('churchDashboard.sermonsOverTime')"
+                    :subtitle="t('churchDashboard.publicationsPerDay')"
                     :labels="sermonsChart.labels"
                     :data="sermonsChart.data"
                     color="#6B4EAF"
@@ -168,8 +170,8 @@ onMounted(() => {
 
                 <!-- Views Evolution Chart -->
                 <LineChart
-                    title="Évolution des écoutes"
-                    subtitle="Écoutes par jour"
+                    :title="t('churchDashboard.listensOverTime')"
+                    :subtitle="t('churchDashboard.listensPerDay')"
                     :labels="viewsChart.labels"
                     :data="viewsChart.data"
                     color="#3B82F6"
@@ -198,8 +200,8 @@ onMounted(() => {
                             </svg>
                         </div>
                         <div>
-                            <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">Espace de stockage</h3>
-                            <p class="text-[11px] text-gray-400">Quota de {{ diskUsage.quotaGB }} GB</p>
+                            <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">{{ t('churchDashboard.storage') }}</h3>
+                            <p class="text-[11px] text-gray-400">{{ t('churchDashboard.diskQuota', { size: diskUsage.quotaGB }) }}</p>
                         </div>
                     </div>
                     <span
@@ -237,7 +239,7 @@ onMounted(() => {
                             <!-- Center text -->
                             <div class="absolute inset-0 flex flex-col items-center justify-center">
                                 <span class="text-xl font-bold text-gray-900 dark:text-white leading-none">{{ diskUsage.usedPercentage }}%</span>
-                                <span class="text-[10px] text-gray-400 mt-0.5">utilisé</span>
+                                <span class="text-[10px] text-gray-400 mt-0.5">{{ t('churchDashboard.used') }}</span>
                             </div>
                         </div>
 
@@ -248,7 +250,7 @@ onMounted(() => {
                                 <span class="w-3 h-3 rounded-full shrink-0" :class="diskStatusColor.bg"></span>
                                 <div class="flex-1">
                                     <div class="flex items-baseline justify-between">
-                                        <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Utilisé</span>
+                                        <span class="text-xs font-medium text-gray-600 dark:text-gray-400">{{ t('churchDashboard.used') }}</span>
                                         <span class="text-sm font-bold text-gray-900 dark:text-white">
                                             {{ diskUsage.usedMB >= 1024 ? diskUsage.usedGB + ' GB' : diskUsage.usedMB + ' MB' }}
                                         </span>
@@ -263,7 +265,7 @@ onMounted(() => {
                                 <span class="w-3 h-3 rounded-full bg-gray-200 dark:bg-gray-600 shrink-0"></span>
                                 <div class="flex-1">
                                     <div class="flex items-baseline justify-between">
-                                        <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Disponible</span>
+                                        <span class="text-xs font-medium text-gray-600 dark:text-gray-400">{{ t('churchDashboard.available') }}</span>
                                         <span class="text-sm font-bold text-gray-900 dark:text-white">{{ diskUsage.remainingGB }} GB</span>
                                     </div>
                                     <div class="w-full h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full mt-1 overflow-hidden">
@@ -275,7 +277,7 @@ onMounted(() => {
                             <div class="flex items-center gap-4 pt-2 border-t border-gray-50 dark:border-gray-700 text-center">
                                 <div class="flex-1">
                                     <p class="text-sm font-bold text-gray-800 dark:text-gray-200">{{ diskUsage.totalSermons }}</p>
-                                    <p class="text-[10px] text-gray-400">Fichiers</p>
+                                    <p class="text-[10px] text-gray-400">{{ t('churchDashboard.files') }}</p>
                                 </div>
                                 <div class="w-px h-6 bg-gray-100 dark:bg-gray-700"></div>
                                 <div class="flex-1">
@@ -293,13 +295,13 @@ onMounted(() => {
                 <!-- Latest sermons -->
                 <Card
                     class="lg:col-span-3"
-                    title="Dernières prédications"
-                    subtitle="Les 5 prédications les plus récentes"
+                    :title="t('churchDashboard.recentSermons')"
+                    :subtitle="t('churchDashboard.recentSermonsSubtitle')"
                     no-padding
                 >
                     <template #header-actions>
                         <Link href="/admin/sermons" class="text-[11px] font-semibold text-primary hover:text-primary-dark transition-colors">
-                            Tout voir
+                            {{ t('churchDashboard.viewAll') }}
                         </Link>
                     </template>
 
@@ -319,8 +321,8 @@ onMounted(() => {
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" :d="icons.music" />
                             </svg>
                         </div>
-                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Aucune prédication</p>
-                        <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Publiez votre première prédication</p>
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ t('churchDashboard.noSermons') }}</p>
+                        <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">{{ t('churchDashboard.publishFirstSermon') }}</p>
                         <Link
                             href="/admin/sermons/create"
                             class="inline-flex items-center gap-1.5 mt-3 px-3 py-1.5 text-xs font-semibold text-primary bg-primary/5 rounded-lg hover:bg-primary/10 transition-colors"
@@ -328,7 +330,7 @@ onMounted(() => {
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="icons.plus" />
                             </svg>
-                            Créer
+                            {{ t('churchDashboard.create') }}
                         </Link>
                     </div>
 
@@ -371,7 +373,7 @@ onMounted(() => {
                 <!-- Right column -->
                 <div class="lg:col-span-2 space-y-5">
                     <!-- Quick Actions -->
-                    <Card title="Actions rapides">
+                    <Card :title="t('churchDashboard.quickActions')">
                         <div class="space-y-2">
                             <Link
                                 href="/admin/sermons/create"
@@ -383,8 +385,8 @@ onMounted(() => {
                                     </svg>
                                 </div>
                                 <div class="flex-1">
-                                    <p class="text-xs font-semibold text-gray-800 dark:text-gray-200 group-hover:text-primary transition-colors">Nouvelle prédication</p>
-                                    <p class="text-[11px] text-gray-400 dark:text-gray-500">Publier un nouveau sermon</p>
+                                    <p class="text-xs font-semibold text-gray-800 dark:text-gray-200 group-hover:text-primary transition-colors">{{ t('churchDashboard.newSermon') }}</p>
+                                    <p class="text-[11px] text-gray-400 dark:text-gray-500">{{ t('churchDashboard.publishNewSermon') }}</p>
                                 </div>
                                 <svg class="w-3.5 h-3.5 text-gray-300 dark:text-gray-500 group-hover:text-primary/50 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -400,8 +402,8 @@ onMounted(() => {
                                     </svg>
                                 </div>
                                 <div class="flex-1">
-                                    <p class="text-xs font-semibold text-gray-800 dark:text-gray-200 group-hover:text-primary transition-colors">Toutes les prédications</p>
-                                    <p class="text-[11px] text-gray-400 dark:text-gray-500">Gérer vos sermons</p>
+                                    <p class="text-xs font-semibold text-gray-800 dark:text-gray-200 group-hover:text-primary transition-colors">{{ t('churchDashboard.manageSermons') }}</p>
+                                    <p class="text-[11px] text-gray-400 dark:text-gray-500">{{ t('churchDashboard.manageYourSermons') }}</p>
                                 </div>
                                 <svg class="w-3.5 h-3.5 text-gray-300 dark:text-gray-500 group-hover:text-primary/50 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -411,9 +413,9 @@ onMounted(() => {
                     </Card>
 
                     <!-- Top sermons (most viewed) -->
-                    <Card title="Top prédications" subtitle="Les plus écoutées" no-padding>
+                    <Card :title="t('churchDashboard.topSermons')" :subtitle="t('churchDashboard.mostListened')" no-padding>
                         <div v-if="topSermons.length === 0" class="px-5 py-6 text-center">
-                            <p class="text-xs text-gray-400 dark:text-gray-500">Aucune donnée disponible</p>
+                            <p class="text-xs text-gray-400 dark:text-gray-500">{{ t('churchDashboard.noDataAvailable') }}</p>
                         </div>
                         <div v-else class="divide-y divide-gray-50 dark:divide-gray-700/50">
                             <div
@@ -431,7 +433,7 @@ onMounted(() => {
                                     <p class="text-xs font-medium text-gray-800 dark:text-gray-200 truncate">{{ sermon.title }}</p>
                                     <p class="text-[10px] text-gray-400 dark:text-gray-500">{{ sermon.preacher_name }}</p>
                                 </div>
-                                <span class="text-[11px] font-semibold text-gray-500 dark:text-gray-400 shrink-0">{{ sermon.views_count }} vues</span>
+                                <span class="text-[11px] font-semibold text-gray-500 dark:text-gray-400 shrink-0">{{ sermon.views_count }} {{ t('churchDashboard.listens') }}</span>
                             </div>
                         </div>
                     </Card>
@@ -441,20 +443,20 @@ onMounted(() => {
                         <template #header>
                             <div class="flex items-center gap-2">
                                 <div class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></div>
-                                <h3 class="text-xs font-semibold text-white/90">Résumé</h3>
+                                <h3 class="text-xs font-semibold text-white/90">{{ t('churchDashboard.summary') }}</h3>
                             </div>
                         </template>
                         <div class="px-5 py-3.5 space-y-3">
                             <div class="flex justify-between text-[11px]">
-                                <span class="text-white/60">Cette semaine</span>
-                                <span class="text-blue-400 font-medium">{{ stats.sermonsThisWeek }} prédication{{ stats.sermonsThisWeek > 1 ? 's' : '' }}</span>
+                                <span class="text-white/60">{{ t('churchDashboard.thisWeek') }}</span>
+                                <span class="text-blue-400 font-medium">{{ t('churchDashboard.sermonsCount', { count: stats.sermonsThisWeek }) }}</span>
                             </div>
                             <div class="flex justify-between text-[11px]">
-                                <span class="text-white/60">Ce mois</span>
-                                <span class="text-emerald-400 font-medium">{{ stats.sermonsThisMonth }} prédication{{ stats.sermonsThisMonth > 1 ? 's' : '' }}</span>
+                                <span class="text-white/60">{{ t('churchDashboard.thisMonth') }}</span>
+                                <span class="text-emerald-400 font-medium">{{ t('churchDashboard.sermonsCount', { count: stats.sermonsThisMonth }) }}</span>
                             </div>
                             <div class="flex justify-between text-[11px]">
-                                <span class="text-white/60">Taux de publication</span>
+                                <span class="text-white/60">{{ t('churchDashboard.publicationRate') }}</span>
                                 <span class="text-accent-warm font-medium">
                                     {{ stats.totalSermons > 0 ? Math.round((stats.publishedSermons / stats.totalSermons) * 100) : 0 }}%
                                 </span>
