@@ -400,6 +400,23 @@ const closePlayer = () => {
                 <!-- Actions -->
                 <template #actions="{ row }">
                     <div class="flex items-center gap-1">
+                        <!-- Play button -->
+                        <button
+                            v-if="row.audio_url"
+                            @click="playSermon(row)"
+                            class="inline-flex items-center p-1.5 text-xs font-semibold rounded-lg transition-colors"
+                            :class="playerSrc === row.audio_url
+                                ? 'bg-primary/15 text-primary ring-1 ring-primary/30'
+                                : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100'"
+                            :title="playerSrc === row.audio_url ? 'En lecture...' : 'Écouter'"
+                        >
+                            <svg v-if="playerSrc === row.audio_url" class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+                            </svg>
+                            <svg v-else class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z" />
+                            </svg>
+                        </button>
                         <Link
                             :href="`/admin/sermons/${row.id}/edit`"
                             class="inline-flex items-center px-2 py-1.5 text-[11px] font-semibold rounded-lg bg-primary/10 text-primary hover:bg-primary/15 transition-colors"
