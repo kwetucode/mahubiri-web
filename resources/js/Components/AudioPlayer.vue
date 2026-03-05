@@ -60,11 +60,20 @@ const onSeekStart = (e) => {
     const onMove = (ev) => seekFromEvent(ev, seekBar.value);
     const onEnd = (ev) => {
         if (ev.type === 'mouseup') seekFromEvent(ev, seekBar.value);
-        isSeeking.value = false;
         document.removeEventListener('mousemove', onMove);
         document.removeEventListener('mouseup', onEnd);
         document.removeEventListener('touchmove', onMove);
         document.removeEventListener('touchend', onEnd);
+        // Wait for the audio element to finish seeking before unlocking timeupdate
+        if (audio.value && audio.value.seeking) {
+            const onSeeked = () => {
+                isSeeking.value = false;
+                audio.value.removeEventListener('seeked', onSeeked);
+            };
+            audio.value.addEventListener('seeked', onSeeked);
+        } else {
+            isSeeking.value = false;
+        }
     };
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onEnd);
@@ -85,7 +94,7 @@ const toggleMute = () => {
 
 const onPlay = () => { isPlaying.value = true; isLoading.value = false; };
 const onPause = () => { isPlaying.value = false; };
-const onTimeUpdate = () => { if (audio.value && !isSeeking.value) currentTime.value = audio.value.currentTime; };
+const onTimeUpdate = () => { if (audio.value && !isSeeking.value && !audio.value.seeking) currentTime.value = audio.value.currentTime; };
 const onLoadedMetadata = () => { if (audio.value) { duration.value = audio.value.duration; isLoading.value = false; } };
 const onWaiting = () => { isLoading.value = true; };
 const onCanPlay = () => { isLoading.value = false; };
