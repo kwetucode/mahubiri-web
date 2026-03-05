@@ -49,16 +49,17 @@ const seekFromEvent = (e, el) => {
     const rect = el.getBoundingClientRect();
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-    audio.value.currentTime = pct * duration.value;
+    const newTime = pct * duration.value;
+    currentTime.value = newTime;
+    audio.value.currentTime = newTime;
 };
-
-const seek = (e) => seekFromEvent(e, e.currentTarget);
 
 const onSeekStart = (e) => {
     isSeeking.value = true;
     seekFromEvent(e, seekBar.value);
     const onMove = (ev) => seekFromEvent(ev, seekBar.value);
-    const onEnd = () => {
+    const onEnd = (ev) => {
+        if (ev.type === 'mouseup') seekFromEvent(ev, seekBar.value);
         isSeeking.value = false;
         document.removeEventListener('mousemove', onMove);
         document.removeEventListener('mouseup', onEnd);
@@ -84,7 +85,7 @@ const toggleMute = () => {
 
 const onPlay = () => { isPlaying.value = true; isLoading.value = false; };
 const onPause = () => { isPlaying.value = false; };
-const onTimeUpdate = () => { if (audio.value) currentTime.value = audio.value.currentTime; };
+const onTimeUpdate = () => { if (audio.value && !isSeeking.value) currentTime.value = audio.value.currentTime; };
 const onLoadedMetadata = () => { if (audio.value) { duration.value = audio.value.duration; isLoading.value = false; } };
 const onWaiting = () => { isLoading.value = true; };
 const onCanPlay = () => { isLoading.value = false; };
@@ -140,29 +141,34 @@ onBeforeUnmount(() => {
         >
             <!-- Backdrop blur layer -->
             <div class="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-t border-gray-200/80 dark:border-gray-700/80 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
-                <!-- Seekbar -->
-                <div
-                    ref="seekBar"
-                    class="h-2 bg-gray-100 dark:bg-gray-800 cursor-pointer group relative select-none touch-none"
-                    :class="{ 'h-2.5': isSeeking }"
-                    @click="seek"
-                    @mousedown.prevent="onSeekStart"
-                    @touchstart.prevent="onSeekStart"
-                >
-                    <div
-                        class="h-full bg-linear-to-r from-primary to-primary/80 relative"
-                        :class="isSeeking ? '' : 'transition-[width] duration-150'"
-                        :style="{ width: progress + '%' }"
-                    >
-                        <!-- Knob -->
+                <!-- Seekbar row -->
+                <div class="max-w-7xl mx-auto px-4 pt-3 pb-0.5">
+                    <div class="flex items-center gap-3">
+                        <span class="text-[11px] font-mono text-gray-500 dark:text-gray-400 tabular-nums w-10 text-right shrink-0">{{ formattedCurrent }}</span>
                         <div
-                            class="absolute right-0 top-1/2 -translate-y-1/2 rounded-full bg-primary shadow-md transition-all"
-                            :class="isSeeking ? 'w-4 h-4 scale-110' : 'w-3 h-3 opacity-0 group-hover:opacity-100'"
-                        ></div>
+                            ref="seekBar"
+                            class="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full cursor-pointer group relative select-none touch-none"
+                            :class="{ 'h-2.5': isSeeking }"
+                            @mousedown.prevent="onSeekStart"
+                            @touchstart.prevent="onSeekStart"
+                        >
+                            <div
+                                class="h-full bg-linear-to-r from-primary to-primary/80 rounded-full relative"
+                                :class="isSeeking ? '' : 'transition-[width] duration-150'"
+                                :style="{ width: progress + '%' }"
+                            >
+                                <!-- Knob -->
+                                <div
+                                    class="absolute right-0 top-1/2 -translate-y-1/2 rounded-full bg-primary ring-2 ring-white dark:ring-gray-900 shadow-md transition-all"
+                                    :class="isSeeking ? 'w-4 h-4 scale-110' : 'w-3.5 h-3.5 group-hover:scale-110'"
+                                ></div>
+                            </div>
+                        </div>
+                        <span class="text-[11px] font-mono text-gray-400 dark:text-gray-500 tabular-nums w-10 shrink-0">{{ formattedDuration }}</span>
                     </div>
                 </div>
 
-                <div class="max-w-7xl mx-auto px-4 py-2.5 flex items-center gap-4">
+                <div class="max-w-7xl mx-auto px-4 py-2 flex items-center gap-4">
                     <!-- Cover / Icon -->
                     <div class="shrink-0">
                         <div
@@ -238,13 +244,6 @@ onBeforeUnmount(() => {
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5.933 11.2a1 1 0 010 1.6L.6 16.8A1 1 0 010 16V8a1 1 0 011.6-.8l5.333 4zm8 0a1 1 0 010 1.6l-5.333 4A1 1 0 017 16V8a1 1 0 011.6-.8l5.333 4z" transform="translate(3)" />
                             </svg>
                         </button>
-                    </div>
-
-                    <!-- Time -->
-                    <div class="hidden md:flex items-center gap-1.5 text-[11px] font-mono text-gray-400 dark:text-gray-500 tabular-nums shrink-0">
-                        <span>{{ formattedCurrent }}</span>
-                        <span>/</span>
-                        <span>{{ formattedDuration }}</span>
                     </div>
 
                     <!-- Volume (desktop) -->
