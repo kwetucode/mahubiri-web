@@ -27,6 +27,7 @@ use App\Http\Controllers\Api\Preacher\PreacherProfileController;
 use App\Http\Controllers\Api\Preacher\PreacherListController;
 use App\Http\Controllers\Api\Sermon\CategorySermonController;
 use App\Http\Controllers\Api\Donation\DonationController;
+use App\Http\Controllers\Api\Church\StorageUpgradeController;
 use App\Http\Controllers\Api\Admin\AdminStatsController;
 use App\Http\Controllers\Api\Admin\AdminManagementController;
 use App\Http\Controllers\Api\Home\HomeController;
@@ -219,6 +220,20 @@ Route::prefix('donations')->group(function () {
         Route::get('/statistics', [DonationController::class, 'getStatistics']);
         Route::get('/{uuid}', [DonationController::class, 'show']);
         Route::post('/{uuid}/check-status', [DonationController::class, 'checkStatus']);
+    });
+});
+
+// Storage Upgrade routes (MobileMoney subscription for more storage)
+Route::prefix('storage-upgrades')->group(function () {
+    // Public route: Shwary callback webhook (no auth required)
+    Route::post('/callback', [StorageUpgradeController::class, 'handleCallback'])->name('storage-upgrades.callback');
+
+    // Protected routes
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/plans', [StorageUpgradeController::class, 'plans']);
+        Route::post('/purchase', [StorageUpgradeController::class, 'purchase']);
+        Route::get('/history', [StorageUpgradeController::class, 'history']);
+        Route::get('/{uuid}/check-status', [StorageUpgradeController::class, 'checkStatus']);
     });
 });
 

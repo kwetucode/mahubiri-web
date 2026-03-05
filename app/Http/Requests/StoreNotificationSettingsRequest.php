@@ -25,6 +25,7 @@ class StoreNotificationSettingsRequest extends FormRequest
             'new_sermon' => ['required', 'boolean'],
             'new_church' => ['required', 'boolean'],
             'new_announcement' => ['required', 'boolean'],
+            'storage_alert' => ['required', 'boolean'],
             'push_enabled' => ['required', 'boolean'],
             'email_enabled' => ['required', 'boolean'],
         ];
@@ -44,6 +45,8 @@ class StoreNotificationSettingsRequest extends FormRequest
             'new_church.boolean' => 'Le paramètre new_church doit être un booléen.',
             'new_announcement.required' => 'Le paramètre new_announcement est requis.',
             'new_announcement.boolean' => 'Le paramètre new_announcement doit être un booléen.',
+            'storage_alert.required' => 'Le paramètre storage_alert est requis.',
+            'storage_alert.boolean' => 'Le paramètre storage_alert doit être un booléen.',
             'push_enabled.required' => 'Le paramètre push_enabled est requis.',
             'push_enabled.boolean' => 'Le paramètre push_enabled doit être un booléen.',
             'email_enabled.required' => 'Le paramètre email_enabled est requis.',

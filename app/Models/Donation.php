@@ -155,18 +155,11 @@ class Donation extends Model
     }
 
     /**
-     * Get the recipient name (church or preacher).
+     * Get the recipient name.
+     * All donations go to the platform (super admin).
      */
     public function getRecipientNameAttribute(): string
     {
-        if ($this->church) {
-            return $this->church->name;
-        }
-
-        if ($this->preacherProfile) {
-            return $this->preacherProfile->name ?? $this->preacherProfile->user->name ?? 'Prédicateur';
-        }
-
-        return 'Inconnu';
+        return 'Plateforme Mahubiri';
     }
 }

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ app()->getLocale() }}">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>{{ config('app.name', 'Mahubiri') }} — Sermons & Prédications</title>
+        <title>{{ __('welcome.title') }}</title>
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700&display=swap" rel="stylesheet" />
@@ -269,6 +269,23 @@
                 .cta-box { padding: 40px 24px; }
                 .features-grid { grid-template-columns: 1fr; }
             }
+
+            /* ── Lang switcher ── */
+            .lang-switcher {
+                display: flex; align-items: center; gap: 4px;
+                padding: 3px; border-radius: 10px;
+                background: rgba(107, 78, 175, 0.06); border: 1px solid rgba(107, 78, 175, 0.1);
+            }
+            .lang-btn {
+                padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;
+                color: var(--muted); text-decoration: none; transition: all .25s;
+                border: none; background: transparent; cursor: pointer;
+            }
+            .lang-btn:hover { color: var(--primary); }
+            .lang-btn.active {
+                background: var(--primary); color: #fff;
+                box-shadow: 0 2px 8px rgba(107, 78, 175, 0.25);
+            }
         </style>
     </head>
     <body>
@@ -294,9 +311,16 @@
                     </a>
 
                     <div class="nav-actions">
+                        {{-- Language switcher --}}
+                        <div class="lang-switcher">
+                            <a href="?lang=fr" class="lang-btn {{ app()->getLocale() === 'fr' ? 'active' : '' }}">FR</a>
+                            <a href="?lang=en" class="lang-btn {{ app()->getLocale() === 'en' ? 'active' : '' }}">EN</a>
+                            <a href="?lang=sw" class="lang-btn {{ app()->getLocale() === 'sw' ? 'active' : '' }}">SW</a>
+                        </div>
+
                         <span class="nav-badge">
                             <span style="width:5px;height:5px;border-radius:50%;background:var(--accent);"></span>
-                            Beta v1.0
+                            {{ __('welcome.badge') }}
                         </span>
                         <a href="/admin/login" class="btn btn-primary">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -304,7 +328,7 @@
                                 <polyline points="10 17 15 12 10 7"/>
                                 <line x1="15" y1="12" x2="3" y2="12"/>
                             </svg>
-                            Se connecter
+                            {{ __('welcome.login') }}
                         </a>
                     </div>
                 </nav>
@@ -313,13 +337,13 @@
                 <section class="hero">
                     <div class="hero-pill">
                         <span class="dot"></span>
-                        Application mobile de prédications
+                        {{ __('welcome.heroPill') }}
                     </div>
                     <h1>
-                        Écoutez des sermons<br><span class="gradient">inspirants partout</span>
+                        {{ __('welcome.heroTitle1') }}<br><span class="gradient">{{ __('welcome.heroTitle2') }}</span>
                     </h1>
                     <p>
-                        Découvrez, écoutez et partagez des milliers de prédications depuis votre smartphone. Connectez-vous avec des prédicateurs du monde entier.
+                        {{ __('welcome.heroDescription') }}
                     </p>
                     <div class="hero-cta">
                         <a href="/admin/login" class="btn btn-primary">
@@ -327,10 +351,10 @@
                                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
                                 <path d="M7 11V7a5 5 0 0110 0v4"/>
                             </svg>
-                            Espace Admin
+                            {{ __('welcome.adminSpace') }}
                         </a>
                         <a href="#features" class="btn btn-ghost">
-                            En savoir plus
+                            {{ __('welcome.learnMore') }}
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <line x1="5" y1="12" x2="19" y2="12"/>
                                 <polyline points="12 5 19 12 12 19"/>
@@ -342,15 +366,15 @@
                     <div class="stats">
                         <div class="stat">
                             <div class="stat-val">1000+</div>
-                            <div class="stat-label">Sermons disponibles</div>
+                            <div class="stat-label">{{ __('welcome.statSermons') }}</div>
                         </div>
                         <div class="stat">
                             <div class="stat-val">50+</div>
-                            <div class="stat-label">Prédicateurs</div>
+                            <div class="stat-label">{{ __('welcome.statPreachers') }}</div>
                         </div>
                         <div class="stat">
                             <div class="stat-val">3</div>
-                            <div class="stat-label">Langues</div>
+                            <div class="stat-label">{{ __('welcome.statLanguages') }}</div>
                         </div>
                     </div>
                 </section>
@@ -358,19 +382,19 @@
                 {{-- ── Features ── --}}
                 <section class="features" id="features">
                     <div class="section-header">
-                        <h2>Tout pour votre vie spirituelle</h2>
-                        <p>Une expérience complète pour accéder aux enseignements qui comptent</p>
+                        <h2>{{ __('welcome.featuresTitle') }}</h2>
+                        <p>{{ __('welcome.featuresSubtitle') }}</p>
                     </div>
 
                     <div class="features-grid">
                         @php
                             $features = [
-                                ['icon' => '🎧', 'title' => 'Écoute illimitée', 'desc' => 'Streamez ou téléchargez des sermons depuis une bibliothèque riche et variée.', 'bg' => 'rgba(139,111,207,.1)'],
-                                ['icon' => '⭐', 'title' => 'Favoris & Playlists', 'desc' => 'Organisez vos sermons préférés en playlists personnalisées pour y revenir facilement.', 'bg' => 'rgba(232,183,125,.15)'],
-                                ['icon' => '👤', 'title' => 'Profils prédicateurs', 'desc' => 'Suivez vos prédicateurs favoris et recevez leurs nouveaux sermons en avant-première.', 'bg' => 'rgba(59,130,246,.1)'],
-                                ['icon' => '🔔', 'title' => 'Notifications push', 'desc' => 'Soyez alerté dès qu\'un nouveau sermon est publié par vos prédicateurs suivis.', 'bg' => 'rgba(244,63,94,.08)'],
-                                ['icon' => '🔍', 'title' => 'Recherche avancée', 'desc' => 'Filtrez par thème, prédicateur, église ou date pour trouver le sermon parfait.', 'bg' => 'rgba(16,185,129,.1)'],
-                                ['icon' => '🌐', 'title' => 'Multi-langues', 'desc' => 'Français, anglais, swahili — et d\'autres langues à venir très bientôt.', 'bg' => 'rgba(99,102,241,.1)'],
+                                ['icon' => '🎧', 'title' => __('welcome.featureListenTitle'), 'desc' => __('welcome.featureListenDesc'), 'bg' => 'rgba(139,111,207,.1)'],
+                                ['icon' => '⭐', 'title' => __('welcome.featureFavTitle'), 'desc' => __('welcome.featureFavDesc'), 'bg' => 'rgba(232,183,125,.15)'],
+                                ['icon' => '👤', 'title' => __('welcome.featureProfileTitle'), 'desc' => __('welcome.featureProfileDesc'), 'bg' => 'rgba(59,130,246,.1)'],
+                                ['icon' => '🔔', 'title' => __('welcome.featureNotifTitle'), 'desc' => __('welcome.featureNotifDesc'), 'bg' => 'rgba(244,63,94,.08)'],
+                                ['icon' => '🔍', 'title' => __('welcome.featureSearchTitle'), 'desc' => __('welcome.featureSearchDesc'), 'bg' => 'rgba(16,185,129,.1)'],
+                                ['icon' => '🌐', 'title' => __('welcome.featureLangTitle'), 'desc' => __('welcome.featureLangDesc'), 'bg' => 'rgba(99,102,241,.1)'],
                             ];
                         @endphp
                         @foreach ($features as $f)
@@ -386,25 +410,25 @@
                 {{-- ── Hero Image ── --}}
                 <section class="hero-image-section">
                     <div class="section-header">
-                        <h2>Aperçu de l'application</h2>
-                        <p>Une interface épurée et intuitive pensée pour vous</p>
+                        <h2>{{ __('welcome.previewTitle') }}</h2>
+                        <p>{{ __('welcome.previewSubtitle') }}</p>
                     </div>
                     <div class="hero-image-wrapper">
-                        <img src="{{ asset('hero.png') }}" alt="Mahubiri - Application de prédications"
-                             onerror="this.parentElement.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:320px;color:#9ca3af;font-size:14px;\'>Aperçu non disponible</div>'">
+                        <img src="{{ asset('hero.png') }}" alt="Mahubiri"
+                             onerror="this.parentElement.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:320px;color:#9ca3af;font-size:14px;\'>{{ __('welcome.previewUnavailable') }}</div>'">
                     </div>
                 </section>
 
                 {{-- ── CTA Admin ── --}}
                 <section class="cta-section">
                     <div class="cta-box">
-                        <h2>Vous êtes administrateur ?</h2>
-                        <p>Connectez-vous à votre espace de gestion pour publier des sermons et gérer votre église.</p>
+                        <h2>{{ __('welcome.ctaTitle') }}</h2>
+                        <p>{{ __('welcome.ctaDescription') }}</p>
                         <a href="/admin/login" class="btn btn-white" style="position:relative;">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                             </svg>
-                            Accéder au tableau de bord
+                            {{ __('welcome.ctaButton') }}
                         </a>
                     </div>
                 </section>
@@ -412,8 +436,8 @@
                 {{-- ── Contact ── --}}
                 <section class="contact">
                     <div class="section-header">
-                        <h2>Contactez-nous</h2>
-                        <p>Une question ou une suggestion ? Écrivez-nous.</p>
+                        <h2>{{ __('welcome.contactTitle') }}</h2>
+                        <p>{{ __('welcome.contactSubtitle') }}</p>
                     </div>
                     <div class="contact-grid">
                         <a href="mailto:kwetucode@gmail.com" class="contact-card">
@@ -423,7 +447,7 @@
                                 </svg>
                             </div>
                             <div>
-                                <div class="contact-label">Email</div>
+                                <div class="contact-label">{{ __('welcome.contactEmail') }}</div>
                                 <div class="contact-value">kwetucode@gmail.com</div>
                             </div>
                         </a>
@@ -434,7 +458,7 @@
                                 </svg>
                             </div>
                             <div>
-                                <div class="contact-label">Téléphone</div>
+                                <div class="contact-label">{{ __('welcome.contactPhone') }}</div>
                                 <div class="contact-value">+243 971 330 007</div>
                             </div>
                         </a>
@@ -445,8 +469,8 @@
             {{-- ── Footer ── --}}
             <footer class="footer">
                 <div class="container">
-                    <p>&copy; {{ date('Y') }} <span>Mahubiri</span>. Tous droits réservés.</p>
-                    <p class="sub">Application en phase de test — Certaines fonctionnalités peuvent évoluer.</p>
+                    <p>&copy; {{ date('Y') }} <span>Mahubiri</span>. {{ __('welcome.footerRights') }}</p>
+                    <p class="sub">{{ __('welcome.footerBeta') }}</p>
                 </div>
             </footer>
         </div>

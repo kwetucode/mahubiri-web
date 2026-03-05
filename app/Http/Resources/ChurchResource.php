@@ -38,10 +38,10 @@ class ChurchResource extends JsonResource
             'sermon_count' => $this->sermons_count ?? 0,
             'listened_sermon_count' => $this->listened_sermons_count ?? 0,
             'total_views' => $this->total_views ?? 0,
+            'storage_quota' => $this->resource->getStorageQuotaSummary(),
             'moment' => DateHelper::timeAgo($this->created_at),
             'created_at' => DateHelper::formatFrench($this->created_at, 'd/m/Y H:i:s'),
             'created_at_full' => DateHelper::formatFullFrench($this->created_at),
-
         ];
     }
 }

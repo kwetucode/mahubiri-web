@@ -67,36 +67,48 @@ class ChurchStatisticsResource extends JsonResource
                 'recent_views' => $this->resource['recent_activity']['recent_listens'],
             ],
 
-            'disk_usage' => $this->resource['disk_usage'] ?? [
-                'quota' => [
-                    'total_bytes' => 3221225472,
-                    'total_gb' => 3.0,
-                ],
-                'used' => [
-                    'bytes' => 0,
-                    'mb' => 0,
-                    'gb' => 0,
-                    'percentage' => 0,
-                ],
-                'remaining' => [
-                    'bytes' => 3221225472,
-                    'mb' => 3072,
-                    'gb' => 3.0,
-                    'percentage' => 100,
-                ],
-                'sermons' => [
-                    'total' => 0,
-                    'published' => 0,
-                    'avg_size_mb' => 0,
-                ],
-                'status' => 'normal',
-                'messages' => [
-                    'normal' => 'Espace de stockage disponible',
-                    'warning' => 'Attention: vous approchez de la limite de stockage',
-                    'critical' => 'Critique: espace de stockage presque épuisé',
-                ],
-                'current_message' => 'Espace de stockage disponible',
+            'disk_usage' => $this->resource['disk_usage'] ?? $this->getDefaultDiskUsage(),
+        ];
+    }
+
+    /**
+     * Get default disk usage based on church's storage_limit.
+     */
+    private function getDefaultDiskUsage(): array
+    {
+        $storageLimit = $this->resource['church_info']['storage_limit'] ?? \App\Models\Church::DEFAULT_STORAGE_LIMIT;
+        $storageLimitGB = round($storageLimit / (1024 * 1024 * 1024), 2);
+        $storageLimitMB = round($storageLimit / (1024 * 1024), 2);
+
+        return [
+            'quota' => [
+                'total_bytes' => $storageLimit,
+                'total_gb' => $storageLimitGB,
             ],
+            'used' => [
+                'bytes' => 0,
+                'mb' => 0,
+                'gb' => 0,
+                'percentage' => 0,
+            ],
+            'remaining' => [
+                'bytes' => $storageLimit,
+                'mb' => $storageLimitMB,
+                'gb' => $storageLimitGB,
+                'percentage' => 100,
+            ],
+            'sermons' => [
+                'total' => 0,
+                'published' => 0,
+                'avg_size_mb' => 0,
+            ],
+            'status' => 'normal',
+            'messages' => [
+                'normal' => 'Espace de stockage disponible',
+                'warning' => 'Attention: vous approchez de la limite de stockage',
+                'critical' => 'Critique: espace de stockage presque épuisé',
+            ],
+            'current_message' => 'Espace de stockage disponible',
         ];
     }
 

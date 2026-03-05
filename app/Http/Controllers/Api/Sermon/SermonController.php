@@ -104,6 +104,20 @@ class SermonController extends Controller
             if ($user->role_id === RoleType::CHURCH_ADMIN && $user->church) {
                 $validated['church_id'] = $user->church->id;
                 $validated['preacher_profile_id'] = null;
+
+                // Check storage quota before allowing upload
+                $church = $user->church;
+                if ($church->isStorageQuotaExceeded()) {
+                    return $this->errorResponse(
+                        'Votre quota de stockage est épuisé. Veuillez mettre à jour votre abonnement pour continuer à publier des sermons.',
+                        ['quota' => [
+                            'storage_status' => $church->getStorageStatus(),
+                            'storage_used_percentage' => $church->getStorageUsedPercentage(),
+                            'upgrade_required' => true,
+                        ]],
+                        403
+                    );
+                }
             } elseif ($user->role_id === RoleType::INDEPENDENT_PREACHER && $user->preacherProfile) {
                 $validated['preacher_profile_id'] = $user->preacherProfile->id;
                 $validated['church_id'] = null;
@@ -164,6 +178,21 @@ class SermonController extends Controller
                     Log::error('Failed to send push notification for published sermon', [
                         'sermon_id' => $sermon->id,
                         'error' => $notifException->getMessage()
+                    ]);
+                }
+            }
+
+            // Check storage quota after upload and send alert if needed
+            if ($sermon->church_id) {
+                try {
+                    $church = Church::find($sermon->church_id);
+                    if ($church) {
+                        $this->notificationService->sendStorageQuotaAlert($church);
+                    }
+                } catch (\Exception $quotaNotifException) {
+                    Log::error('Failed to send storage quota alert', [
+                        'church_id' => $sermon->church_id,
+                        'error' => $quotaNotifException->getMessage()
                     ]);
                 }
             }
@@ -262,6 +291,22 @@ class SermonController extends Controller
                 ['sermon' => ['Modification non autorisée.']],
                 403
             );
+        }
+
+        // Check storage quota when publishing (not when unpublishing)
+        if (!$sermon->is_published && $sermon->church_id) {
+            $church = Church::find($sermon->church_id);
+            if ($church && $church->isStorageQuotaExceeded()) {
+                return $this->errorResponse(
+                    'Votre quota de stockage est épuisé. Veuillez mettre à jour votre abonnement pour continuer à publier des sermons.',
+                    ['quota' => [
+                        'storage_status' => $church->getStorageStatus(),
+                        'storage_used_percentage' => $church->getStorageUsedPercentage(),
+                        'upgrade_required' => true,
+                    ]],
+                    403
+                );
+            }
         }
 
         // Toggle the publication status

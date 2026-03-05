@@ -222,7 +222,7 @@ const currentDate = computed(() => {
             ]"
         >
             <!-- Logo -->
-            <div class="flex items-center gap-3 px-5 py-5 border-b border-gray-100 dark:border-gray-700/50 min-h-[72px]">
+            <Link href="/" class="flex items-center gap-3 px-5 py-5 border-b border-gray-100 dark:border-gray-700/50 min-h-[72px] no-underline">
                 <img src="/logo.png" alt="Mahubiri" class="w-10 h-10 rounded-xl shadow-md shadow-primary/20 flex-shrink-0 object-contain" />
                 <Transition
                     enter-active-class="transition-all duration-200"
@@ -237,7 +237,7 @@ const currentDate = computed(() => {
                         <p class="text-[11px] text-gray-400 font-medium uppercase tracking-wider">{{ t('layout.administration') }}</p>
                     </div>
                 </Transition>
-            </div>
+            </Link>
 
             <!-- Navigation -->
             <nav class="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto overflow-x-hidden">
@@ -285,6 +285,7 @@ const currentDate = computed(() => {
                 />
 
                 <SidebarItem
+                    v-if="isChurchAdmin"
                     href="/admin/sermons"
                     :label="t('nav.sermons')"
                     icon="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
@@ -299,27 +300,22 @@ const currentDate = computed(() => {
                     :collapsed="sidebarCollapsed"
                 />
 
-                <!-- Exemple de dropdown réutilisable -->
-                <SidebarDropdown
-                    v-if="isAdmin"
-                    :label="t('nav.settings')"
-                    :icon="[icons.settings, icons.settingsInner]"
+                <SidebarItem
+                    href="/admin/donations/create"
+                    :label="t('nav.makeDonation')"
+                    icon="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                     :collapsed="sidebarCollapsed"
-                    storage-key="settings"
-                >
-                    <SidebarItem
-                        href="/admin/settings/general"
-                        :label="t('nav.general')"
-                        icon="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
-                        :collapsed="false"
-                    />
-                    <SidebarItem
-                        href="/admin/settings/security"
-                        :label="t('nav.security')"
-                        :icon="icons.shield"
-                        :collapsed="false"
-                    />
-                </SidebarDropdown>
+                />
+
+                <SidebarItem
+                    v-if="isChurchAdmin"
+                    href="/admin/storage-upgrade"
+                    :label="t('nav.storageUpgrade')"
+                    icon="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"
+                    :collapsed="sidebarCollapsed"
+                />
+
+
             </nav>
 
             <!-- Settings + Collapse (Desktop only) -->

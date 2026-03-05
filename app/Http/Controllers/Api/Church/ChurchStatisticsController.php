@@ -41,6 +41,7 @@ class ChurchStatisticsController extends Controller
                     'id' => $church->id,
                     'name' => $church->name,
                     'created_at' => $church->created_at,
+                    'storage_limit' => $church->storage_limit ?? Church::DEFAULT_STORAGE_LIMIT,
                 ],
                 'sermon_stats' => $this->getSermonStatistics($church->id),
                 'listening_stats' => $this->getListeningStatistics($church->id),
@@ -456,15 +457,16 @@ class ChurchStatisticsController extends Controller
 
     /**
      * Get disk usage statistics for church sermons
-     * Quota: 3 GB per church
+     * Quota is read from the church's storage_limit column
      *
      * @param int $churchId
      * @return array
      */
     private function getDiskUsageStatistics(int $churchId): array
     {
-        // Quota en octets (3 GB = 3 * 1024 * 1024 * 1024)
-        $quotaBytes = 3 * 1024 * 1024 * 1024; // 3221225472 octets
+        // Récupérer le quota depuis l'église
+        $church = Church::find($churchId);
+        $quotaBytes = $church->storage_limit ?? Church::DEFAULT_STORAGE_LIMIT;
 
         // Calculer la taille totale des sermons de l'église
         $totalSizeBytes = Sermon::where('church_id', $churchId)
@@ -472,7 +474,7 @@ class ChurchStatisticsController extends Controller
 
         // Calculer les statistiques
         $usedGB = round($totalSizeBytes / (1024 * 1024 * 1024), 2);
-        $quotaGB = 3.0;
+        $quotaGB = round($quotaBytes / (1024 * 1024 * 1024), 2);
         $usedPercentage = $totalSizeBytes > 0
             ? round(($totalSizeBytes / $quotaBytes) * 100, 2)
             : 0;

@@ -1,12 +1,12 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 use App\Http\Controllers\Web\EmailVerificationWebController;
 use App\Http\Controllers\Web\PasswordResetWebController;
 
 Route::get('/', function () {
-    return view('welcome')->with('version', app()
-        ->version());
+    return Inertia::render('Welcome');
 })->name('welcome');
 
 Route::get('/privacy-policy', function () {

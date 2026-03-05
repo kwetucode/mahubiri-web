@@ -15,6 +15,7 @@ class UserNotificationSettings extends Model
         'new_sermon',
         'new_church',
         'new_announcement',
+        'storage_alert',
         'push_enabled',
         'email_enabled',
     ];
@@ -24,6 +25,7 @@ class UserNotificationSettings extends Model
         'new_sermon' => 'boolean',
         'new_church' => 'boolean',
         'new_announcement' => 'boolean',
+        'storage_alert' => 'boolean',
         'push_enabled' => 'boolean',
         'email_enabled' => 'boolean',
         'created_at' => 'datetime',
@@ -47,6 +49,7 @@ class UserNotificationSettings extends Model
             'new_sermon' => true,
             'new_church' => true,
             'new_announcement' => true,
+            'storage_alert' => true,
             'push_enabled' => true,
             'email_enabled' => false,
         ];
@@ -65,6 +68,7 @@ class UserNotificationSettings extends Model
             'new_sermon' => $this->new_sermon,
             'new_church' => $this->new_church,
             'new_announcement' => $this->new_announcement,
+            'storage_alert' => $this->storage_alert,
             default => false,
         };
     }

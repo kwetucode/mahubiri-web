@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\AdminSermonController;
 use App\Http\Controllers\Admin\ChurchProfileController;
 use App\Http\Controllers\Admin\GlobalSearchController;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\StorageUpgradeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,6 +51,14 @@ Route::middleware(['auth', 'admin'])->group(function () {
     // Church profile (church admin manages their own church)
     Route::get('/church-profile', [ChurchProfileController::class, 'show'])->name('church-profile');
     Route::post('/church-profile', [ChurchProfileController::class, 'update'])->name('church-profile.update');
+
+    // Donations — create/store accessible to all admins
+    Route::get('/donations/create', [DonationController::class, 'create'])->name('donations.create');
+    Route::post('/donations', [DonationController::class, 'store'])->name('donations.store');
+
+    // Storage upgrade (church admin)
+    Route::get('/storage-upgrade', [StorageUpgradeController::class, 'index'])->name('storage-upgrade.index');
+    Route::post('/storage-upgrade', [StorageUpgradeController::class, 'store'])->name('storage-upgrade.store');
 
     // Settings
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings');

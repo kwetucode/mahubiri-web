@@ -25,6 +25,7 @@ class UpdateNotificationSettingsRequest extends FormRequest
             'new_sermon' => ['sometimes', 'boolean'],
             'new_church' => ['sometimes', 'boolean'],
             'new_announcement' => ['sometimes', 'boolean'],
+            'storage_alert' => ['sometimes', 'boolean'],
             'push_enabled' => ['sometimes', 'boolean'],
             'email_enabled' => ['sometimes', 'boolean'],
         ];
@@ -41,6 +42,7 @@ class UpdateNotificationSettingsRequest extends FormRequest
             'new_sermon.boolean' => 'Le paramètre new_sermon doit être un booléen.',
             'new_church.boolean' => 'Le paramètre new_church doit être un booléen.',
             'new_announcement.boolean' => 'Le paramètre new_announcement doit être un booléen.',
+            'storage_alert.boolean' => 'Le paramètre storage_alert doit être un booléen.',
             'push_enabled.boolean' => 'Le paramètre push_enabled doit être un booléen.',
             'email_enabled.boolean' => 'Le paramètre email_enabled doit être un booléen.',
         ];

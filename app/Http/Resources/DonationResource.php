@@ -98,27 +98,13 @@ class DonationResource extends JsonResource
 
     /**
      * Get recipient information.
+     * All donations go to the platform (super admin).
      */
-    protected function getRecipientInfo(): ?array
+    protected function getRecipientInfo(): array
     {
-        if ($this->church) {
-            return [
-                'type' => 'church',
-                'id' => $this->church->id,
-                'name' => $this->church->name,
-                'logo_url' => $this->church->logo_url ? asset($this->church->logo_url) : null,
-            ];
-        }
-
-        if ($this->preacherProfile) {
-            return [
-                'type' => 'preacher',
-                'id' => $this->preacherProfile->id,
-                'name' => $this->preacherProfile->name ?? $this->preacherProfile->user->name ?? 'Prédicateur',
-                'avatar_url' => $this->preacherProfile->avatar_url ? asset($this->preacherProfile->avatar_url) : null,
-            ];
-        }
-
-        return null;
+        return [
+            'type' => 'platform',
+            'name' => 'Plateforme Mahubiri',
+        ];
     }
 }

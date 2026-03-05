@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Models\User;
-use App\Models\UserFcmToken;
+use App\Models\Church;
 use App\Models\UserNotificationSettings;
 use Illuminate\Support\Facades\Log;
 use Kreait\Firebase\Factory;
@@ -184,12 +184,12 @@ class NotificationService
 
         /**
          * FUTURE ENHANCEMENT: Implement preacher followers system
-         * 
+         *
          * When the followers functionality is implemented, replace the query below with:
          * $users = User::whereHas('followedPreachers', function($query) use ($preacherProfileId) {
          *     $query->where('preacher_profile_id', $preacherProfileId);
          * })->whereHas('fcmTokens')->get();
-         * 
+         *
          * Current behavior: Sends notifications to all users with FCM tokens
          */
         $users = User::whereHas('fcmTokens')
@@ -294,5 +294,70 @@ class NotificationService
         ]);
 
         return $result;
+    }
+
+    /**
+     * Send a storage quota alert push notification to the church admin.
+     *
+     * Called after a sermon is uploaded. Checks the church's current storage
+     * status and sends a push notification if warning, critical, or exceeded.
+     *
+     * @param Church $church
+     * @return array|null Result of notification send, or null if no alert needed
+     */
+    public function sendStorageQuotaAlert(Church $church): ?array
+    {
+        $status = $church->getStorageStatus();
+        $percentage = $church->getStorageUsedPercentage();
+        $exceeded = $church->isStorageQuotaExceeded();
+
+        // No alert needed for normal usage
+        if ($status === 'normal' && !$exceeded) {
+            return null;
+        }
+
+        // Find the church admin (creator)
+        $admin = User::find($church->created_by);
+        if (!$admin) {
+            Log::warning('Storage quota alert: church admin not found', [
+                'church_id' => $church->id,
+                'created_by' => $church->created_by,
+            ]);
+            return null;
+        }
+
+        // Build notification based on status
+        if ($exceeded) {
+            $title = '⚠️ Quota de stockage épuisé';
+            $body = "L'espace de stockage de « {$church->name} » est épuisé ({$percentage}%). Mettez à jour votre abonnement pour continuer à publier.";
+        } elseif ($status === 'critical') {
+            $title = '🔴 Espace de stockage critique';
+            $body = "L'espace de stockage de « {$church->name} » est presque plein ({$percentage}%). Pensez à mettre à jour votre abonnement.";
+        } else {
+            // warning
+            $title = '🟡 Espace de stockage limité';
+            $body = "L'espace de stockage de « {$church->name} » atteint {$percentage}%. Pensez à libérer de l'espace ou à mettre à jour votre abonnement.";
+        }
+
+        $payload = [
+            'title' => $title,
+            'body' => $body,
+            'data' => [
+                'type' => 'storage_alert',
+                'church_id' => $church->id,
+                'church_name' => $church->name,
+                'storage_status' => $status,
+                'used_percentage' => $percentage,
+                'upgrade_required' => $exceeded,
+            ],
+        ];
+
+        Log::info('Sending storage quota alert', [
+            'church_id' => $church->id,
+            'status' => $status,
+            'percentage' => $percentage,
+        ]);
+
+        return $this->sendToUser($admin, 'storage_alert', $payload);
     }
 }

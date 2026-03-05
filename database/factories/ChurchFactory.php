@@ -21,6 +21,7 @@ class ChurchFactory extends Factory
             'abbreviation' => strtoupper($this->faker->lexify('???')),
             'description' => $this->faker->paragraph(),
             'logo_url' => $this->faker->imageUrl(200, 200, 'business', true),
+            'storage_limit' => \App\Models\Church::DEFAULT_STORAGE_LIMIT,
             // created_by sera défini explicitement dans les tests
         ];
     }

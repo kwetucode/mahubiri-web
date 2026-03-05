@@ -32,6 +32,7 @@ class NotificationSettingsController extends Controller
                     'new_sermon' => $settings->new_sermon,
                     'new_church' => $settings->new_church,
                     'new_announcement' => $settings->new_announcement,
+                    'storage_alert' => $settings->storage_alert,
                     'push_enabled' => $settings->push_enabled,
                     'email_enabled' => $settings->email_enabled,
                 ];
@@ -86,6 +87,7 @@ class NotificationSettingsController extends Controller
                     'new_sermon' => $settings->new_sermon,
                     'new_church' => $settings->new_church,
                     'new_announcement' => $settings->new_announcement,
+                    'storage_alert' => $settings->storage_alert,
                     'push_enabled' => $settings->push_enabled,
                     'email_enabled' => $settings->email_enabled,
                 ],
@@ -134,6 +136,7 @@ class NotificationSettingsController extends Controller
                     'new_sermon' => $settings->new_sermon,
                     'new_church' => $settings->new_church,
                     'new_announcement' => $settings->new_announcement,
+                    'storage_alert' => $settings->storage_alert,
                     'push_enabled' => $settings->push_enabled,
                     'email_enabled' => $settings->email_enabled,
                 ],

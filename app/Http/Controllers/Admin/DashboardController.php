@@ -212,7 +212,8 @@ class DashboardController extends Controller
      */
     private function getDiskUsageStatistics(int $churchId): array
     {
-        $quotaBytes = 3 * 1024 * 1024 * 1024; // 3 GB
+        $church = Church::find($churchId);
+        $quotaBytes = $church->storage_limit ?? Church::DEFAULT_STORAGE_LIMIT;
 
         $totalSizeBytes = Sermon::where('church_id', $churchId)->sum('size') ?? 0;
 
@@ -236,7 +237,7 @@ class DashboardController extends Controller
         }
 
         return [
-            'quotaGB' => 3.0,
+            'quotaGB' => round($quotaBytes / (1024 * 1024 * 1024), 2),
             'usedGB' => $usedGB,
             'usedMB' => round($totalSizeBytes / (1024 * 1024), 2),
             'remainingGB' => $remainingGB,

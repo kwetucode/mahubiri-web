@@ -61,19 +61,14 @@ class DonationController extends Controller
         $user = Auth::user();
         $validated = $request->validated();
 
-        // Récupérer automatiquement l'église ou le profil prédicateur de l'utilisateur connecté
-        // (optionnel: un utilisateur sans affiliation peut aussi faire un don)
-        $churchId = $user->church?->id;
-        $preacherProfileId = $user->preacherProfile?->id;
-
         $countryCode = $validated['country_code'] ?? config('shwary.default_country', 'DRC');
         $currency = config("shwary.countries.{$countryCode}.currency", 'CDF');
 
-        // Create donation record
+        // Les donations vont à la plateforme (super admin), pas aux églises/prédicateurs
         $donation = Donation::create([
             'user_id' => $user->id,
-            'church_id' => $churchId,
-            'preacher_profile_id' => $preacherProfileId,
+            'church_id' => null,
+            'preacher_profile_id' => null,
             'amount' => $validated['amount'],
             'currency' => $currency,
             'country_code' => $countryCode,
