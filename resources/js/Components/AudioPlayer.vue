@@ -19,6 +19,8 @@ const volume = ref(1);
 const isMuted = ref(false);
 const hasError = ref(false);
 const errorMessage = ref('');
+const isSeeking = ref(false);
+const seekBar = ref(null);
 
 // Format time (seconds → mm:ss)
 const formatTime = (secs) => {
@@ -42,12 +44,31 @@ const togglePlay = () => {
     }
 };
 
-const seek = (e) => {
+const seekFromEvent = (e, el) => {
     if (!audio.value || !duration.value) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const pct = Math.max(0, Math.min(1, x / rect.width));
+    const rect = el.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
     audio.value.currentTime = pct * duration.value;
+};
+
+const seek = (e) => seekFromEvent(e, e.currentTarget);
+
+const onSeekStart = (e) => {
+    isSeeking.value = true;
+    seekFromEvent(e, seekBar.value);
+    const onMove = (ev) => seekFromEvent(ev, seekBar.value);
+    const onEnd = () => {
+        isSeeking.value = false;
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onEnd);
+        document.removeEventListener('touchmove', onMove);
+        document.removeEventListener('touchend', onEnd);
+    };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onEnd);
+    document.addEventListener('touchmove', onMove, { passive: true });
+    document.addEventListener('touchend', onEnd);
 };
 
 const skip = (seconds) => {
@@ -119,17 +140,25 @@ onBeforeUnmount(() => {
         >
             <!-- Backdrop blur layer -->
             <div class="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-t border-gray-200/80 dark:border-gray-700/80 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
-                <!-- Progress bar (top edge) -->
+                <!-- Seekbar -->
                 <div
-                    class="h-1 bg-gray-100 dark:bg-gray-800 cursor-pointer group relative"
+                    ref="seekBar"
+                    class="h-2 bg-gray-100 dark:bg-gray-800 cursor-pointer group relative select-none touch-none"
+                    :class="{ 'h-2.5': isSeeking }"
                     @click="seek"
+                    @mousedown.prevent="onSeekStart"
+                    @touchstart.prevent="onSeekStart"
                 >
                     <div
-                        class="h-full bg-linear-to-r from-primary to-primary/80 transition-[width] duration-150 relative"
+                        class="h-full bg-linear-to-r from-primary to-primary/80 relative"
+                        :class="isSeeking ? '' : 'transition-[width] duration-150'"
                         :style="{ width: progress + '%' }"
                     >
-                        <!-- Knob on hover -->
-                        <div class="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-primary shadow-md opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <!-- Knob -->
+                        <div
+                            class="absolute right-0 top-1/2 -translate-y-1/2 rounded-full bg-primary shadow-md transition-all"
+                            :class="isSeeking ? 'w-4 h-4 scale-110' : 'w-3 h-3 opacity-0 group-hover:opacity-100'"
+                        ></div>
                     </div>
                 </div>
 
