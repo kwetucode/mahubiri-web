@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
-import { useForm, router } from '@inertiajs/vue3';
+import { useForm, router, Link } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import Breadcrumb from '@/Components/Breadcrumb.vue';
 import { useI18n } from 'vue-i18n';
@@ -61,7 +61,7 @@ const closeSuccessModal = () => {
         <div class="max-w-2xl mx-auto space-y-6">
             <!-- Breadcrumb -->
             <Breadcrumb :items="[
-                { label: t('donations.title'), href: '/admin/donations' },
+                { label: t('nav.dashboard'), href: '/admin/dashboard' },
                 { label: t('donationCreate.title') },
             ]" />
 
@@ -175,12 +175,12 @@ const closeSuccessModal = () => {
 
                 <!-- Submit -->
                 <div class="px-6 py-5 flex items-center justify-end gap-3">
-                    <a
-                        href="/admin/donations"
+                    <Link
+                        href="/admin/dashboard"
                         class="px-5 py-2.5 text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
                     >
                         {{ t('common.cancel') }}
-                    </a>
+                    </Link>
                     <button
                         type="submit"
                         :disabled="form.processing"
