@@ -55,10 +55,12 @@ Route::middleware(['auth', 'admin'])->group(function () {
     // Donations — create/store accessible to all admins
     Route::get('/donations/create', [DonationController::class, 'create'])->name('donations.create');
     Route::post('/donations', [DonationController::class, 'store'])->name('donations.store');
+    Route::get('/donations/{uuid}/status', [DonationController::class, 'checkStatus'])->name('donations.check-status');
 
     // Storage upgrade (church admin)
     Route::get('/storage-upgrade', [StorageUpgradeController::class, 'index'])->name('storage-upgrade.index');
     Route::post('/storage-upgrade', [StorageUpgradeController::class, 'store'])->name('storage-upgrade.store');
+    Route::get('/storage-upgrade/{uuid}/status', [StorageUpgradeController::class, 'checkStatus'])->name('storage-upgrade.check-status');
 
     // Settings
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings');

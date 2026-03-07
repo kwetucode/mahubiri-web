@@ -47,11 +47,7 @@ const handleImageError = (e) => {
             <!-- Nav -->
             <nav class="nav">
                 <a href="/" class="nav-logo">
-                    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="32" height="32" rx="8" fill="currentColor" opacity=".1"/>
-                        <path d="M16 6L10 11v10h4v-6h4v6h4V11L16 6z" fill="currentColor"/>
-                        <circle cx="16" cy="14" r="2" fill="white"/>
-                    </svg>
+                    <img src="/logo.png" alt="Mahubiri" style="width:32px;height:32px;border-radius:8px;object-fit:contain;" />
                     Mahubiri
                 </a>
 
@@ -243,7 +239,7 @@ const handleImageError = (e) => {
 
     .welcome-page .nav { display: flex; align-items: center; justify-content: space-between; padding: 20px 0; }
     .welcome-page .nav-logo { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 700; color: var(--wp-primary); text-decoration: none; }
-    .welcome-page .nav-logo svg { width: 32px; height: 32px; }
+    .welcome-page .nav-logo img { width: 32px; height: 32px; }
     .welcome-page .nav-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 14px; border-radius: 999px; font-size: 11px; font-weight: 600; background: rgba(107, 78, 175, 0.08); color: var(--wp-primary); letter-spacing: 0.5px; text-transform: uppercase; }
     .welcome-page .nav-actions { display: flex; align-items: center; gap: 12px; }
 

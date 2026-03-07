@@ -81,7 +81,7 @@ class StorageUpgradeService
 
         // Initiate payment via Shwary
         try {
-            $callbackUrl = route('storage-upgrades.callback');
+            $callbackUrl = route('api.v1.storage-upgrades.callback');
 
             $result = $this->shwaryService->initiatePayment(
                 (float) $price,

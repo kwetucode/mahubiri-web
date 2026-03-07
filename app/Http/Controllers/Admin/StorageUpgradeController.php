@@ -114,11 +114,65 @@ class StorageUpgradeController extends Controller
 
         if ($result['success']) {
             return redirect()->route('storage-upgrade.index')
-                ->with('success', $result['message']);
+                ->with('success', $result['message'])
+                ->with('upgrade_uuid', $result['upgrade']->uuid);
         }
 
         return back()->withErrors([
             'payment' => $result['error'] ?? 'Échec du paiement.',
+        ]);
+    }
+
+    /**
+     * Check upgrade status (AJAX endpoint for polling).
+     */
+    public function checkStatus(string $uuid)
+    {
+        $user = Auth::user();
+        $church = $user->church;
+
+        if (!$church) {
+            return response()->json(['status' => 'error'], 403);
+        }
+
+        $upgrade = StorageUpgrade::where('uuid', $uuid)
+            ->where('church_id', $church->id)
+            ->first();
+
+        if (!$upgrade) {
+            return response()->json(['status' => 'not_found'], 404);
+        }
+
+        // If still pending and has a Shwary transaction, refresh from Shwary
+        if ($upgrade->status === 'pending' && $upgrade->shwary_transaction_id) {
+            try {
+                $shwary = app(ShwaryService::class);
+                $result = $shwary->getTransaction($upgrade->shwary_transaction_id);
+                if ($result['success'] && isset($result['data'])) {
+                    $newStatus = $result['data']['status'] ?? $upgrade->status;
+                    if ($newStatus !== $upgrade->status) {
+                        if ($newStatus === 'completed') {
+                            $upgrade->markAsCompleted($result['data']['id'] ?? null);
+                        } elseif ($newStatus === 'failed') {
+                            $upgrade->markAsFailed($result['data']['failureReason'] ?? 'Transaction échouée');
+                        } else {
+                            $upgrade->update(['status' => $newStatus]);
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::warning('Failed to refresh upgrade status', [
+                    'upgrade_id' => $upgrade->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        $upgrade->refresh();
+
+        return response()->json([
+            'status' => $upgrade->status,
+            'failure_reason' => $upgrade->failure_reason,
         ]);
     }
 }

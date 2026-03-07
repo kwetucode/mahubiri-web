@@ -513,7 +513,13 @@
         "submit": "Toa mchango",
         "processing": "Inashughulikiwa...",
         "sandboxWarning": "Hali ya majaribio imewezeshwa — Hakuna malipo halisi yatakayofanywa.",
-        "successTitle": "Mchango umetumwa kwa mafanikio"
+        "successTitle": "Mchango umetumwa kwa mafanikio",
+        "paymentInitiated": "Malipo yameanzishwa",
+        "waitingConfirmation": "Inasubiri uthibitisho kwenye simu yako...",
+        "paymentCompleted": "Malipo yamethibitishwa kwa mafanikio!",
+        "paymentFailed": "Malipo yameshindwa.",
+        "newDonation": "Mchango mpya",
+        "checkingStatus": "Inakagua hali..."
     },
     "storageUpgrade": {
         "title": "Ongeza hifadhi",
@@ -539,7 +545,13 @@
         "phoneHint": "Muundo wa kimataifa na msimbo wa nchi (mfano: +243812345678)",
         "pay": "Lipa",
         "processing": "Inashughulikiwa...",
-        "sandboxWarning": "Hali ya majaribio imewezeshwa — Hakuna malipo halisi yatakayofanywa."
+        "sandboxWarning": "Hali ya majaribio imewezeshwa — Hakuna malipo halisi yatakayofanywa.",
+        "paymentInitiated": "Malipo yameanzishwa",
+        "waitingConfirmation": "Inasubiri uthibitisho kwenye simu yako...",
+        "paymentCompleted": "Malipo yamethibitishwa! Hifadhi yako imeongezwa.",
+        "paymentFailed": "Malipo yameshindwa.",
+        "checkingStatus": "Inakagua hali...",
+        "backToPlans": "Rudi kwa mipango"
     },
     "welcome": {
         "title": "Mahubiri — Mahubiri & Mafundisho",

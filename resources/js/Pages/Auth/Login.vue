@@ -31,12 +31,7 @@ const features = [
             <div class="login-form-wrapper">
                 <!-- Logo -->
                 <div class="login-logo">
-                    <div class="login-logo-icon">
-                        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M16 4L8 10v14h5v-8h6v8h5V10L16 4z" fill="currentColor"/>
-                            <circle cx="16" cy="13" r="2.5" fill="white"/>
-                        </svg>
-                    </div>
+                    <img src="/logo.png" alt="Mahubiri" class="login-logo-icon" />
                     <div>
                         <h1 class="login-logo-title">Mahubiri</h1>
                         <p class="login-logo-sub">Administration</p>
@@ -282,12 +277,9 @@ const features = [
 .login-logo-icon {
     width: 44px; height: 44px;
     border-radius: 14px;
-    background: linear-gradient(135deg, #6B4EAF, #8B6FCF);
-    color: white;
-    display: flex; align-items: center; justify-content: center;
+    object-fit: contain;
     box-shadow: 0 4px 12px rgba(107, 78, 175, 0.3);
 }
-.login-logo-icon svg { width: 24px; height: 24px; }
 .login-logo-title {
     font-size: 20px; font-weight: 700; color: #111827;
     letter-spacing: -0.3px; line-height: 1.2;

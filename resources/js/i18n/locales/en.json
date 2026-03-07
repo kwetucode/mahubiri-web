@@ -513,7 +513,13 @@
         "submit": "Make donation",
         "processing": "Processing...",
         "sandboxWarning": "Test mode enabled — No real payment will be made.",
-        "successTitle": "Donation sent successfully"
+        "successTitle": "Donation sent successfully",
+        "paymentInitiated": "Payment initiated",
+        "waitingConfirmation": "Waiting for confirmation on your phone...",
+        "paymentCompleted": "Payment confirmed successfully!",
+        "paymentFailed": "Payment failed.",
+        "newDonation": "New donation",
+        "checkingStatus": "Checking status..."
     },
     "storageUpgrade": {
         "title": "Increase storage",
@@ -539,7 +545,13 @@
         "phoneHint": "International format with country code (e.g. +243812345678)",
         "pay": "Pay",
         "processing": "Processing...",
-        "sandboxWarning": "Test mode enabled — No real payment will be made."
+        "sandboxWarning": "Test mode enabled — No real payment will be made.",
+        "paymentInitiated": "Payment initiated",
+        "waitingConfirmation": "Waiting for confirmation on your phone...",
+        "paymentCompleted": "Payment confirmed! Your storage has been increased.",
+        "paymentFailed": "Payment failed.",
+        "checkingStatus": "Checking status...",
+        "backToPlans": "Back to plans"
     },
     "welcome": {
         "title": "Mahubiri — Sermons & Preaching",

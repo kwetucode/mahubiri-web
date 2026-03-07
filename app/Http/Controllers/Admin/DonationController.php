@@ -104,7 +104,12 @@ class DonationController extends Controller
      */
     public function create()
     {
-        $countries = $this->shwaryService->getSupportedCountries();
+        $countries = collect($this->shwaryService->getSupportedCountries())->map(fn ($c, $code) => [
+            'code' => $code,
+            'name' => $c['name'],
+            'currency' => $c['currency'],
+            'phone_prefix' => $c['phone_prefix'],
+        ])->values();
         $defaultCountry = config('shwary.default_country', 'DRC');
 
         return Inertia::render('Admin/Donations/Create', [
@@ -175,7 +180,8 @@ class DonationController extends Controller
                     : 'Paiement initié. Veuillez valider la transaction sur votre téléphone.';
 
                 return redirect()->route('donations.create')
-                    ->with('success', $message);
+                    ->with('success', $message)
+                    ->with('donation_uuid', $donation->uuid);
             }
 
             $donation->markAsFailed($result['error'] ?? 'Échec du paiement');
@@ -196,6 +202,49 @@ class DonationController extends Controller
                 'payment' => 'Une erreur est survenue. Veuillez réessayer.',
             ]);
         }
+    }
+
+    /**
+     * Check donation status (AJAX endpoint for polling).
+     */
+    public function checkStatus(string $uuid)
+    {
+        $donation = Donation::where('uuid', $uuid)->first();
+
+        if (!$donation) {
+            return response()->json(['status' => 'not_found'], 404);
+        }
+
+        // If still pending and has a Shwary transaction, refresh from Shwary
+        if ($donation->isPending() && $donation->shwary_transaction_id) {
+            try {
+                $result = $this->shwaryService->getTransaction($donation->shwary_transaction_id);
+                if ($result['success'] && isset($result['data'])) {
+                    $newStatus = $result['data']['status'] ?? $donation->status;
+                    if ($newStatus !== $donation->status) {
+                        if ($newStatus === 'completed') {
+                            $donation->markAsCompleted($result['data']['id'] ?? null);
+                            $this->notifyAdmins($donation);
+                        } elseif ($newStatus === 'failed') {
+                            $donation->markAsFailed($result['data']['failureReason'] ?? 'Transaction échouée');
+                        } else {
+                            $donation->update(['status' => $newStatus]);
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::warning('Failed to refresh donation status', [
+                    'donation_id' => $donation->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        return response()->json([
+            'status' => $donation->fresh()->status,
+            'formatted_amount' => $donation->formatted_amount,
+            'failure_reason' => $donation->failure_reason,
+        ]);
     }
 
     /**

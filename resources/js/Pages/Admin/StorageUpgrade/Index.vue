@@ -1,11 +1,12 @@
 <script setup>
-import { ref, computed } from 'vue';
-import { useForm, Head } from '@inertiajs/vue3';
+import { ref, computed, onUnmounted } from 'vue';
+import { useForm, Head, usePage } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import Breadcrumb from '@/Components/Breadcrumb.vue';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
+const page = usePage();
 
 const props = defineProps({
     plans: Array,
@@ -19,6 +20,13 @@ const props = defineProps({
 
 const selectedPlan = ref(null);
 const showPaymentModal = ref(false);
+
+// Tracking state
+const trackingState = ref('idle'); // idle | pending | completed | failed
+const trackingUuid = ref(null);
+const trackingMessage = ref('');
+const failureReason = ref('');
+let pollInterval = null;
 
 const form = useForm({
     plan: '',
@@ -59,13 +67,81 @@ const closeModal = () => {
     form.clearErrors();
 };
 
+const startPolling = (uuid) => {
+    stopPolling();
+    let attempts = 0;
+    const maxAttempts = 60;
+
+    pollInterval = setInterval(async () => {
+        attempts++;
+        if (attempts > maxAttempts) {
+            stopPolling();
+            return;
+        }
+
+        try {
+            const response = await fetch(`/admin/storage-upgrade/${uuid}/status`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            });
+
+            if (!response.ok) return;
+
+            const data = await response.json();
+
+            if (data.status === 'completed') {
+                trackingState.value = 'completed';
+                trackingMessage.value = t('storageUpgrade.paymentCompleted');
+                stopPolling();
+            } else if (data.status === 'failed') {
+                trackingState.value = 'failed';
+                failureReason.value = data.failure_reason || t('storageUpgrade.paymentFailed');
+                stopPolling();
+            }
+        } catch {
+            // Silently retry on network errors
+        }
+    }, 5000);
+};
+
+const stopPolling = () => {
+    if (pollInterval) {
+        clearInterval(pollInterval);
+        pollInterval = null;
+    }
+};
+
+onUnmounted(() => stopPolling());
+
 const submitPurchase = () => {
     form.post('/admin/storage-upgrade', {
         preserveScroll: true,
         onSuccess: () => {
             closeModal();
+
+            const flash = page.props.flash;
+            const uuid = flash?.upgrade_uuid;
+            const msg = flash?.success;
+
+            trackingMessage.value = msg || t('storageUpgrade.waitingConfirmation');
+            trackingState.value = 'pending';
+
+            if (uuid) {
+                trackingUuid.value = uuid;
+                startPolling(uuid);
+            }
         },
     });
+};
+
+const resetTracking = () => {
+    stopPolling();
+    trackingState.value = 'idle';
+    trackingUuid.value = null;
+    trackingMessage.value = '';
+    failureReason.value = '';
 };
 
 const statusStyles = {
@@ -95,11 +171,7 @@ const planBgColors = ['bg-blue-50 border-blue-200', 'bg-primary/5 border-primary
                 <div class="absolute -top-12 -right-12 w-40 h-40 bg-primary/5 rounded-full blur-2xl"></div>
                 <div class="relative px-6 py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div class="flex items-center gap-4">
-                        <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 text-primary">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
-                            </svg>
-                        </div>
+                        <img src="/logo.png" alt="Mahubiri" class="w-12 h-12 rounded-xl shadow-md shadow-primary/20 object-contain" />
                         <div>
                             <h1 class="text-xl font-bold text-gray-900">{{ t('storageUpgrade.title') }}</h1>
                             <p class="text-sm text-gray-500 mt-0.5">{{ t('storageUpgrade.subtitle', { church: churchName }) }}</p>
@@ -122,6 +194,66 @@ const planBgColors = ['bg-blue-50 border-blue-200', 'bg-primary/5 border-primary
                 </svg>
                 <p class="text-sm font-medium text-orange-700">{{ t('storageUpgrade.sandboxWarning') }}</p>
             </div>
+
+            <!-- Tracking status banner -->
+            <Transition
+                enter-active-class="transition-all duration-300 ease-out"
+                enter-from-class="opacity-0 -translate-y-2"
+                enter-to-class="opacity-100 translate-y-0"
+                leave-active-class="transition-all duration-200 ease-in"
+                leave-from-class="opacity-100 translate-y-0"
+                leave-to-class="opacity-0 -translate-y-2"
+            >
+                <!-- Pending -->
+                <div v-if="trackingState === 'pending'" class="bg-amber-50 border border-amber-200 rounded-2xl p-5 text-center space-y-3">
+                    <div class="mx-auto flex items-center justify-center w-12 h-12 rounded-full bg-amber-100">
+                        <svg class="w-6 h-6 text-amber-600 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-amber-800">{{ t('storageUpgrade.paymentInitiated') }}</h3>
+                        <p class="text-xs text-amber-700 mt-1">{{ trackingMessage }}</p>
+                    </div>
+                    <div class="flex items-center justify-center gap-1.5 text-xs text-amber-600">
+                        <span class="inline-block w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span>
+                        {{ t('storageUpgrade.checkingStatus') }}
+                    </div>
+                </div>
+
+                <!-- Completed -->
+                <div v-else-if="trackingState === 'completed'" class="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 text-center space-y-3">
+                    <div class="mx-auto flex items-center justify-center w-12 h-12 rounded-full bg-emerald-100">
+                        <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-emerald-800">{{ t('storageUpgrade.paymentCompleted') }}</h3>
+                        <p class="text-xs text-emerald-700 mt-1">{{ trackingMessage }}</p>
+                    </div>
+                    <button @click="resetTracking" class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-emerald-700 bg-emerald-100 hover:bg-emerald-200 rounded-xl transition-colors">
+                        {{ t('storageUpgrade.backToPlans') }}
+                    </button>
+                </div>
+
+                <!-- Failed -->
+                <div v-else-if="trackingState === 'failed'" class="bg-red-50 border border-red-200 rounded-2xl p-5 text-center space-y-3">
+                    <div class="mx-auto flex items-center justify-center w-12 h-12 rounded-full bg-red-100">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-red-800">{{ t('storageUpgrade.paymentFailed') }}</h3>
+                        <p v-if="failureReason" class="text-xs text-red-700 mt-1">{{ failureReason }}</p>
+                    </div>
+                    <button @click="resetTracking" class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-red-700 bg-red-100 hover:bg-red-200 rounded-xl transition-colors">
+                        {{ t('storageUpgrade.backToPlans') }}
+                    </button>
+                </div>
+            </Transition>
 
             <!-- Current storage status -->
             <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
