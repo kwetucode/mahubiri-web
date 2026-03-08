@@ -1,7 +1,12 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useForm, usePage } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
+import { useTheme } from '@/composables/useTheme';
+import LocaleSwitcher from '@/Components/LocaleSwitcher.vue';
 
+const { t } = useI18n();
+const { theme, toggleTheme } = useTheme();
 const page = usePage();
 const stats = computed(() => page.props.stats || {});
 
@@ -19,12 +24,12 @@ const submit = () => {
     });
 };
 
-const features = [
-    { icon: 'sermons', title: 'Gestion des prédications', desc: 'Publiez et partagez vos sermons audio.' },
-    { icon: 'users', title: 'Communauté connectée', desc: 'Gérez fidèles, prédicateurs et églises.' },
-    { icon: 'analytics', title: 'Statistiques détaillées', desc: 'Suivez l\'engagement en temps réel.' },
-    { icon: 'notifications', title: 'Notifications push', desc: 'Alertez votre communauté instantanément.' },
-];
+const features = computed(() => [
+    { icon: 'sermons', title: t('login.featureSermons'), desc: t('login.featureSermonsDesc') },
+    { icon: 'users', title: t('login.featureCommunity'), desc: t('login.featureCommunityDesc') },
+    { icon: 'analytics', title: t('login.featureAnalytics'), desc: t('login.featureAnalyticsDesc') },
+    { icon: 'notifications', title: t('login.featureNotifications'), desc: t('login.featureNotificationsDesc') },
+]);
 </script>
 
 <template>
@@ -41,17 +46,36 @@ const features = [
                     </div>
                 </div>
 
+                <!-- Locale Switcher & Theme Toggle -->
+                <div class="login-toolbar">
+                    <LocaleSwitcher />
+                    <button @click="toggleTheme" class="theme-toggle" type="button">
+                        <!-- Sun icon (shown in dark mode) -->
+                        <svg v-if="theme === 'dark'" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="5"/>
+                            <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                            <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                        </svg>
+                        <!-- Moon icon (shown in light mode) -->
+                        <svg v-else fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+                        </svg>
+                    </button>
+                </div>
+
                 <!-- Heading -->
                 <div class="login-heading">
-                    <h2>Bon retour parmi nous</h2>
-                    <p>Connectez-vous pour accéder à votre tableau de bord.</p>
+                    <h2>{{ t('login.welcomeBack') }}</h2>
+                    <p>{{ t('login.subtitle') }}</p>
                 </div>
 
                 <!-- Form -->
                 <form @submit.prevent="submit" class="login-form">
                     <!-- Email -->
                     <div class="form-group">
-                        <label for="email">Adresse email</label>
+                        <label for="email">{{ t('login.email') }}</label>
                         <div class="input-wrapper" :class="{ error: form.errors.email }">
                             <div class="input-icon">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -76,7 +100,7 @@ const features = [
 
                     <!-- Password -->
                     <div class="form-group">
-                        <label for="password">Mot de passe</label>
+                        <label for="password">{{ t('login.password') }}</label>
                         <div class="input-wrapper" :class="{ error: form.errors.password }">
                             <div class="input-icon">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -120,7 +144,7 @@ const features = [
                             <span class="custom-check">
                                 <svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                             </span>
-                            <span>Se souvenir de moi</span>
+                            <span>{{ t('login.rememberMe') }}</span>
                         </label>
                     </div>
 
@@ -130,9 +154,9 @@ const features = [
                             <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" opacity=".25"/>
                             <path fill="currentColor" opacity=".75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                         </svg>
-                        <span v-if="form.processing">Connexion en cours...</span>
+                        <span v-if="form.processing">{{ t('login.submitting') }}</span>
                         <template v-else>
-                            <span>Se connecter</span>
+                            <span>{{ t('login.submit') }}</span>
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <line x1="5" y1="12" x2="19" y2="12"/>
                                 <polyline points="12 5 19 12 12 19"/>
@@ -148,7 +172,7 @@ const features = [
                             <line x1="19" y1="12" x2="5" y2="12"/>
                             <polyline points="12 19 5 12 12 5"/>
                         </svg>
-                        Retour à l'accueil
+                        {{ t('login.backHome') }}
                     </a>
                     <p>&copy; {{ new Date().getFullYear() }} Mahubiri</p>
                 </div>
@@ -168,16 +192,16 @@ const features = [
                 <!-- Badge -->
                 <div class="right-badge">
                     <span class="pulse-dot"></span>
-                    Plateforme active
+                    {{ t('login.platformActive') }}
                 </div>
 
                 <h2 class="right-title">
-                    Gérez vos<br>
-                    <span>prédications</span><br>
-                    en toute simplicité
+                    {{ t('login.heroTitle1') }}<br>
+                    <span>{{ t('login.heroTitle2') }}</span><br>
+                    {{ t('login.heroTitle3') }}
                 </h2>
                 <p class="right-desc">
-                    La plateforme tout-en-un pour publier, organiser et diffuser vos sermons auprès de votre communauté.
+                    {{ t('login.heroDesc') }}
                 </p>
 
                 <!-- Feature cards -->
@@ -208,17 +232,17 @@ const features = [
                 <div class="right-stats">
                     <div class="right-stat">
                         <span class="right-stat-val">{{ stats.sermons?.toLocaleString() ?? '—' }}</span>
-                        <span class="right-stat-label">Prédications</span>
+                        <span class="right-stat-label">{{ t('login.statSermons') }}</span>
                     </div>
                     <div class="right-stat-divider"></div>
                     <div class="right-stat">
                         <span class="right-stat-val">{{ stats.churches?.toLocaleString() ?? '—' }}</span>
-                        <span class="right-stat-label">Églises</span>
+                        <span class="right-stat-label">{{ t('login.statChurches') }}</span>
                     </div>
                     <div class="right-stat-divider"></div>
                     <div class="right-stat">
                         <span class="right-stat-val">{{ stats.users?.toLocaleString() ?? '—' }}</span>
-                        <span class="right-stat-label">Utilisateurs</span>
+                        <span class="right-stat-label">{{ t('login.statUsers') }}</span>
                     </div>
                 </div>
             </div>
@@ -551,5 +575,94 @@ const features = [
 @keyframes fadeUp {
     from { opacity: 0; transform: translateY(20px); }
     to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ══════════════════════════════
+   Toolbar (Locale + Theme)
+   ══════════════════════════════ */
+.login-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+.login-toolbar :deep(.relative > div[class*="absolute"]) {
+    right: auto;
+    left: 0;
+}
+.theme-toggle {
+    display: flex; align-items: center; justify-content: center;
+    width: 38px; height: 38px; border-radius: 12px;
+    background: #f3f4f6; border: 2px solid #e5e7eb;
+    color: #6b7280; cursor: pointer;
+    transition: all .25s cubic-bezier(.4,0,.2,1);
+}
+.theme-toggle:hover {
+    background: #e5e7eb; color: #6B4EAF;
+    border-color: #6B4EAF;
+}
+.theme-toggle svg { width: 18px; height: 18px; }
+
+/* ══════════════════════════════
+   Dark Mode Overrides
+   ══════════════════════════════ */
+:root.dark .login-page { background: #111827; }
+:root.dark .login-left { background: #111827; }
+
+:root.dark .login-logo-title { color: #f3f4f6; }
+:root.dark .login-logo-sub { color: #6b7280; }
+
+:root.dark .login-heading h2 { color: #f3f4f6; }
+:root.dark .login-heading p { color: #9ca3af; }
+
+:root.dark .form-group label { color: #d1d5db; }
+
+:root.dark .input-wrapper {
+    border-color: #374151; background: #1f2937;
+}
+:root.dark .input-wrapper:focus-within {
+    border-color: #8b6fcf; background: #1a1a2e;
+    box-shadow: 0 0 0 4px rgba(139, 111, 207, 0.15);
+}
+:root.dark .input-wrapper.error {
+    border-color: #dc2626; background: #1c1017;
+}
+:root.dark .input-wrapper.error:focus-within {
+    box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.15);
+}
+:root.dark .input-icon { color: #6b7280; }
+:root.dark .input-wrapper:focus-within .input-icon { color: #a78bfa; }
+:root.dark .input-wrapper input { color: #f3f4f6; }
+:root.dark .input-wrapper input::placeholder { color: #6b7280; }
+
+:root.dark .toggle-password { color: #6b7280; }
+:root.dark .toggle-password:hover { color: #9ca3af; }
+
+:root.dark .remember-label { color: #9ca3af; }
+:root.dark .custom-check { border-color: #4b5563; }
+:root.dark .remember-label:hover .custom-check { border-color: #8b6fcf; }
+
+:root.dark .submit-btn {
+    background: linear-gradient(135deg, #7c5fc4 0%, #6B4EAF 100%);
+    box-shadow: 0 4px 16px rgba(124, 95, 196, 0.35);
+}
+:root.dark .submit-btn:hover {
+    box-shadow: 0 8px 24px rgba(124, 95, 196, 0.4);
+}
+
+:root.dark .login-footer { border-top-color: #1f2937; }
+:root.dark .login-footer p { color: #6b7280; }
+:root.dark .back-link { color: #9ca3af; }
+:root.dark .back-link:hover { color: #a78bfa; }
+
+:root.dark .theme-toggle {
+    background: #1f2937; border-color: #374151; color: #9ca3af;
+}
+:root.dark .theme-toggle:hover {
+    background: #374151; color: #e8b77d; border-color: #e8b77d;
+}
+
+:root.dark .right-bg {
+    background: linear-gradient(135deg, #4a2d8a 0%, #2d1a5e 40%, #1a1035 100%);
 }
 </style>

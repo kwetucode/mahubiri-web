@@ -657,5 +657,31 @@
         "contactPhone": "Téléphone",
         "footerRights": "Tous droits réservés.",
         "footerBeta": "Application en phase de test — Certaines fonctionnalités peuvent évoluer."
+    },
+    "login": {
+        "welcomeBack": "Bon retour parmi nous",
+        "subtitle": "Connectez-vous pour accéder à votre tableau de bord.",
+        "email": "Adresse email",
+        "password": "Mot de passe",
+        "rememberMe": "Se souvenir de moi",
+        "submitting": "Connexion en cours...",
+        "submit": "Se connecter",
+        "backHome": "Retour à l'accueil",
+        "platformActive": "Plateforme active",
+        "heroTitle1": "Gérez vos",
+        "heroTitle2": "prédications",
+        "heroTitle3": "en toute simplicité",
+        "heroDesc": "La plateforme tout-en-un pour publier, organiser et diffuser vos sermons auprès de votre communauté.",
+        "featureSermons": "Gestion des prédications",
+        "featureSermonsDesc": "Publiez et partagez vos sermons audio.",
+        "featureCommunity": "Communauté connectée",
+        "featureCommunityDesc": "Gérez fidèles, prédicateurs et églises.",
+        "featureAnalytics": "Statistiques détaillées",
+        "featureAnalyticsDesc": "Suivez l'engagement en temps réel.",
+        "featureNotifications": "Notifications push",
+        "featureNotificationsDesc": "Alertez votre communauté instantanément.",
+        "statSermons": "Prédications",
+        "statChurches": "Églises",
+        "statUsers": "Utilisateurs"
     }
 }

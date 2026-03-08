@@ -2,7 +2,8 @@ import './bootstrap';
 import '../css/app.css';
 
 // Apply theme before render to prevent flash
-const savedTheme = localStorage.getItem('mahubiri-theme') || 'light';
+const savedTheme = localStorage.getItem('mahubiri-theme')
+    || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 if (savedTheme === 'dark') {
     document.documentElement.classList.add('dark');
 } else {

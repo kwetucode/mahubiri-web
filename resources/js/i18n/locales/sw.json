@@ -657,5 +657,31 @@
         "contactPhone": "Simu",
         "footerRights": "Haki zote zimehifadhiwa.",
         "footerBeta": "Programu iko katika hatua ya majaribio — Vipengele vingine vinaweza kubadilika."
+    },
+    "login": {
+        "welcomeBack": "Karibu tena",
+        "subtitle": "Ingia ili kupata dashibodi yako.",
+        "email": "Anwani ya barua pepe",
+        "password": "Neno la siri",
+        "rememberMe": "Nikumbuke",
+        "submitting": "Inaingia...",
+        "submit": "Ingia",
+        "backHome": "Rudi nyumbani",
+        "platformActive": "Jukwaa linatumika",
+        "heroTitle1": "Simamia",
+        "heroTitle2": "mahubiri",
+        "heroTitle3": "yako kwa urahisi",
+        "heroDesc": "Jukwaa kamili la kuchapisha, kupanga na kusambaza mahubiri yako kwa jumuiya yako.",
+        "featureSermons": "Usimamizi wa mahubiri",
+        "featureSermonsDesc": "Chapisha na shiriki mahubiri yako ya sauti.",
+        "featureCommunity": "Jumuiya iliyounganishwa",
+        "featureCommunityDesc": "Simamia waumini, wahubiri na makanisa.",
+        "featureAnalytics": "Takwimu za kina",
+        "featureAnalyticsDesc": "Fuatilia ushiriki kwa wakati halisi.",
+        "featureNotifications": "Arifa za push",
+        "featureNotificationsDesc": "Arifu jumuiya yako mara moja.",
+        "statSermons": "Mahubiri",
+        "statChurches": "Makanisa",
+        "statUsers": "Watumiaji"
     }
 }

@@ -1,38 +1,32 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
+import { useTheme } from '@/composables/useTheme';
 import LocaleSwitcher from '@/Components/LocaleSwitcher.vue';
 
 const { t } = useI18n();
+const { theme, toggleTheme } = useTheme();
 
-const isDark = ref(false);
-
-onMounted(() => {
-    document.body.classList.add('welcome-body');
-    const saved = localStorage.getItem('welcome-theme');
-    if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        isDark.value = true;
-    }
-    applyTheme();
-});
-onUnmounted(() => {
-    document.body.classList.remove('welcome-body', 'welcome-dark');
-});
-
-const toggleTheme = () => {
-    isDark.value = !isDark.value;
-    localStorage.setItem('welcome-theme', isDark.value ? 'dark' : 'light');
-    applyTheme();
-};
-
-const applyTheme = () => {
-    if (isDark.value) {
+const applyWelcomeClass = () => {
+    if (theme.value === 'dark') {
         document.body.classList.add('welcome-dark');
     } else {
         document.body.classList.remove('welcome-dark');
     }
 };
+
+onMounted(() => {
+    document.body.classList.add('welcome-body');
+    applyWelcomeClass();
+});
+onUnmounted(() => {
+    document.body.classList.remove('welcome-body', 'welcome-dark');
+});
+
+watch(theme, () => {
+    applyWelcomeClass();
+});
 
 const features = computed(() => [
     { icon: '🎧', title: t('welcome.featureListenTitle'), desc: t('welcome.featureListenDesc'), bg: 'rgba(139,111,207,.1)' },
@@ -77,9 +71,9 @@ const handleImageError = (e) => {
                     <LocaleSwitcher />
 
                     <!-- Theme toggle -->
-                    <button @click="toggleTheme" class="theme-toggle" :title="isDark ? 'Mode clair' : 'Mode sombre'">
+                    <button @click="toggleTheme" class="theme-toggle" :title="theme === 'dark' ? 'Mode clair' : 'Mode sombre'">
                         <!-- Sun icon (shown in dark mode) -->
-                        <svg v-if="isDark" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg v-if="theme === 'dark'" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="5"/>
                             <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
                             <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>

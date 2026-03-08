@@ -657,5 +657,31 @@
         "contactPhone": "Telefone",
         "footerRights": "Makoki nyonso ebombami.",
         "footerBeta": "Aplikasyo ezali na etape ya komeka — Biloko mosusu ekoki kobongwana."
+    },
+    "login": {
+        "welcomeBack": "Boyei malamu lisusu",
+        "subtitle": "Kɔtá mpo na kokende na tableau de bord na yo.",
+        "email": "Adrɛsi ya email",
+        "password": "Motó ya nkuku",
+        "rememberMe": "Kanisá ngai",
+        "submitting": "Kokɔta ezali...",
+        "submit": "Kokɔta",
+        "backHome": "Zonga na ebandeli",
+        "platformActive": "Platɛfɔrmɛ ezali kosala",
+        "heroTitle1": "Bongisá",
+        "heroTitle2": "malobeli",
+        "heroTitle3": "na yo na pete",
+        "heroDesc": "Platɛfɔrmɛ ya mobimba mpo na kobimisa, kobongisa mpe kopalanganisa malobeli na yo epai ya lingomba na yo.",
+        "featureSermons": "Bokambi ya malobeli",
+        "featureSermonsDesc": "Bimisá mpe palanganá malobeli na yo ya makɛlɛlɛ.",
+        "featureCommunity": "Lingomba oyo esangani",
+        "featureCommunityDesc": "Bongisá bandimi, balakisi mpe mangomba.",
+        "featureAnalytics": "Biloko ya kotánga ya mozindo",
+        "featureAnalyticsDesc": "Landá bosangani na ntango ya solo.",
+        "featureNotifications": "Nsango ya push",
+        "featureNotificationsDesc": "Pesá nsango na lingomba na yo mbala moko.",
+        "statSermons": "Malobeli",
+        "statChurches": "Mangomba",
+        "statUsers": "Basaleli"
     }
 }

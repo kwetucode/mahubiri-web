@@ -1,6 +1,10 @@
 import { ref, watch, onMounted } from 'vue';
 
-const theme = ref(localStorage.getItem('mahubiri-theme') || 'light');
+const getDefaultTheme = () =>
+    localStorage.getItem('mahubiri-theme')
+    || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+const theme = ref(getDefaultTheme());
 
 const applyTheme = (value) => {
     const root = document.documentElement;

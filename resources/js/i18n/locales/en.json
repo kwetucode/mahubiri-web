@@ -657,5 +657,31 @@
         "contactPhone": "Phone",
         "footerRights": "All rights reserved.",
         "footerBeta": "Application in testing phase — Some features may evolve."
+    },
+    "login": {
+        "welcomeBack": "Welcome back",
+        "subtitle": "Sign in to access your dashboard.",
+        "email": "Email address",
+        "password": "Password",
+        "rememberMe": "Remember me",
+        "submitting": "Signing in...",
+        "submit": "Sign in",
+        "backHome": "Back to home",
+        "platformActive": "Platform active",
+        "heroTitle1": "Manage your",
+        "heroTitle2": "sermons",
+        "heroTitle3": "with ease",
+        "heroDesc": "The all-in-one platform to publish, organize and broadcast your sermons to your community.",
+        "featureSermons": "Sermon management",
+        "featureSermonsDesc": "Publish and share your audio sermons.",
+        "featureCommunity": "Connected community",
+        "featureCommunityDesc": "Manage members, preachers and churches.",
+        "featureAnalytics": "Detailed analytics",
+        "featureAnalyticsDesc": "Track engagement in real time.",
+        "featureNotifications": "Push notifications",
+        "featureNotificationsDesc": "Alert your community instantly.",
+        "statSermons": "Sermons",
+        "statChurches": "Churches",
+        "statUsers": "Users"
     }
 }
