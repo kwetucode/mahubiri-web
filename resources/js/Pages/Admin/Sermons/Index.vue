@@ -47,6 +47,7 @@ const navigate = () => {
         preserveState: true,
         preserveScroll: true,
         replace: true,
+        only: ['sermons', 'stats', 'categories', 'filters'],
         onFinish: () => { tableLoading.value = false; },
     });
 };
@@ -121,13 +122,18 @@ const confirmDelete = async () => {
     deleteLoading.value = true;
     try {
         await axios.delete(`/admin/sermons/${deleteTarget.value.id}`);
-        navigate();
+        showDeleteModal.value = false;
+        deleteTarget.value = null;
+        // Reload only the sermons data (table loading, not global loader)
+        tableLoading.value = true;
+        router.reload({
+            only: ['sermons', 'stats'],
+            onFinish: () => { tableLoading.value = false; },
+        });
     } catch (e) {
         console.error('Delete error:', e);
     } finally {
         deleteLoading.value = false;
-        showDeleteModal.value = false;
-        deleteTarget.value = null;
     }
 };
 

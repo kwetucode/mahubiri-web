@@ -13,6 +13,8 @@ use App\Http\Controllers\Admin\ChurchProfileController;
 use App\Http\Controllers\Admin\GlobalSearchController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\StorageUpgradeController;
+use App\Http\Controllers\Admin\StorageCleanupController;
+use App\Http\Controllers\Admin\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -62,6 +64,13 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/storage-upgrade', [StorageUpgradeController::class, 'store'])->name('storage-upgrade.store');
     Route::get('/storage-upgrade/{uuid}/status', [StorageUpgradeController::class, 'checkStatus'])->name('storage-upgrade.check-status');
 
+    // Profile
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+    Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar');
+    Route::delete('/profile/avatar', [ProfileController::class, 'deleteAvatar'])->name('profile.avatar.delete');
+
     // Settings
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
 
@@ -72,6 +81,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
+    Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
 
     // Super admin only routes
     Route::middleware('super_admin')->group(function () {
@@ -86,5 +96,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::post('/sermon-categories', [CategorySermonController::class, 'store'])->name('sermon-categories.store');
         Route::patch('/sermon-categories/{categorySermon}', [CategorySermonController::class, 'update'])->name('sermon-categories.update');
         Route::delete('/sermon-categories/{categorySermon}', [CategorySermonController::class, 'destroy'])->name('sermon-categories.destroy');
+
+        // Storage cleanup (super admin only)
+        Route::get('/storage-cleanup/analyze', [StorageCleanupController::class, 'analyze'])->name('storage-cleanup.analyze');
+        Route::get('/storage-cleanup/browse', [StorageCleanupController::class, 'browse'])->name('storage-cleanup.browse');
+        Route::post('/storage-cleanup', [StorageCleanupController::class, 'cleanup'])->name('storage-cleanup.cleanup');
+        Route::post('/storage-cleanup/folders', [StorageCleanupController::class, 'cleanupFolders'])->name('storage-cleanup.folders');
     });
 });

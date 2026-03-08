@@ -36,6 +36,7 @@ const navigate = () => {
         preserveState: true,
         preserveScroll: true,
         replace: true,
+        only: ['users', 'filters'],
         onFinish: () => { tableLoading.value = false; },
     });
 };

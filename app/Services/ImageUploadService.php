@@ -22,16 +22,17 @@ class ImageUploadService
      *
      * @param string|UploadedFile $image Base64 encoded image data or UploadedFile
      * @param string $storageType Storage type (covers, logos, avatars, etc.)
+     * @param string|null $ownerFolder Owner folder path (e.g. 'churches/cepac' or 'preachers/ministry-name')
      * @return string The URL of the uploaded image file
      * @throws InvalidArgumentException
      */
-    public function handleImageUpload(string|UploadedFile $image, string $storageType = 'covers'): string
+    public function handleImageUpload(string|UploadedFile $image, string $storageType = 'covers', ?string $ownerFolder = null): string
     {
         if ($image instanceof UploadedFile) {
-            return $this->handleUploadedImageFile($image, $storageType);
+            return $this->handleUploadedImageFile($image, $storageType, $ownerFolder);
         }
 
-        return $this->handleBase64Image($image, $storageType);
+        return $this->handleBase64Image($image, $storageType, $ownerFolder);
     }
 
     /**
@@ -39,10 +40,11 @@ class ImageUploadService
      *
      * @param string $base64Image Base64 encoded image data
      * @param string $storageType Storage type (covers, logos, avatars, etc.)
+     * @param string|null $ownerFolder Owner folder path
      * @return string The URL of the uploaded image file
      * @throws InvalidArgumentException
      */
-    private function handleBase64Image(string $base64Image, string $storageType = 'covers'): string
+    private function handleBase64Image(string $base64Image, string $storageType = 'covers', ?string $ownerFolder = null): string
     {
         $imageData = null;
         $extension = null;
@@ -85,7 +87,7 @@ class ImageUploadService
         }
 
         // Generate storage path and filename
-        $storagePath = $this->generateStoragePath($storageType, 'image');
+        $storagePath = $this->generateStoragePath($storageType, 'image', $ownerFolder);
         $filename = $this->generateFilename($storageType, $extension);
         $fullPath = $storagePath . $filename;
 
@@ -105,10 +107,11 @@ class ImageUploadService
      *
      * @param UploadedFile $image Uploaded image file
      * @param string $storageType Storage type (covers, logos, avatars, etc.)
+     * @param string|null $ownerFolder Owner folder path
      * @return string The URL of the uploaded image file
      * @throws InvalidArgumentException
      */
-    private function handleUploadedImageFile(UploadedFile $image, string $storageType = 'covers'): string
+    private function handleUploadedImageFile(UploadedFile $image, string $storageType = 'covers', ?string $ownerFolder = null): string
     {
         // Validate the uploaded file
         $this->validateUploadedImageFile($image);
@@ -118,7 +121,7 @@ class ImageUploadService
         $extension = $this->normalizeImageExtension($extension);
 
         // Generate storage path and filename
-        $storagePath = $this->generateStoragePath($storageType, 'image');
+        $storagePath = $this->generateStoragePath($storageType, 'image', $ownerFolder);
         $filename = $this->generateFilename($storageType, $extension);
         $fullPath = $storagePath . $filename;
 
@@ -291,11 +294,30 @@ class ImageUploadService
      *
      * @param string $storageType Storage type (covers, logos, avatars, etc.)
      * @param string $fileType File type (image or audio)
+     * @param string|null $ownerFolder Owner folder (e.g. 'churches/cepac')
      * @return string
      * @throws InvalidArgumentException
      */
-    private function generateStoragePath(string $storageType, string $fileType = 'image'): string
+    private function generateStoragePath(string $storageType, string $fileType = 'image', ?string $ownerFolder = null): string
     {
+        if ($ownerFolder) {
+            // New structure: {ownerFolder}/{subpath}/
+            $subPathMappings = [
+                'covers' => 'sermons/covers',
+                'sermon_covers' => 'sermons/covers',
+                'logos' => 'logo',
+                'church_logos' => 'logo',
+                'church_covers' => 'covers',
+                'avatars' => 'avatar',
+                'user_avatars' => 'avatar',
+                'profiles' => 'profile',
+            ];
+
+            $subPath = $subPathMappings[$storageType] ?? $storageType;
+            return $ownerFolder . '/' . $subPath . '/';
+        }
+
+        // Legacy fallback with year-based structure
         $pathMappings = [
             // Sermon related
             'covers' => 'sermons/covers',

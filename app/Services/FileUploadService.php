@@ -26,11 +26,12 @@ class FileUploadService
     /**
      * Upload audio and extract meta info
      * @param string|UploadedFile $audio
+     * @param string|null $ownerFolder Owner folder path (e.g. 'churches/cepac')
      * @return array ['audio_url' => string, ...meta]
      */
-    public function handleAudioUploadWithMeta(string|UploadedFile $audio): array
+    public function handleAudioUploadWithMeta(string|UploadedFile $audio, ?string $ownerFolder = null): array
     {
-        $audioUrl = $this->audioUploadService->handleAudioUpload($audio);
+        $audioUrl = $this->audioUploadService->handleAudioUpload($audio, $ownerFolder);
         // Get absolute path for getID3 - use storage_path directly (works without symlink)
         $relativePath = str_replace('storage/', '', $audioUrl);
         $absolutePath = storage_path('app/public/' . $relativePath);
@@ -56,9 +57,9 @@ class FileUploadService
         return $meta;
     }
 
-    public function handleImageUpload(string|UploadedFile $image, string $storageType = 'covers'): string
+    public function handleImageUpload(string|UploadedFile $image, string $storageType = 'covers', ?string $ownerFolder = null): string
     {
-        return $this->imageUploadService->handleImageUpload($image, $storageType);
+        return $this->imageUploadService->handleImageUpload($image, $storageType, $ownerFolder);
     }
 
     public function deleteFile(string $fileUrl, string $type = 'audio'): bool

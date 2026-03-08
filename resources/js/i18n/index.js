@@ -2,6 +2,7 @@ import { createI18n } from 'vue-i18n';
 import fr from './locales/fr.json';
 import en from './locales/en.json';
 import sw from './locales/sw.json';
+import ln from './locales/ln.json';
 
 const savedLocale = localStorage.getItem('mahubiri-locale') || 'fr';
 
@@ -12,7 +13,7 @@ const i18n = createI18n({
     legacy: false,
     locale: savedLocale,
     fallbackLocale: 'fr',
-    messages: { fr, en, sw },
+    messages: { fr, en, sw, ln },
     globalInjection: true,
 });
 
@@ -37,4 +38,5 @@ export const availableLocales = [
     { code: 'fr', label: 'Français', flag: '🇫🇷' },
     { code: 'en', label: 'English', flag: '🇬🇧' },
     { code: 'sw', label: 'Kiswahili', flag: '🇹🇿' },
+    { code: 'ln', label: 'Lingála', flag: '🇨🇩' },
 ];

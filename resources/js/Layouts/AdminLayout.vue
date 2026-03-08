@@ -81,6 +81,25 @@ const markAllAsRead = async () => {
     }
 };
 
+const removeNotification = async (notif, event) => {
+    event.stopPropagation();
+    try {
+        await fetch(`/admin/notifications/${notif.id}`, {
+            method: 'DELETE',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-XSRF-TOKEN': decodeURIComponent(document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] ?? ''),
+            },
+        });
+        notifications.value = notifications.value.filter(n => n.id !== notif.id);
+        router.reload({ only: ['notifications'] });
+    } catch (e) {
+        console.error('Failed to remove notification', e);
+    }
+};
+
 const notifIcon = (type) => {
     const icons = {
         new_church: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
@@ -182,7 +201,7 @@ onUnmounted(() => {
 });
 
 // Current date for header — reacts to locale changes
-const localeMap = { fr: 'fr-FR', en: 'en-GB', sw: 'sw-TZ' };
+const localeMap = { fr: 'fr-FR', en: 'en-GB', sw: 'sw-TZ', ln: 'ln-CD' };
 const currentDate = computed(() => {
     return new Date().toLocaleDateString(localeMap[locale.value] || 'fr-FR', {
         weekday: 'long',
@@ -306,6 +325,7 @@ const currentDate = computed(() => {
                 />
 
                 <SidebarItem
+                    v-if="isChurchAdmin"
                     href="/admin/donations/create"
                     :label="t('nav.makeDonation')"
                     icon="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
@@ -359,8 +379,9 @@ const currentDate = computed(() => {
 
             <!-- User -->
             <div class="border-t border-gray-100 dark:border-gray-700/50 p-3">
-                <div
-                    class="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                <Link
+                    href="/admin/profile"
+                    class="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors no-underline"
                     :class="sidebarCollapsed ? 'justify-center' : ''"
                 >
                     <div class="flex items-center justify-center w-9 h-9 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex-shrink-0 ring-2 ring-primary/10">
@@ -374,7 +395,7 @@ const currentDate = computed(() => {
                             <p class="text-[11px] text-gray-400 dark:text-gray-500 truncate">{{ user?.email }}</p>
                         </div>
                         <button
-                            @click="confirmLogout"
+                            @click.prevent.stop="confirmLogout"
                             class="p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 transition-all duration-200"
                             title="Déconnexion"
                         >
@@ -386,7 +407,7 @@ const currentDate = computed(() => {
                     <!-- Logout button when sidebar is collapsed -->
                     <button
                         v-if="sidebarCollapsed"
-                        @click="confirmLogout"
+                        @click.prevent.stop="confirmLogout"
                         class="p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 transition-all duration-200"
                         title="Déconnexion"
                     >
@@ -394,7 +415,7 @@ const currentDate = computed(() => {
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                         </svg>
                     </button>
-                </div>
+                </Link>
             </div>
         </aside>
 
@@ -496,7 +517,7 @@ const currentDate = computed(() => {
                                                 v-for="notif in notifications"
                                                 :key="notif.id"
                                                 @click="markAsRead(notif); notif.action_url && router.visit(notif.action_url);"
-                                                class="w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-gray-50/80 transition-colors"
+                                                class="group/notif w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-gray-50/80 transition-colors"
                                                 :class="{ 'bg-primary/3': !notif.read_at }"
                                             >
                                                 <div class="flex items-center justify-center w-9 h-9 rounded-lg shrink-0" :class="notifColor(notif.type)">
@@ -509,7 +530,18 @@ const currentDate = computed(() => {
                                                     <p class="text-[12px] text-gray-500 mt-0.5 line-clamp-2">{{ notif.message }}</p>
                                                     <p class="text-[11px] text-gray-400 mt-1">{{ notif.created_at }}</p>
                                                 </div>
-                                                <span v-if="!notif.read_at" class="w-2 h-2 rounded-full bg-primary shrink-0 mt-1.5"></span>
+                                                <div class="flex items-center gap-1.5 shrink-0 mt-1">
+                                                    <span v-if="!notif.read_at" class="w-2 h-2 rounded-full bg-primary"></span>
+                                                    <button
+                                                        @click="removeNotification(notif, $event)"
+                                                        class="p-1 rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors opacity-0 group-hover/notif:opacity-100"
+                                                        :title="t('layout.removeNotification')"
+                                                    >
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                                        </svg>
+                                                    </button>
+                                                </div>
                                             </button>
                                         </div>
                                     </div>
@@ -520,11 +552,16 @@ const currentDate = computed(() => {
                         <!-- Locale switcher -->
                         <LocaleSwitcher />
 
-                        <!-- Admin badge -->
-                        <span class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-primary/10 text-primary ring-1 ring-primary/20">
-                            <span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
-                            {{ t('layout.admin') }}
-                        </span>
+                        <!-- Profile link -->
+                        <Link
+                            href="/admin/profile"
+                            class="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-primary/10 text-primary ring-1 ring-primary/20 hover:bg-primary/20 transition-colors no-underline"
+                        >
+                            <span class="flex items-center justify-center w-5 h-5 rounded-full bg-primary/20 text-[10px] font-bold">
+                                {{ user?.name?.charAt(0)?.toUpperCase() }}
+                            </span>
+                            {{ user?.name?.split(' ')[0] }}
+                        </Link>
                     </div>
                 </div>
             </header>

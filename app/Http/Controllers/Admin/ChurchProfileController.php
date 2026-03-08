@@ -105,7 +105,8 @@ class ChurchProfileController extends Controller
             if ($church->logo_url) {
                 $fileUploadService->deleteFile($church->logo_url, 'image');
             }
-            $validated['logo_url'] = $fileUploadService->handleImageUpload($request->file('logo'), 'logos');
+            $ownerFolder = 'churches/' . $church->getStorageFolder();
+            $validated['logo_url'] = $fileUploadService->handleImageUpload($request->file('logo'), 'logos', $ownerFolder);
         } elseif ($request->boolean('remove_logo') && $church->logo_url) {
             $fileUploadService->deleteFile($church->logo_url, 'image');
             $validated['logo_url'] = null;

@@ -124,15 +124,21 @@ class ChurchController extends Controller
 
         $validated = $request->validated();
 
-        // Handle logo upload if present
-        if (!empty($validated['logo'])) {
-            $validated['logo_url'] = $this->uploadService->handleImageUpload($validated['logo'], 'church_logos');
-            unset($validated['logo']);
-        }
+        // Handle logo upload if present (upload after creation so we have the church slug)
         // Add the authenticated user as creator
         $validated['created_by'] = Auth::id();
 
+        // Temporarily remove logo from validated data
+        $logoData = $validated['logo'] ?? null;
+        unset($validated['logo']);
+
         $church = Church::create($validated);
+
+        // Now upload logo with the church's storage folder
+        if ($logoData) {
+            $ownerFolder = 'churches/' . $church->getStorageFolder();
+            $church->update(['logo_url' => $this->uploadService->handleImageUpload($logoData, 'church_logos', $ownerFolder)]);
+        }
         $church->loadCount('sermons')
             ->loadCount(['sermonViews as total_views'])
             ->load('createdBy');
@@ -209,7 +215,8 @@ class ChurchController extends Controller
             if ($church->logo_url) {
                 $this->uploadService->deleteFile($church->logo_url);
             }
-            $validated['logo_url'] = $this->uploadService->handleImageUpload($validated['logo'], 'church_logos');
+            $ownerFolder = 'churches/' . $church->getStorageFolder();
+            $validated['logo_url'] = $this->uploadService->handleImageUpload($validated['logo'], 'church_logos', $ownerFolder);
             unset($validated['logo']);
         }
 

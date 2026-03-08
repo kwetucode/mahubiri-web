@@ -49,6 +49,7 @@ const navigate = () => {
         preserveState: true,
         preserveScroll: true,
         replace: true,
+        only: ['categories', 'filters'],
         onFinish: () => {
             tableLoading.value = false;
         },

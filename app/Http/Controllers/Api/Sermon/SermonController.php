@@ -410,6 +410,26 @@ class SermonController extends Controller
      */
     private function handleFileUploads(array &$validated, ?Sermon $existingSermon = null): void
     {
+        // Determine the owner folder based on church or preacher
+        $ownerFolder = null;
+        if (!empty($validated['church_id'])) {
+            $church = Church::find($validated['church_id']);
+            if ($church) {
+                $ownerFolder = 'churches/' . $church->getStorageFolder();
+            }
+        } elseif (!empty($validated['preacher_profile_id'])) {
+            $preacher = PreacherProfile::find($validated['preacher_profile_id']);
+            if ($preacher) {
+                $ownerFolder = 'preachers/' . $preacher->getStorageFolder();
+            }
+        } elseif ($existingSermon) {
+            if ($existingSermon->church_id && $existingSermon->church) {
+                $ownerFolder = 'churches/' . $existingSermon->church->getStorageFolder();
+            } elseif ($existingSermon->preacher_profile_id && $existingSermon->preacherProfile) {
+                $ownerFolder = 'preachers/' . $existingSermon->preacherProfile->getStorageFolder();
+            }
+        }
+
         // Handle audio upload (base64 or file)
         if (!empty($validated['audio'])) {
             // Delete old audio if updating
@@ -418,7 +438,7 @@ class SermonController extends Controller
                 Log::info('Old audio file deleted', ['audio_url' => $existingSermon->audio_url]);
             }
             // Handle base64 or file audio and extract meta
-            $audioMeta = $this->uploadService->handleAudioUploadWithMeta($validated['audio']);
+            $audioMeta = $this->uploadService->handleAudioUploadWithMeta($validated['audio'], $ownerFolder);
             foreach (
                 [
                     'audio_url',
@@ -437,7 +457,7 @@ class SermonController extends Controller
             unset($validated['audio']);
             Log::info('New audio file uploaded', ['audio_url' => $validated['audio_url'], 'meta' => $audioMeta]);
         } elseif (!empty($validated['audio_file'])) {
-            $audioMeta = $this->uploadService->handleAudioUploadWithMeta($validated['audio_file']);
+            $audioMeta = $this->uploadService->handleAudioUploadWithMeta($validated['audio_file'], $ownerFolder);
             foreach (
                 [
                     'audio_url',
@@ -469,7 +489,7 @@ class SermonController extends Controller
             }
 
             // Upload the cover image directly (base64 or file)
-            $validated['cover_url'] = $this->uploadService->handleImageUpload($validated['cover'], 'covers');
+            $validated['cover_url'] = $this->uploadService->handleImageUpload($validated['cover'], 'covers', $ownerFolder);
             unset($validated['cover']);
             Log::info('New cover image uploaded', ['cover_url' => $validated['cover_url']]);
         }

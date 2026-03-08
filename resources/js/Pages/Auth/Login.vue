@@ -1,6 +1,9 @@
 <script setup>
-import { ref } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import { ref, computed } from 'vue';
+import { useForm, usePage } from '@inertiajs/vue3';
+
+const page = usePage();
+const stats = computed(() => page.props.stats || {});
 
 const form = useForm({
     email: '',
@@ -204,17 +207,17 @@ const features = [
                 <!-- Stats -->
                 <div class="right-stats">
                     <div class="right-stat">
-                        <span class="right-stat-val">1000+</span>
+                        <span class="right-stat-val">{{ stats.sermons?.toLocaleString() ?? '—' }}</span>
                         <span class="right-stat-label">Prédications</span>
                     </div>
                     <div class="right-stat-divider"></div>
                     <div class="right-stat">
-                        <span class="right-stat-val">50+</span>
+                        <span class="right-stat-val">{{ stats.churches?.toLocaleString() ?? '—' }}</span>
                         <span class="right-stat-label">Églises</span>
                     </div>
                     <div class="right-stat-divider"></div>
                     <div class="right-stat">
-                        <span class="right-stat-val">5000+</span>
+                        <span class="right-stat-val">{{ stats.users?.toLocaleString() ?? '—' }}</span>
                         <span class="right-stat-label">Utilisateurs</span>
                     </div>
                 </div>

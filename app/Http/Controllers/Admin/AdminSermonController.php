@@ -162,9 +162,12 @@ class AdminSermonController extends Controller
                 'is_published' => $validated['is_published'] ?? false,
             ];
 
+            // Determine the owner folder for file storage
+            $ownerFolder = 'churches/' . $church->getStorageFolder();
+
             // Handle audio upload with meta extraction
             if ($request->hasFile('audio_file')) {
-                $audioMeta = $this->uploadService->handleAudioUploadWithMeta($request->file('audio_file'));
+                $audioMeta = $this->uploadService->handleAudioUploadWithMeta($request->file('audio_file'), $ownerFolder);
                 foreach (['audio_url', 'duration', 'mime_type', 'size', 'audio_bitrate', 'duration_formatted', 'audio_format'] as $field) {
                     if (isset($audioMeta[$field])) {
                         $data[$field] = $audioMeta[$field];
@@ -175,7 +178,7 @@ class AdminSermonController extends Controller
 
             // Handle cover image upload
             if ($request->hasFile('cover_file')) {
-                $data['cover_url'] = $this->uploadService->handleImageUpload($request->file('cover_file'), 'covers');
+                $data['cover_url'] = $this->uploadService->handleImageUpload($request->file('cover_file'), 'covers', $ownerFolder);
                 Log::info('Admin: Cover uploaded', ['cover_url' => $data['cover_url']]);
             }
 
@@ -264,6 +267,10 @@ class AdminSermonController extends Controller
                 'is_published' => $validated['is_published'] ?? false,
             ];
 
+            // Determine the owner folder for file storage
+            $church = $sermon->church;
+            $ownerFolder = $church ? 'churches/' . $church->getStorageFolder() : null;
+
             // Handle new audio file
             if ($request->hasFile('audio_file')) {
                 // Delete old audio
@@ -272,7 +279,7 @@ class AdminSermonController extends Controller
                     Log::info('Admin: Old audio deleted', ['audio_url' => $sermon->audio_url]);
                 }
 
-                $audioMeta = $this->uploadService->handleAudioUploadWithMeta($request->file('audio_file'));
+                $audioMeta = $this->uploadService->handleAudioUploadWithMeta($request->file('audio_file'), $ownerFolder);
                 foreach (['audio_url', 'duration', 'mime_type', 'size', 'audio_bitrate', 'duration_formatted', 'audio_format'] as $field) {
                     if (isset($audioMeta[$field])) {
                         $data[$field] = $audioMeta[$field];
@@ -289,7 +296,7 @@ class AdminSermonController extends Controller
                     Log::info('Admin: Old cover deleted', ['cover_url' => $sermon->cover_url]);
                 }
 
-                $data['cover_url'] = $this->uploadService->handleImageUpload($request->file('cover_file'), 'covers');
+                $data['cover_url'] = $this->uploadService->handleImageUpload($request->file('cover_file'), 'covers', $ownerFolder);
                 Log::info('Admin: New cover uploaded', ['cover_url' => $data['cover_url']]);
             }
 

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class PreacherProfile extends Model
 {
@@ -95,5 +96,14 @@ class PreacherProfile extends Model
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
+    }
+
+    /**
+     * Get the storage folder name for this preacher.
+     * Uses slugified ministry_name.
+     */
+    public function getStorageFolder(): string
+    {
+        return Str::slug($this->ministry_name ?: ('preacher-' . $this->id));
     }
 }

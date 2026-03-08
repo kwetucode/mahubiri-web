@@ -1,17 +1,38 @@
 <script setup>
-import { computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import LocaleSwitcher from '@/Components/LocaleSwitcher.vue';
 
 const { t } = useI18n();
 
+const isDark = ref(false);
+
 onMounted(() => {
     document.body.classList.add('welcome-body');
+    const saved = localStorage.getItem('welcome-theme');
+    if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        isDark.value = true;
+    }
+    applyTheme();
 });
 onUnmounted(() => {
-    document.body.classList.remove('welcome-body');
+    document.body.classList.remove('welcome-body', 'welcome-dark');
 });
+
+const toggleTheme = () => {
+    isDark.value = !isDark.value;
+    localStorage.setItem('welcome-theme', isDark.value ? 'dark' : 'light');
+    applyTheme();
+};
+
+const applyTheme = () => {
+    if (isDark.value) {
+        document.body.classList.add('welcome-dark');
+    } else {
+        document.body.classList.remove('welcome-dark');
+    }
+};
 
 const features = computed(() => [
     { icon: '🎧', title: t('welcome.featureListenTitle'), desc: t('welcome.featureListenDesc'), bg: 'rgba(139,111,207,.1)' },
@@ -54,6 +75,22 @@ const handleImageError = (e) => {
                 <div class="nav-actions">
                     <!-- Language switcher -->
                     <LocaleSwitcher />
+
+                    <!-- Theme toggle -->
+                    <button @click="toggleTheme" class="theme-toggle" :title="isDark ? 'Mode clair' : 'Mode sombre'">
+                        <!-- Sun icon (shown in dark mode) -->
+                        <svg v-if="isDark" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="5"/>
+                            <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                            <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                        </svg>
+                        <!-- Moon icon (shown in light mode) -->
+                        <svg v-else width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+                        </svg>
+                    </button>
 
                     <span class="nav-badge">
                         <span style="width:5px;height:5px;border-radius:50%;background:var(--accent);"></span>
@@ -193,7 +230,7 @@ const handleImageError = (e) => {
         <footer class="footer">
             <div class="container">
                 <p>&copy; {{ new Date().getFullYear() }} <span>Mahubiri</span>. {{ t('welcome.footerRights') }}</p>
-                <p class="sub">{{ t('welcome.footerBeta') }}</p>
+                <p class="sub">{{ t('welcome.footerBeta') }} — v1.0.16</p>
             </div>
         </footer>
     </div>
@@ -208,6 +245,12 @@ const handleImageError = (e) => {
         color: #1a1a2e;
         overflow-x: hidden;
         -webkit-font-smoothing: antialiased;
+        transition: background .3s, color .3s;
+    }
+
+    body.welcome-dark {
+        background: #0f0e17;
+        color: #e0dde7;
     }
 
     .welcome-page {
@@ -219,6 +262,42 @@ const handleImageError = (e) => {
         --wp-muted: #6b7280;
         --wp-card: #ffffff;
         --wp-border: rgba(107, 78, 175, 0.08);
+    }
+
+    body.welcome-dark .welcome-page {
+        --wp-primary: #9C7DC7;
+        --wp-primary-light: #b89ddb;
+        --wp-accent: #E8B77D;
+        --wp-bg: #0f0e17;
+        --wp-text: #e0dde7;
+        --wp-muted: #9ca3af;
+        --wp-card: #1a1928;
+        --wp-border: rgba(156, 125, 199, 0.12);
+    }
+
+    body.welcome-dark .welcome-page .hero h1 { color: #f0ecf7; }
+    body.welcome-dark .welcome-page .section-header h2 { color: #f0ecf7; }
+    body.welcome-dark .welcome-page .feature-card h3 { color: #f0ecf7; }
+    body.welcome-dark .welcome-page .contact-value { color: #f0ecf7; }
+    body.welcome-dark .welcome-page .stat-val { color: var(--wp-primary); }
+    body.welcome-dark .welcome-page .nav-logo { color: var(--wp-primary); }
+    body.welcome-dark .welcome-page .btn-primary { background: var(--wp-primary); box-shadow: 0 4px 14px rgba(156, 125, 199, 0.3); }
+    body.welcome-dark .welcome-page .btn-primary:hover { box-shadow: 0 8px 24px rgba(156, 125, 199, 0.35); }
+    body.welcome-dark .welcome-page .btn-ghost { color: var(--wp-muted); border-color: rgba(156, 125, 199, 0.2); }
+    body.welcome-dark .welcome-page .btn-ghost:hover { border-color: var(--wp-primary); color: var(--wp-primary); background: rgba(156, 125, 199, 0.06); }
+    body.welcome-dark .welcome-page .btn-white { background: #1a1928; color: var(--wp-primary); }
+    body.welcome-dark .welcome-page .blob { opacity: .15; }
+    body.welcome-dark .welcome-page .footer { border-top-color: var(--wp-border); }
+
+    .welcome-page .theme-toggle {
+        display: flex; align-items: center; justify-content: center;
+        width: 38px; height: 38px; border-radius: 12px; border: 1.5px solid var(--wp-border);
+        background: var(--wp-card); color: var(--wp-muted); cursor: pointer;
+        transition: all .3s cubic-bezier(.4,0,.2,1);
+    }
+    .welcome-page .theme-toggle:hover {
+        border-color: var(--wp-primary); color: var(--wp-primary);
+        background: rgba(107, 78, 175, 0.06);
     }
 
     .welcome-page .bg-blobs { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
@@ -278,8 +357,10 @@ const handleImageError = (e) => {
     .welcome-page .feature-card p { font-size: 14px; color: var(--wp-muted); line-height: 1.65; position: relative; z-index: 1; }
 
     .welcome-page .hero-image-section { padding: 0 0 100px; }
-    .welcome-page .hero-image-wrapper { max-width: 960px; margin: 0 auto; border-radius: 24px; overflow: hidden; transition: transform .5s cubic-bezier(.4,0,.2,1); }
-    .welcome-page .hero-image-wrapper:hover { transform: translateY(-6px); }
+    .welcome-page .hero-image-wrapper { max-width: 960px; margin: 0 auto; border-radius: 24px; overflow: hidden; transition: all .5s cubic-bezier(.4,0,.2,1); background: var(--wp-card); border: 1px solid var(--wp-border); box-shadow: 0 4px 24px rgba(0,0,0,.06); }
+    .welcome-page .hero-image-wrapper:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(0,0,0,.1); }
+    body.welcome-dark .welcome-page .hero-image-wrapper { box-shadow: 0 4px 24px rgba(0,0,0,.3); }
+    body.welcome-dark .welcome-page .hero-image-wrapper:hover { box-shadow: 0 16px 40px rgba(0,0,0,.4); }
     .welcome-page .hero-image-wrapper img { width: 100%; height: auto; display: block; object-fit: cover; }
 
     .welcome-page .cta-section { padding: 80px 0; }

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
 class Church extends Model
 {
@@ -71,6 +72,19 @@ class Church extends Model
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
+    }
+
+    /**
+     * Get the storage folder name for this church.
+     * Uses abbreviation (lowercase) if available, otherwise slugified name.
+     */
+    public function getStorageFolder(): string
+    {
+        if (!empty($this->abbreviation)) {
+            return Str::slug(Str::lower($this->abbreviation));
+        }
+
+        return Str::slug($this->name);
     }
 
     /**

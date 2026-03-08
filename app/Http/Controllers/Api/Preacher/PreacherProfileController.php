@@ -101,12 +101,28 @@ class PreacherProfileController extends Controller
         try {
             // Handle avatar upload if provided
             $avatarUrl = null;
+
+            $preacherProfile = PreacherProfile::create([
+                'user_id' => $user->id,
+                'ministry_name' => $request->ministry_name,
+                'ministry_type' => $request->ministry_type,
+                'avatar_url' => null,
+                'country_name' => $request->country_name,
+                'country_code' => $request->country_code,
+                'city' => $request->city,
+                'social_links' => $request->social_links,
+            ]);
+
+            // Upload avatar after creation so we have the profile slug
             if ($request->filled('avatar_url')) {
                 try {
+                    $ownerFolder = 'preachers/' . $preacherProfile->getStorageFolder();
                     $avatarUrl = $this->imageUploadService->handleImageUpload(
                         $request->avatar_url,
-                        'avatars'
+                        'avatars',
+                        $ownerFolder
                     );
+                    $preacherProfile->update(['avatar_url' => $avatarUrl]);
                 } catch (\InvalidArgumentException $e) {
                     return response()->json([
                         'success' => false,
@@ -114,17 +130,6 @@ class PreacherProfileController extends Controller
                     ], 422);
                 }
             }
-
-            $preacherProfile = PreacherProfile::create([
-                'user_id' => $user->id,
-                'ministry_name' => $request->ministry_name,
-                'ministry_type' => $request->ministry_type,
-                'avatar_url' => $avatarUrl,
-                'country_name' => $request->country_name,
-                'country_code' => $request->country_code,
-                'city' => $request->city,
-                'social_links' => $request->social_links,
-            ]);
 
             // Update user role to INDEPENDENT_PREACHER if not already set
             if ($user->role_id !== RoleType::INDEPENDENT_PREACHER) {
@@ -216,9 +221,11 @@ class PreacherProfileController extends Controller
 
             if ($request->filled('avatar_url')) {
                 try {
+                    $ownerFolder = 'preachers/' . $preacherProfile->getStorageFolder();
                     $updateData['avatar_url'] = $this->imageUploadService->handleImageUpload(
                         $request->avatar_url,
-                        'avatars'
+                        'avatars',
+                        $ownerFolder
                     );
                 } catch (\InvalidArgumentException $e) {
                     return response()->json([

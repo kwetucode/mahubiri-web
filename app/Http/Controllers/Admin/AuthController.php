@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Enums\RoleType;
+use App\Models\Church;
+use App\Models\Sermon;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,7 +20,13 @@ class AuthController extends Controller
      */
     public function showLogin()
     {
-        return Inertia::render('Auth/Login');
+        return Inertia::render('Auth/Login', [
+            'stats' => [
+                'sermons' => Sermon::count(),
+                'churches' => Church::count(),
+                'users' => User::count(),
+            ],
+        ]);
     }
 
     /**

@@ -42,6 +42,7 @@ const navigate = () => {
         preserveState: true,
         preserveScroll: true,
         replace: true,
+        only: ['churches', 'preachers', 'filters'],
         onFinish: () => { tableLoading.value = false; },
     });
 };

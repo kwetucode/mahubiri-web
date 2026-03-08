@@ -14,26 +14,28 @@ class AudioUploadService
      * Handle audio upload from either base64 string or UploadedFile
      *
      * @param string|UploadedFile $audio Base64 encoded audio data or UploadedFile
+     * @param string|null $ownerFolder Owner folder path (e.g. 'churches/cepac' or 'preachers/ministry-name')
      * @return string The URL of the uploaded audio file
      * @throws InvalidArgumentException
      */
-    public function handleAudioUpload(string|UploadedFile $audio): string
+    public function handleAudioUpload(string|UploadedFile $audio, ?string $ownerFolder = null): string
     {
         if ($audio instanceof UploadedFile) {
-            return $this->handleUploadedAudioFile($audio);
+            return $this->handleUploadedAudioFile($audio, $ownerFolder);
         }
 
-        return $this->handleBase64Audio($audio);
+        return $this->handleBase64Audio($audio, $ownerFolder);
     }
 
     /**
      * Handle base64 audio upload and return the URL
      *
      * @param string $base64Audio Base64 encoded audio data
+     * @param string|null $ownerFolder Owner folder path
      * @return string The URL of the uploaded audio file
      * @throws InvalidArgumentException
      */
-    private function handleBase64Audio(string $base64Audio): string
+    private function handleBase64Audio(string $base64Audio, ?string $ownerFolder = null): string
     {
         // Extract the audio data from base64
         if (preg_match('/^data:audio\/(\w+);base64,/', $base64Audio, $matches)) {
@@ -49,8 +51,8 @@ class AudioUploadService
                 throw new InvalidArgumentException('Audio file too large. Maximum size is 100MB');
             }
 
-            // Generate unique filename with year folder structure
-            $filename = 'sermons/audio/' . date('Y') . '/' . Str::random(32) . '_sermon.' . $extension;
+            // Generate unique filename with owner-based folder structure
+            $filename = $this->generateAudioPath($ownerFolder, $extension);
 
             // Store the audio file
             Storage::disk('public')->put($filename, $audioData);
@@ -66,10 +68,11 @@ class AudioUploadService
      * Handle uploaded audio file and return the URL
      *
      * @param UploadedFile $audio Uploaded audio file
+     * @param string|null $ownerFolder Owner folder path
      * @return string The URL of the uploaded audio file
      * @throws InvalidArgumentException
      */
-    private function handleUploadedAudioFile(UploadedFile $audio): string
+    private function handleUploadedAudioFile(UploadedFile $audio, ?string $ownerFolder = null): string
     {
         // Validate the uploaded file
         $this->validateUploadedAudioFile($audio);
@@ -78,14 +81,32 @@ class AudioUploadService
         $extension = $audio->getClientOriginalExtension();
         $extension = $this->normalizeAudioExtension($extension);
 
-        // Generate unique filename with timestamp (use only year for folder structure)
-        $filename = 'sermons/audio/' . date('Y') . '/' . Str::random(32) . '_sermon.' . $extension;
+        // Generate unique filename with owner-based folder structure
+        $filename = $this->generateAudioPath($ownerFolder, $extension);
 
         // Store the audio file
         $audio->storeAs('', $filename, 'public');
 
         // Return the relative path (not full URL)
         return 'storage/' . $filename;
+    }
+
+    /**
+     * Generate the audio file storage path.
+     *
+     * @param string|null $ownerFolder Owner folder (e.g. 'churches/cepac')
+     * @param string $extension File extension
+     * @return string
+     */
+    private function generateAudioPath(?string $ownerFolder, string $extension): string
+    {
+        if ($ownerFolder) {
+            // New structure: {ownerFolder}/sermons/audio/{random}_sermon.{ext}
+            return $ownerFolder . '/sermons/audio/' . Str::random(32) . '_sermon.' . $extension;
+        }
+
+        // Legacy fallback: sermons/audio/{YEAR}/{random}_sermon.{ext}
+        return 'sermons/audio/' . date('Y') . '/' . Str::random(32) . '_sermon.' . $extension;
     }
 
     /**

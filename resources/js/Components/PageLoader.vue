@@ -37,8 +37,18 @@ const finishLoading = () => {
 let removeStart, removeFinish;
 
 onMounted(() => {
-    removeStart = router.on('start', startLoading);
-    removeFinish = router.on('finish', finishLoading);
+    removeStart = router.on('start', (event) => {
+        const visit = event.detail.visit;
+        // Only show global loader for full page navigations (GET), not partial reloads
+        if (visit.method === 'get' && !visit.only?.length) {
+            startLoading();
+        }
+    });
+    removeFinish = router.on('finish', () => {
+        if (loading.value) {
+            finishLoading();
+        }
+    });
 });
 
 onUnmounted(() => {

@@ -42,7 +42,8 @@ class UpdateLogoChurchController extends Controller
             }
 
             // Upload new logo
-            $logoUrl = $this->uploadService->handleImageUpload($request->logo, 'church_logos');
+            $ownerFolder = 'churches/' . $church->getStorageFolder();
+            $logoUrl = $this->uploadService->handleImageUpload($request->logo, 'church_logos', $ownerFolder);
 
             // Update church with new logo URL
             $church->update(['logo_url' => $logoUrl]);
