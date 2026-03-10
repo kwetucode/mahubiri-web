@@ -733,6 +733,10 @@
         "contactSuccessTitle": "Nsango etindami!",
         "contactSuccessDesc": "Merci po obengelaki biso. Tokozongisela yo noki.",
         "contactSuccessClose": "Kanga",
+        "downloadTitle": "Kokitisa Aplikasyo",
+        "downloadSubtitle": "Yoká malobeli olingaka esika nyonso, ntango nyonso. Ezali na Google Play.",
+        "downloadCta": "Kokitisa na Google Play",
+        "downloadQrHint": "Skanné kode QR mpo na kokitisa",
         "footerRights": "Makoki nyonso ebombami.",
         "footerBeta": "Aplikasyo ezali na etape ya komeka — Biloko mosusu ekoki kobongwana."
     },

@@ -733,6 +733,10 @@
         "contactSuccessTitle": "Ujumbe umetumwa!",
         "contactSuccessDesc": "Asante kwa kuwasiliana nasi. Tutakujibu hivi karibuni.",
         "contactSuccessClose": "Funga",
+        "downloadTitle": "Pakua Programu",
+        "downloadSubtitle": "Sikiliza mahubiri unayopenda popote, wakati wowote. Inapatikana kwenye Google Play.",
+        "downloadCta": "Pakua kwenye Google Play",
+        "downloadQrHint": "Changanua msimbo wa QR kupakua",
         "footerRights": "Haki zote zimehifadhiwa.",
         "footerBeta": "Programu iko katika hatua ya majaribio — Vipengele vingine vinaweza kubadilika."
     },

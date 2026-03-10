@@ -4,6 +4,9 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import { useTheme } from '@/composables/useTheme';
 import LocaleSwitcher from '@/Components/LocaleSwitcher.vue';
+import QRCode from 'qrcode';
+
+const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.app.mahubiri';
 
 const props = defineProps({
     stats: Object,
@@ -11,6 +14,8 @@ const props = defineProps({
 
 const { t } = useI18n();
 const { theme, toggleTheme } = useTheme();
+
+const qrCodeDataUrl = ref('');
 
 const applyWelcomeClass = () => {
     if (theme.value === 'dark') {
@@ -23,6 +28,8 @@ const applyWelcomeClass = () => {
 onMounted(() => {
     document.body.classList.add('welcome-body');
     applyWelcomeClass();
+    QRCode.toDataURL(PLAY_STORE_URL, { width: 200, margin: 2, color: { dark: '#1a1a2e', light: '#ffffff' } })
+        .then(url => { qrCodeDataUrl.value = url; });
 });
 onUnmounted(() => {
     document.body.classList.remove('welcome-body', 'welcome-dark');
@@ -138,44 +145,67 @@ const submitContact = () => {
 
             <!-- Hero -->
             <section class="hero">
-                <div class="hero-pill">
-                    <span class="dot"></span>
-                    {{ t('welcome.heroPill') }}
+                <div class="hero-bg">
+                    <img src="/hero.png" alt="" @error="handleImageError" />
+                    <div class="hero-overlay"></div>
                 </div>
-                <h1>
-                    {{ t('welcome.heroTitle1') }}<br><span class="gradient">{{ t('welcome.heroTitle2') }}</span>
-                </h1>
-                <p>{{ t('welcome.heroDescription') }}</p>
-                <div class="hero-cta">
-                    <Link href="/admin/login" class="btn btn-primary">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                            <path d="M7 11V7a5 5 0 0110 0v4"/>
-                        </svg>
-                        {{ t('welcome.adminSpace') }}
-                    </Link>
-                    <a href="#features" class="btn btn-ghost">
-                        {{ t('welcome.learnMore') }}
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="5" y1="12" x2="19" y2="12"/>
-                            <polyline points="12 5 19 12 12 19"/>
-                        </svg>
-                    </a>
-                </div>
+                <div class="hero-inner">
+                    <div class="hero-pill">
+                        <span class="dot"></span>
+                        {{ t('welcome.heroPill') }}
+                    </div>
+                    <h1>
+                        {{ t('welcome.heroTitle1') }}<br><span class="gradient">{{ t('welcome.heroTitle2') }}</span>
+                    </h1>
+                    <p>{{ t('welcome.heroDescription') }}</p>
+                    <div class="hero-cta">
+                        <Link href="/admin/login" class="btn btn-primary">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                <path d="M7 11V7a5 5 0 0110 0v4"/>
+                            </svg>
+                            {{ t('welcome.adminSpace') }}
+                        </Link>
+                        <a href="#features" class="btn btn-ghost hero-ghost">
+                            {{ t('welcome.learnMore') }}
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                                <polyline points="12 5 19 12 12 19"/>
+                            </svg>
+                        </a>
+                    </div>
 
-                <!-- Stats ribbon -->
-                <div class="stats">
-                    <div class="stat">
-                        <div class="stat-val">{{ stats.sermons.toLocaleString() }}</div>
-                        <div class="stat-label">{{ t('welcome.statSermons') }}</div>
+                    <!-- Download -->
+                    <div class="hero-download">
+                        <a :href="PLAY_STORE_URL" target="_blank" rel="noopener noreferrer" class="play-store-badge">
+                            <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
+                                <path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.199l2.302 2.302-2.302 2.302-2.593-2.302 2.593-2.302zM5.864 2.658L16.8 8.99l-2.302 2.302-8.635-8.635z"/>
+                            </svg>
+                            <div>
+                                <span class="play-badge-label">GET IT ON</span>
+                                <span class="play-badge-title">Google Play</span>
+                            </div>
+                        </a>
+                        <div class="qr-code-wrapper">
+                            <img v-if="qrCodeDataUrl" :src="qrCodeDataUrl" alt="QR Code" width="120" height="120" />
+                            <p class="qr-hint">{{ t('welcome.downloadQrHint') }}</p>
+                        </div>
                     </div>
-                    <div class="stat">
-                        <div class="stat-val">{{ stats.preachers }}</div>
-                        <div class="stat-label">{{ t('welcome.statPreachers') }}</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-val">{{ stats.languages }}</div>
-                        <div class="stat-label">{{ t('welcome.statLanguages') }}</div>
+
+                    <!-- Stats ribbon -->
+                    <div class="stats">
+                        <div class="stat">
+                            <div class="stat-val">{{ stats.sermons.toLocaleString() }}</div>
+                            <div class="stat-label">{{ t('welcome.statSermons') }}</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-val">{{ stats.preachers }}</div>
+                            <div class="stat-label">{{ t('welcome.statPreachers') }}</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-val">{{ stats.languages }}</div>
+                            <div class="stat-label">{{ t('welcome.statLanguages') }}</div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -193,18 +223,6 @@ const submitContact = () => {
                         <h3>{{ f.title }}</h3>
                         <p>{{ f.desc }}</p>
                     </div>
-                </div>
-            </section>
-
-            <!-- Hero Image -->
-            <section class="hero-image-section">
-                <div class="section-header">
-                    <h2>{{ t('welcome.previewTitle') }}</h2>
-                    <p>{{ t('welcome.previewSubtitle') }}</p>
-                </div>
-                <div class="hero-image-wrapper">
-                    <img src="/hero.png" alt="Mahubiri"
-                         @error="handleImageError">
                 </div>
             </section>
 
@@ -254,81 +272,82 @@ const submitContact = () => {
                 </div>
             </section>
 
-            <!-- Contact Modal -->
-                <Transition name="modal">
-                    <div v-if="showContactModal" class="modal-overlay" @click.self="closeContactModal">
-                        <div class="modal-content">
-                            <!-- Close button -->
-                            <button type="button" @click="closeContactModal" class="modal-close">
-                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <line x1="18" y1="6" x2="6" y2="18"/>
-                                    <line x1="6" y1="6" x2="18" y2="18"/>
-                                </svg>
-                            </button>
-
-                            <!-- Header -->
-                            <div class="modal-header">
-                                <div class="modal-icon">
-                                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                                    </svg>
-                                </div>
-                                <h3>{{ t('welcome.contactModalTitle') }}</h3>
-                                <p>{{ t('welcome.contactModalSubtitle') }}</p>
-                            </div>
-
-                            <!-- Success message -->
-                            <div v-if="contactSuccess" class="modal-success">
-                                <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
-                                    <polyline points="22 4 12 14.01 9 11.01"/>
-                                </svg>
-                                <h4>{{ t('welcome.contactSuccessTitle') }}</h4>
-                                <p>{{ t('welcome.contactSuccessDesc') }}</p>
-                                <button type="button" @click="closeContactModal" class="btn btn-primary" style="margin-top:16px;">{{ t('welcome.contactSuccessClose') }}</button>
-                            </div>
-
-                            <!-- Form -->
-                            <form v-else @submit.prevent="submitContact" class="modal-form">
-                                <div class="modal-field">
-                                    <label>{{ t('welcome.contactFormName') }}</label>
-                                    <input v-model="contactForm.name" type="text" :placeholder="t('welcome.contactFormNamePlaceholder')" />
-                                    <span v-if="contactForm.errors.name" class="modal-field-error">{{ contactForm.errors.name }}</span>
-                                </div>
-                                <div class="modal-field">
-                                    <label>{{ t('welcome.contactFormEmail') }}</label>
-                                    <input v-model="contactForm.email" type="email" :placeholder="t('welcome.contactFormEmailPlaceholder')" />
-                                    <span v-if="contactForm.errors.email" class="modal-field-error">{{ contactForm.errors.email }}</span>
-                                </div>
-                                <div class="modal-field">
-                                    <label>{{ t('welcome.contactFormSubject') }}</label>
-                                    <input v-model="contactForm.subject" type="text" :placeholder="t('welcome.contactFormSubjectPlaceholder')" />
-                                    <span v-if="contactForm.errors.subject" class="modal-field-error">{{ contactForm.errors.subject }}</span>
-                                </div>
-                                <div class="modal-field">
-                                    <label>{{ t('welcome.contactFormMessage') }}</label>
-                                    <textarea v-model="contactForm.message" rows="4" :placeholder="t('welcome.contactFormMessagePlaceholder')"></textarea>
-                                    <span v-if="contactForm.errors.message" class="modal-field-error">{{ contactForm.errors.message }}</span>
-                                </div>
-                                <button type="submit" :disabled="contactForm.processing" class="btn btn-primary modal-submit">
-                                    <svg v-if="contactForm.processing" class="modal-spinner" viewBox="0 0 24 24">
-                                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" opacity=".25"/>
-                                        <path fill="currentColor" opacity=".75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                                    </svg>
-                                    <span v-if="contactForm.processing">{{ t('welcome.contactFormSending') }}</span>
-                                    <template v-else>
-                                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <line x1="22" y1="2" x2="11" y2="13"/>
-                                            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-                                        </svg>
-                                        {{ t('welcome.contactFormSend') }}
-                                    </template>
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </Transition>
         </div>
+
+        <!-- Contact Modal -->
+        <Transition name="modal">
+            <div v-if="showContactModal" class="modal-overlay" @click.self="closeContactModal">
+                <div class="modal-content">
+                    <!-- Close button -->
+                    <button type="button" @click="closeContactModal" class="modal-close">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"/>
+                            <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                    </button>
+
+                    <!-- Header -->
+                    <div class="modal-header">
+                        <div class="modal-icon">
+                            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <h3>{{ t('welcome.contactModalTitle') }}</h3>
+                        <p>{{ t('welcome.contactModalSubtitle') }}</p>
+                    </div>
+
+                    <!-- Success message -->
+                    <div v-if="contactSuccess" class="modal-success">
+                        <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                        <h4>{{ t('welcome.contactSuccessTitle') }}</h4>
+                        <p>{{ t('welcome.contactSuccessDesc') }}</p>
+                        <button type="button" @click="closeContactModal" class="btn btn-primary" style="margin-top:16px;">{{ t('welcome.contactSuccessClose') }}</button>
+                    </div>
+
+                    <!-- Form -->
+                    <form v-else @submit.prevent="submitContact" class="modal-form">
+                        <div class="modal-field">
+                            <label>{{ t('welcome.contactFormName') }}</label>
+                            <input v-model="contactForm.name" type="text" :placeholder="t('welcome.contactFormNamePlaceholder')" />
+                            <span v-if="contactForm.errors.name" class="modal-field-error">{{ contactForm.errors.name }}</span>
+                        </div>
+                        <div class="modal-field">
+                            <label>{{ t('welcome.contactFormEmail') }}</label>
+                            <input v-model="contactForm.email" type="email" :placeholder="t('welcome.contactFormEmailPlaceholder')" />
+                            <span v-if="contactForm.errors.email" class="modal-field-error">{{ contactForm.errors.email }}</span>
+                        </div>
+                        <div class="modal-field">
+                            <label>{{ t('welcome.contactFormSubject') }}</label>
+                            <input v-model="contactForm.subject" type="text" :placeholder="t('welcome.contactFormSubjectPlaceholder')" />
+                            <span v-if="contactForm.errors.subject" class="modal-field-error">{{ contactForm.errors.subject }}</span>
+                        </div>
+                        <div class="modal-field">
+                            <label>{{ t('welcome.contactFormMessage') }}</label>
+                            <textarea v-model="contactForm.message" rows="4" :placeholder="t('welcome.contactFormMessagePlaceholder')"></textarea>
+                            <span v-if="contactForm.errors.message" class="modal-field-error">{{ contactForm.errors.message }}</span>
+                        </div>
+                        <button type="submit" :disabled="contactForm.processing" class="btn btn-primary modal-submit">
+                            <svg v-if="contactForm.processing" class="modal-spinner" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" opacity=".25"/>
+                                <path fill="currentColor" opacity=".75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                            </svg>
+                            <span v-if="contactForm.processing">{{ t('welcome.contactFormSending') }}</span>
+                            <template v-else>
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="22" y1="2" x2="11" y2="13"/>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                                </svg>
+                                {{ t('welcome.contactFormSend') }}
+                            </template>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </Transition>
 
         <!-- Footer -->
         <footer class="footer">
@@ -379,7 +398,7 @@ const submitContact = () => {
         --wp-border: rgba(156, 125, 199, 0.12);
     }
 
-    body.welcome-dark .welcome-page .hero h1 { color: #f0ecf7; }
+    body.welcome-dark .welcome-page .hero h1 { color: #fff; }
     body.welcome-dark .welcome-page .section-header h2 { color: #f0ecf7; }
     body.welcome-dark .welcome-page .feature-card h3 { color: #f0ecf7; }
     body.welcome-dark .welcome-page .contact-value { color: #f0ecf7; }
@@ -433,13 +452,19 @@ const submitContact = () => {
     .welcome-page .btn-ghost:hover { border-color: var(--wp-primary); color: var(--wp-primary); background: rgba(107, 78, 175, 0.04); }
     .welcome-page .btn svg { width: 16px; height: 16px; flex-shrink: 0; }
 
-    .welcome-page .hero { text-align: center; padding: 80px 0 60px; }
+    .welcome-page .hero { position: relative; text-align: center; padding: 0; overflow: hidden; }
+    .welcome-page .hero-bg { position: absolute; inset: 0; z-index: 0; opacity: 0.10; }
+    .welcome-page .hero-bg img { width: 100%; height: 100%; object-fit: cover; }
+    .welcome-page .hero-overlay { display: none; }
+    .welcome-page .hero-inner { position: relative; z-index: 1; padding: 80px 24px 60px; }
     .welcome-page .hero-pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 18px; border-radius: 999px; background: rgba(107, 78, 175, 0.07); color: var(--wp-primary); font-size: 13px; font-weight: 600; margin-bottom: 28px; animation: wpFadeUp .8s ease both; }
     .welcome-page .hero-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--wp-accent); }
     .welcome-page .hero h1 { font-size: clamp(40px, 7vw, 72px); font-weight: 700; line-height: 1.08; letter-spacing: -1.5px; margin-bottom: 20px; animation: wpFadeUp .8s ease .1s both; }
     .welcome-page .hero h1 .gradient { background: linear-gradient(135deg, var(--wp-primary) 0%, var(--wp-primary-light) 50%, var(--wp-accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
     .welcome-page .hero p { font-size: 18px; color: var(--wp-muted); max-width: 540px; margin: 0 auto 36px; line-height: 1.65; animation: wpFadeUp .8s ease .2s both; }
     .welcome-page .hero-cta { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; animation: wpFadeUp .8s ease .35s both; }
+    .welcome-page .hero .hero-ghost { color: var(--wp-muted); border-color: rgba(107, 78, 175, 0.15); }
+    .welcome-page .hero .hero-ghost:hover { border-color: var(--wp-primary); color: var(--wp-primary); background: rgba(107, 78, 175, 0.04); }
 
     .welcome-page .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--wp-border); border-radius: 20px; overflow: hidden; margin: 60px auto 0; max-width: 680px; box-shadow: 0 1px 3px rgba(0,0,0,.04); animation: wpFadeUp .8s ease .5s both; }
     .welcome-page .stat { background: var(--wp-card); padding: 28px 20px; text-align: center; }
@@ -460,12 +485,21 @@ const submitContact = () => {
     .welcome-page .feature-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; position: relative; z-index: 1; }
     .welcome-page .feature-card p { font-size: 14px; color: var(--wp-muted); line-height: 1.65; position: relative; z-index: 1; }
 
-    .welcome-page .hero-image-section { padding: 0 0 100px; }
-    .welcome-page .hero-image-wrapper { max-width: 960px; margin: 0 auto; border-radius: 24px; overflow: hidden; transition: all .5s cubic-bezier(.4,0,.2,1); background: var(--wp-card); border: 1px solid var(--wp-border); box-shadow: 0 4px 24px rgba(0,0,0,.06); }
-    .welcome-page .hero-image-wrapper:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(0,0,0,.1); }
-    body.welcome-dark .welcome-page .hero-image-wrapper { box-shadow: 0 4px 24px rgba(0,0,0,.3); }
-    body.welcome-dark .welcome-page .hero-image-wrapper:hover { box-shadow: 0 16px 40px rgba(0,0,0,.4); }
-    .welcome-page .hero-image-wrapper img { width: 100%; height: auto; display: block; object-fit: cover; }
+    .welcome-page .hero-download { display: flex; align-items: center; justify-content: center; gap: 36px; flex-wrap: wrap; margin-top: 36px; animation: wpFadeUp .8s ease .45s both; }
+    .welcome-page .play-store-badge {
+        display: inline-flex; align-items: center; gap: 12px;
+        padding: 14px 28px; border-radius: 16px;
+        background: #1a1a2e; color: #fff; text-decoration: none;
+        transition: all .3s cubic-bezier(.4,0,.2,1);
+        box-shadow: 0 4px 14px rgba(0,0,0,.15);
+    }
+    .welcome-page .play-store-badge:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(0,0,0,.25); }
+    body.welcome-dark .welcome-page .play-store-badge { background: #fff; color: #1a1a2e; }
+    .welcome-page .play-badge-label { display: block; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; opacity: .7; line-height: 1; }
+    .welcome-page .play-badge-title { display: block; font-size: 22px; font-weight: 700; line-height: 1.2; }
+    .welcome-page .qr-code-wrapper { text-align: center; }
+    .welcome-page .qr-code-wrapper img { border-radius: 14px; background: #fff; border: 1px solid var(--wp-border); box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+    .welcome-page .qr-hint { font-size: 12px; color: var(--wp-muted); margin-top: 8px; font-weight: 500; }
 
     .welcome-page .cta-section { padding: 80px 0; }
     .welcome-page .cta-box { text-align: center; padding: 60px 40px; border-radius: 28px; position: relative; overflow: hidden; background: linear-gradient(135deg, var(--wp-primary), #8B6FCF); color: #fff; }
@@ -568,14 +602,15 @@ const submitContact = () => {
     }
 
     @media (max-width: 768px) {
-        .welcome-page .hero { padding: 50px 0 40px; }
+        .welcome-page .hero-inner { padding: 50px 20px 40px; }
         .welcome-page .stats { grid-template-columns: repeat(3, 1fr); max-width: 100%; }
         .welcome-page .stat { padding: 20px 12px; }
         .welcome-page .stat-val { font-size: 22px; }
-        .welcome-page .hero-image-wrapper { border-radius: 16px; }
         .welcome-page .contact-grid { grid-template-columns: 1fr; }
         .welcome-page .nav-badge { display: none; }
         .welcome-page .cta-box { padding: 40px 24px; }
         .welcome-page .features-grid { grid-template-columns: 1fr; }
+        .welcome-page .hero-download { gap: 24px; }
+
     }
 </style>

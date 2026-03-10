@@ -733,6 +733,10 @@
         "contactSuccessTitle": "Message sent!",
         "contactSuccessDesc": "Thank you for contacting us. We'll reply very soon.",
         "contactSuccessClose": "Close",
+        "downloadTitle": "Download the App",
+        "downloadSubtitle": "Listen to your favorite sermons anywhere, anytime. Available on Google Play.",
+        "downloadCta": "Get it on Google Play",
+        "downloadQrHint": "Scan the QR code to download",
         "footerRights": "All rights reserved.",
         "footerBeta": "Application in testing phase — Some features may evolve."
     },
