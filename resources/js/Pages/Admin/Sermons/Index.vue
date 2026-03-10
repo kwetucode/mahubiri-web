@@ -422,7 +422,7 @@ const closePlayer = () => {
                         :model-value="row.is_published"
                         :loading="toggleLoading && toggleTarget?.id === row.id"
                         size="sm"
-                        color="emerald"
+                        color="primary"
                         @change="togglePublish(row)"
                     />
                 </template>
@@ -440,7 +440,7 @@ const closePlayer = () => {
                                 ? 'bg-amber-100 text-amber-600 cursor-wait ring-1 ring-amber-200'
                                 : playerSrc === row.audio_url
                                     ? 'bg-primary text-white ring-2 ring-primary/40 shadow-primary/25'
-                                    : 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-emerald-500/25 hover:shadow-md'"
+                                    : 'bg-primary text-white hover:bg-primary-dark shadow-primary/25 hover:shadow-md'"
                             :title="loadingSermonUrl === row.audio_url ? t('common.loading') : playerSrc === row.audio_url ? t('sermons.playing') : t('sermons.listen')"
                         >
                             <svg v-if="loadingSermonUrl === row.audio_url" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -457,7 +457,7 @@ const closePlayer = () => {
                         <!-- Edit button: icon only si publié -->
                         <Link
                             :href="`/admin/sermons/${row.id}/edit`"
-                            class="inline-flex items-center justify-center h-8 rounded-lg bg-blue-500 text-white hover:bg-blue-600 shadow-sm shadow-blue-500/25 hover:shadow-md transition-all duration-200"
+                            class="inline-flex items-center justify-center h-8 rounded-lg bg-primary text-white hover:bg-primary-dark shadow-sm shadow-primary/25 hover:shadow-md transition-all duration-200"
                             :class="row.is_published ? 'w-8' : 'px-2.5 gap-1.5'"
                             :title="t('common.edit')"
                         >

@@ -58,9 +58,9 @@ class AuthController extends Controller
         // Attempt login
         Auth::login($user, $request->boolean('remember'));
 
-        // Verify user is admin or church admin
+        // Verify user has an admin-level role
         $user = Auth::user();
-        if (!in_array($user->role_id, [RoleType::ADMIN, RoleType::CHURCH_ADMIN])) {
+        if (!in_array($user->role_id, [RoleType::ADMIN, RoleType::CHURCH_ADMIN, RoleType::INDEPENDENT_PREACHER])) {
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
@@ -71,6 +71,16 @@ class AuthController extends Controller
         }
 
         $request->session()->regenerate();
+
+        // Redirect to email verification if not verified
+        if (!$user->hasVerifiedEmail()) {
+            return redirect()->route('admin.verification.notice');
+        }
+
+        // Redirect to onboarding if not completed (not for super admin)
+        if ($user->role_id !== \App\Enums\RoleType::ADMIN && is_null($user->onboarding_completed_at)) {
+            return redirect()->route('admin.onboarding.setup');
+        }
 
         return redirect()->intended(route('admin.dashboard'));
     }

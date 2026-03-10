@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, onMounted, onUnmounted, watch } from 'vue';
+import { computed, ref, onMounted, onUnmounted, watch, provide } from 'vue';
 import { usePage, Link, router } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import SidebarItem from '@/Components/SidebarItem.vue';
@@ -13,8 +13,10 @@ const { t, locale } = useI18n();
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
+const entity = computed(() => page.props.auth.entity);
 const isAdmin = computed(() => user.value?.role === 'admin');
 const isChurchAdmin = computed(() => user.value?.role === 'church_admin');
+const isPreacher = computed(() => user.value?.role === 'independent_preacher');
 
 // Notifications
 const unreadCount = computed(() => page.props.notifications?.unread_count ?? 0);
@@ -210,6 +212,8 @@ const currentDate = computed(() => {
         day: 'numeric',
     });
 });
+
+provide('currentDate', currentDate);
 </script>
 
 <template>
@@ -308,7 +312,15 @@ const currentDate = computed(() => {
                 />
 
                 <SidebarItem
-                    v-if="isChurchAdmin"
+                    v-if="isPreacher"
+                    href="/admin/preacher-profile"
+                    :label="t('nav.myProfile')"
+                    :icon="icons.person"
+                    :collapsed="sidebarCollapsed"
+                />
+
+                <SidebarItem
+                    v-if="isChurchAdmin || isPreacher"
                     href="/admin/sermons"
                     :label="t('nav.sermons')"
                     icon="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
@@ -325,7 +337,7 @@ const currentDate = computed(() => {
                 />
 
                 <SidebarItem
-                    v-if="isChurchAdmin"
+                    v-if="isChurchAdmin || isPreacher"
                     href="/admin/donations/create"
                     :label="t('nav.makeDonation')"
                     icon="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
@@ -438,9 +450,27 @@ const currentDate = computed(() => {
                             </svg>
                         </button>
 
-                        <div>
-                            <h2 class="text-lg font-bold text-gray-900 dark:text-white">{{ title }}</h2>
-                            <p class="text-xs text-gray-400 dark:text-gray-500 hidden sm:block capitalize">{{ currentDate }}</p>
+                        <!-- Entity branding (church or preacher) -->
+                        <div
+                            v-if="entity"
+                            class="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-primary/5 dark:bg-primary/10 ring-1 ring-primary/10 dark:ring-primary/20"
+                        >
+                            <img
+                                v-if="entity.logo_url"
+                                :src="entity.logo_url"
+                                :alt="entity.name"
+                                class="w-8 h-8 rounded-lg object-cover ring-1 ring-primary/20"
+                            />
+                            <div
+                                v-else
+                                class="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/15 text-primary text-xs font-bold"
+                            >
+                                {{ entity.name?.charAt(0)?.toUpperCase() }}
+                            </div>
+                            <div class="min-w-0 hidden sm:block">
+                                <p class="text-[13px] font-semibold text-gray-900 dark:text-gray-100 truncate max-w-[160px]">{{ entity.name }}</p>
+                                <p class="text-[10px] text-gray-400 dark:text-gray-500 capitalize">{{ entity.type === 'church' ? t('layout.church') : t('layout.preacher') }}</p>
+                            </div>
                         </div>
                     </div>
 

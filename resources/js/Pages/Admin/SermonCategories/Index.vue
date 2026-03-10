@@ -212,6 +212,7 @@ const totalLabel = computed(() => {
                             {{ t('common.edit') }}
                         </button>
                         <button
+                            v-if="!row.sermons_count"
                             @click="openDeleteModal(row)"
                             class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-red-50 text-red-700 hover:bg-red-100 transition-colors"
                         >

@@ -9,7 +9,10 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider;
 
 class LoginController extends Controller
 {
@@ -56,6 +59,24 @@ class LoginController extends Controller
                     'message' => 'Veuillez vérifier votre adresse email avant de vous connecter.'
                 ], 403);
             }
+
+            // Check if 2FA is enabled — require TOTP challenge
+            if ($user->hasEnabledTwoFactorAuthentication()) {
+                $challengeToken = Str::random(64);
+                Cache::put("2fa_challenge:{$challengeToken}", $user->id, now()->addMinutes(5));
+
+                Log::info("Login: 2FA challenge issued", ['user_id' => $user->id]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Authentification à deux facteurs requise.',
+                    'data' => [
+                        'two_factor_required' => true,
+                        'challenge_token' => $challengeToken,
+                    ]
+                ], 200);
+            }
+
             $token = $user->createToken('auth_token')->plainTextToken;
             Log::info("Login successful", ['user' => $user]);
             return response()->json([

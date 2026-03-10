@@ -39,7 +39,8 @@ class UserSecurityController extends Controller
                 'email' => $user->email,
                 'email_verified' => $user->email_verified_at !== null,
                 'has_password' => !empty($user->password),
-                'two_factor_enabled' => false, // Pour future implémentation
+                'two_factor_enabled' => $user->hasEnabledTwoFactorAuthentication(),
+                'two_factor_confirmed' => ! is_null($user->two_factor_confirmed_at),
                 'pending_email_change' => $pendingEmailChange ? [
                     'new_email' => $pendingEmailChange->new_email,
                     'requested_at' => $pendingEmailChange->created_at->toISOString(),

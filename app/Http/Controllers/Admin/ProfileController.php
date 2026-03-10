@@ -8,12 +8,23 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
+use Laravel\Fortify\Actions\ConfirmTwoFactorAuthentication;
+use Laravel\Fortify\Actions\DisableTwoFactorAuthentication;
+use Laravel\Fortify\Actions\EnableTwoFactorAuthentication;
+use Laravel\Fortify\Actions\GenerateNewRecoveryCodes;
 
 class ProfileController extends Controller
 {
     public function edit()
     {
-        return Inertia::render('Admin/Profile/Edit');
+        $user = request()->user();
+
+        return Inertia::render('Admin/Profile/Edit', [
+            'twoFactor' => [
+                'enabled' => $user->hasEnabledTwoFactorAuthentication(),
+                'confirmed' => ! is_null($user->two_factor_confirmed_at),
+            ],
+        ]);
     }
 
     public function update(Request $request)
@@ -71,5 +82,66 @@ class ProfileController extends Controller
         }
 
         return back()->with('success', __('Avatar removed.'));
+    }
+
+    public function enableTwoFactor(Request $request, EnableTwoFactorAuthentication $enable)
+    {
+        $request->validate(['password' => ['required', 'current_password']]);
+
+        $user = $request->user();
+
+        if ($user->hasEnabledTwoFactorAuthentication()) {
+            return back()->with('error', __('Two-factor authentication is already enabled.'));
+        }
+
+        $enable($user);
+
+        return back()->with([
+            'twoFactorQrCode' => $user->twoFactorQrCodeSvg(),
+            'twoFactorRecoveryCodes' => $user->recoveryCodes(),
+        ]);
+    }
+
+    public function confirmTwoFactor(Request $request, ConfirmTwoFactorAuthentication $confirm)
+    {
+        $request->validate(['code' => ['required', 'string']]);
+
+        try {
+            $confirm($request->user(), $request->code);
+        } catch (\Illuminate\Validation\ValidationException) {
+            return back()->withErrors(['code' => __('The provided two factor authentication code was invalid.')]);
+        }
+
+        return back()->with('success', __('Two-factor authentication confirmed.'));
+    }
+
+    public function disableTwoFactor(Request $request, DisableTwoFactorAuthentication $disable)
+    {
+        $request->validate(['password' => ['required', 'current_password']]);
+
+        $disable($request->user());
+
+        return back()->with('success', __('Two-factor authentication disabled.'));
+    }
+
+    public function showRecoveryCodes(Request $request)
+    {
+        $request->validate(['password' => ['required', 'current_password']]);
+
+        return back()->with([
+            'twoFactorRecoveryCodes' => $request->user()->recoveryCodes(),
+        ]);
+    }
+
+    public function regenerateRecoveryCodes(Request $request, GenerateNewRecoveryCodes $generate)
+    {
+        $request->validate(['password' => ['required', 'current_password']]);
+
+        $generate($request->user());
+
+        return back()->with([
+            'twoFactorRecoveryCodes' => $request->user()->recoveryCodes(),
+            'success' => __('Recovery codes regenerated.'),
+        ]);
     }
 }

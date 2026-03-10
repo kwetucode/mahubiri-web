@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\Auth\RefreshTokenController;
 use App\Http\Controllers\Api\Auth\PasswordResetController;
 use App\Http\Controllers\Api\Auth\EmailVerificationController;
 use App\Http\Controllers\Api\Auth\SocialAuthController;
+use App\Http\Controllers\Api\Auth\TwoFactorChallengeController;
 use App\Http\Controllers\Api\Church\ChurchController;
 use App\Http\Controllers\Api\Church\ChurchListController;
 use App\Http\Controllers\Api\Church\UpdateLogoChurchController;
@@ -19,6 +20,7 @@ use App\Http\Controllers\Api\Sermon\SermonSearchController;
 use App\Http\Controllers\Api\User\UserAvatarController;
 use App\Http\Controllers\Api\User\UserProfileController;
 use App\Http\Controllers\Api\User\UserSecurityController;
+use App\Http\Controllers\Api\User\TwoFactorController;
 use App\Http\Controllers\Api\User\UserStatsController;
 use App\Http\Controllers\Api\Notification\NotificationSettingsController;
 use App\Http\Controllers\Api\Notification\FcmTokenController;
@@ -49,6 +51,7 @@ Route::prefix('auth')->group(function () {
     // Registration & Login
     Route::post('/register', RegisterController::class);
     Route::post('/login', LoginController::class);
+    Route::post('/two-factor-challenge', TwoFactorChallengeController::class);
 
     // Password Reset with Verification Code
     Route::post('/password/send-code', [PasswordResetController::class, 'sendResetCode']);
@@ -112,6 +115,16 @@ Route::middleware('auth:sanctum')->prefix('user')->group(function () {
         Route::post('/change-password', [UserSecurityController::class, 'changePassword']);
         Route::post('/request-email-change', [UserSecurityController::class, 'requestEmailChange']);
         Route::post('/verify-email-change', [UserSecurityController::class, 'verifyEmailChange']);
+
+        // Two-Factor Authentication
+        Route::prefix('two-factor')->group(function () {
+            Route::get('/status', [TwoFactorController::class, 'status']);
+            Route::post('/enable', [TwoFactorController::class, 'enable']);
+            Route::post('/confirm', [TwoFactorController::class, 'confirm']);
+            Route::post('/disable', [TwoFactorController::class, 'disable']);
+            Route::post('/recovery-codes', [TwoFactorController::class, 'recoveryCodes']);
+            Route::post('/regenerate-recovery-codes', [TwoFactorController::class, 'regenerateRecoveryCodes']);
+        });
     });
 
     // Notification Settings Management

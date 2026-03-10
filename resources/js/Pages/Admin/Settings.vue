@@ -5,7 +5,7 @@ import { useTheme } from '@/composables/useTheme';
 import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { usePage } from '@inertiajs/vue3';
-import { setLocale, availableLocales } from '@/i18n';
+import { setLocale, availableLocales, flagUrl } from '@/i18n';
 import axios from 'axios';
 
 const { t, locale } = useI18n();
@@ -52,7 +52,7 @@ const toggleNotifDesktop = () => {
 };
 
 // Language
-const languages = availableLocales.map(l => ({ value: l.code, label: l.label, flag: l.flag }));
+const languages = availableLocales.map(l => ({ value: l.code, label: l.label, country: l.country }));
 const changeLanguage = (lang) => {
     setLocale(lang);
 };
@@ -433,7 +433,7 @@ const cleanupEmptyFolders = async () => {
                                             ? 'border-primary bg-primary/5 dark:bg-primary/10'
                                             : 'border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50'"
                                     >
-                                        <span class="text-xl">{{ lang.flag }}</span>
+                                        <img :src="flagUrl(lang.country)" :alt="lang.label" class="w-6 h-4 rounded-sm object-cover">
                                         <span class="text-sm font-medium" :class="locale === lang.value ? 'text-primary' : 'text-gray-700 dark:text-gray-300'">{{ lang.label }}</span>
                                         <svg
                                             v-if="locale === lang.value"

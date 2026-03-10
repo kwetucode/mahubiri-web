@@ -165,6 +165,12 @@ const features = computed(() => [
                     </button>
                 </form>
 
+                <!-- Register link -->
+                <div class="register-prompt">
+                    <span>{{ t('login.noAccount') }}</span>
+                    <a :href="'/admin/register'" class="register-link">{{ t('login.createAccount') }}</a>
+                </div>
+
                 <!-- Back to home -->
                 <div class="login-footer">
                     <a href="/" class="back-link">
@@ -274,11 +280,11 @@ const features = computed(() => [
     max-width: 520px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     padding: 40px 48px;
     position: relative;
     z-index: 10;
     background: #ffffff;
+    overflow-y: auto;
 }
 @media (min-width: 1024px) {
     .login-left { width: 520px; flex-shrink: 0; }
@@ -290,7 +296,7 @@ const features = computed(() => [
 .login-form-wrapper {
     width: 100%;
     max-width: 400px;
-    margin: 0 auto;
+    margin: auto;
     animation: fadeUp .6s ease both;
 }
 
@@ -428,10 +434,20 @@ const features = computed(() => [
 .spinner { animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ── Register Prompt ── */
+.register-prompt {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    margin-top: 28px; font-size: 13px; color: #6b7280;
+}
+.register-link {
+    font-weight: 600; color: #6B4EAF; text-decoration: none; transition: color .2s;
+}
+.register-link:hover { color: #5a3d96; text-decoration: underline; }
+
 /* ── Footer ── */
 .login-footer {
     display: flex; align-items: center; justify-content: space-between;
-    margin-top: 32px; padding-top: 20px;
+    margin-top: 20px; padding-top: 20px;
     border-top: 1px solid #f3f4f6;
 }
 .login-footer p { font-size: 11px; color: #9ca3af; }
@@ -652,6 +668,9 @@ const features = computed(() => [
 
 :root.dark .login-footer { border-top-color: #1f2937; }
 :root.dark .login-footer p { color: #6b7280; }
+:root.dark .register-prompt { color: #9ca3af; }
+:root.dark .register-link { color: #a78bfa; }
+:root.dark .register-link:hover { color: #c4b5fd; }
 :root.dark .back-link { color: #9ca3af; }
 :root.dark .back-link:hover { color: #a78bfa; }
 

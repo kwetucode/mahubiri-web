@@ -35,8 +35,11 @@ export function setLocale(newLocale) {
  * Available locales with labels + flags.
  */
 export const availableLocales = [
-    { code: 'fr', label: 'Français', flag: '🇫🇷' },
-    { code: 'en', label: 'English', flag: '🇬🇧' },
-    { code: 'sw', label: 'Kiswahili', flag: '🇹🇿' },
-    { code: 'ln', label: 'Lingála', flag: '🇨🇩' },
+    { code: 'fr', label: 'Français', country: 'fr' },
+    { code: 'en', label: 'English', country: 'gb' },
+    { code: 'sw', label: 'Kiswahili', country: 'tz' },
+    { code: 'ln', label: 'Lingála', country: 'cd' },
 ];
+
+/** Flag image URL for a given country code */
+export const flagUrl = (country) => `https://flagcdn.com/w40/${country}.png`;

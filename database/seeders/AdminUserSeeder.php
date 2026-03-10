@@ -23,6 +23,7 @@ class AdminUserSeeder extends Seeder
                 'email' => 'admin@mahubiri.com',
                 'password' => Hash::make('password123'), // Change this in production
                 'email_verified_at' => now(),
+                'onboarding_completed_at' => now(),
                 'role_id' => RoleType::ADMIN,
             ]);
 

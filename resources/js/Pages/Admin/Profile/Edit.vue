@@ -9,6 +9,7 @@ defineOptions({ layout: AdminLayout });
 const { t } = useI18n();
 const page = usePage();
 const user = computed(() => page.props.auth.user);
+const twoFactor = computed(() => page.props.twoFactor ?? { enabled: false, confirmed: false });
 
 const profileForm = useForm({
     name: user.value.name,
@@ -31,6 +32,19 @@ const avatarInput = ref(null);
 const avatarPreview = ref(null);
 const avatarFile = ref(null);
 const avatarUploading = ref(false);
+
+// 2FA
+const twoFactorEnableForm = useForm({ password: '' });
+const twoFactorConfirmForm = useForm({ code: '' });
+const twoFactorDisableForm = useForm({ password: '' });
+const twoFactorRecoveryForm = useForm({ password: '' });
+const showEnablePassword = ref(false);
+const showDisablePassword = ref(false);
+const showRecoveryPassword = ref(false);
+const qrCodeSvg = ref(null);
+const recoveryCodes = ref(null);
+const setupStep = ref('idle'); // idle | setup | confirm | done
+const isTwoFactorActive = ref(twoFactor.value.enabled && twoFactor.value.confirmed);
 
 const currentAvatar = computed(() => {
     if (avatarPreview.value) return avatarPreview.value;
@@ -87,6 +101,72 @@ const updatePassword = () => {
         onSuccess: () => passwordForm.reset(),
     });
 };
+
+// 2FA methods
+const enableTwoFactor = () => {
+    twoFactorEnableForm.post('/admin/profile/two-factor/enable', {
+        preserveScroll: true,
+        onSuccess: () => {
+            const flash = page.props.flash ?? {};
+            if (flash.twoFactorQrCode) {
+                qrCodeSvg.value = flash.twoFactorQrCode;
+                recoveryCodes.value = flash.twoFactorRecoveryCodes || null;
+                setupStep.value = 'confirm';
+            }
+            twoFactorEnableForm.reset();
+            showEnablePassword.value = false;
+        },
+    });
+};
+
+const confirmTwoFactor = () => {
+    twoFactorConfirmForm.post('/admin/profile/two-factor/confirm', {
+        preserveScroll: true,
+        onSuccess: () => {
+            setupStep.value = 'done';
+            isTwoFactorActive.value = true;
+            twoFactorConfirmForm.reset();
+            qrCodeSvg.value = null;
+        },
+    });
+};
+
+const disableTwoFactor = () => {
+    twoFactorDisableForm.post('/admin/profile/two-factor/disable', {
+        preserveScroll: true,
+        onSuccess: () => {
+            setupStep.value = 'idle';
+            isTwoFactorActive.value = false;
+            recoveryCodes.value = null;
+            qrCodeSvg.value = null;
+            twoFactorDisableForm.reset();
+            showDisablePassword.value = false;
+        },
+    });
+};
+
+const fetchRecoveryCodes = () => {
+    twoFactorRecoveryForm.post('/admin/profile/two-factor/recovery-codes', {
+        preserveScroll: true,
+        onSuccess: () => {
+            const flash = page.props.flash ?? {};
+            recoveryCodes.value = flash.twoFactorRecoveryCodes || null;
+            twoFactorRecoveryForm.reset();
+            showRecoveryPassword.value = false;
+        },
+    });
+};
+
+const regenerateRecoveryCodes = () => {
+    twoFactorRecoveryForm.post('/admin/profile/two-factor/regenerate', {
+        preserveScroll: true,
+        onSuccess: () => {
+            const flash = page.props.flash ?? {};
+            recoveryCodes.value = flash.twoFactorRecoveryCodes || null;
+            twoFactorRecoveryForm.reset();
+        },
+    });
+};
 </script>
 
 <template>
@@ -124,6 +204,18 @@ const updatePassword = () => {
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                     </svg>
                     {{ t('profile.tabPassword') }}
+                </button>
+                <button
+                    @click="activeTab = 'security'"
+                    class="flex items-center gap-2 px-6 py-3.5 text-sm font-semibold transition-all duration-200 border-b-2 -mb-px"
+                    :class="activeTab === 'security'
+                        ? 'border-primary text-primary bg-primary/5'
+                        : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300'"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                    {{ t('profile.tabSecurity') }}
                 </button>
             </div>
 
@@ -350,6 +442,224 @@ const updatePassword = () => {
                         </button>
                     </div>
                 </form>
+            </div>
+
+            <!-- Tab: Security (2FA) -->
+            <div v-show="activeTab === 'security'">
+                <div class="px-6 py-5 border-b border-gray-100 dark:border-gray-700/50">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ t('profile.securityTitle') }}</h2>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ t('profile.securitySubtitle') }}</p>
+                </div>
+
+                <div class="px-6 py-5 space-y-6">
+                    <!-- Status badge -->
+                    <div class="flex items-center gap-3 p-4 rounded-xl" :class="isTwoFactorActive ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800' : 'bg-gray-50 dark:bg-gray-700/30 border border-gray-200 dark:border-gray-600'">
+                        <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center" :class="isTwoFactorActive ? 'bg-green-100 dark:bg-green-900/40' : 'bg-gray-200 dark:bg-gray-600'">
+                            <svg v-if="isTwoFactorActive" class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                            </svg>
+                            <svg v-else class="w-5 h-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold" :class="isTwoFactorActive ? 'text-green-800 dark:text-green-300' : 'text-gray-700 dark:text-gray-300'">
+                                {{ isTwoFactorActive ? t('profile.twoFactorActive') : t('profile.twoFactorInactive') }}
+                            </p>
+                            <p class="text-xs" :class="isTwoFactorActive ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'">
+                                {{ isTwoFactorActive ? t('profile.twoFactorActiveDesc') : t('profile.twoFactorInactiveDesc') }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Enable 2FA (when not enabled) -->
+                    <div v-if="!isTwoFactorActive && setupStep === 'idle'">
+                        <form @submit.prevent="enableTwoFactor" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                                    {{ t('profile.confirmYourPassword') }}
+                                </label>
+                                <div class="relative">
+                                    <input
+                                        v-model="twoFactorEnableForm.password"
+                                        :type="showEnablePassword ? 'text' : 'password'"
+                                        autocomplete="current-password"
+                                        class="w-full px-4 py-2.5 pr-11 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+                                        :placeholder="t('profile.currentPassword')"
+                                    />
+                                    <button type="button" @click="showEnablePassword = !showEnablePassword" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                                        <svg v-if="!showEnablePassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                        <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
+                                    </button>
+                                </div>
+                                <p v-if="twoFactorEnableForm.errors.password" class="mt-1.5 text-sm text-red-500">{{ twoFactorEnableForm.errors.password }}</p>
+                            </div>
+                            <button
+                                type="submit"
+                                :disabled="twoFactorEnableForm.processing"
+                                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-primary hover:bg-primary-dark shadow-lg shadow-primary/25 transition-all duration-200 disabled:opacity-50"
+                            >
+                                <svg v-if="twoFactorEnableForm.processing" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                                </svg>
+                                {{ t('profile.enableTwoFactor') }}
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- QR Code + Confirm step -->
+                    <div v-if="setupStep === 'confirm'" class="space-y-5">
+                        <div class="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
+                            <p class="text-sm text-amber-800 dark:text-amber-300 font-medium">{{ t('profile.scanQrCode') }}</p>
+                        </div>
+
+                        <!-- QR Code -->
+                        <div class="flex justify-center p-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-600">
+                            <div v-html="qrCodeSvg" class="[&>svg]:w-48 [&>svg]:h-48"></div>
+                        </div>
+
+                        <!-- Recovery codes (shown during setup) -->
+                        <div v-if="recoveryCodes" class="p-4 bg-gray-50 dark:bg-gray-700/30 rounded-xl border border-gray-200 dark:border-gray-600">
+                            <p class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">{{ t('profile.recoveryCodes') }}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">{{ t('profile.recoveryCodesHint') }}</p>
+                            <div class="grid grid-cols-2 gap-2">
+                                <code v-for="code in recoveryCodes" :key="code" class="px-3 py-1.5 bg-gray-100 dark:bg-gray-600 rounded-lg text-xs font-mono text-gray-800 dark:text-gray-200 text-center">
+                                    {{ code }}
+                                </code>
+                            </div>
+                        </div>
+
+                        <!-- Confirm with TOTP code -->
+                        <form @submit.prevent="confirmTwoFactor" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                                    {{ t('profile.enterTotpCode') }}
+                                </label>
+                                <input
+                                    v-model="twoFactorConfirmForm.code"
+                                    type="text"
+                                    inputmode="numeric"
+                                    autocomplete="one-time-code"
+                                    maxlength="6"
+                                    class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors tracking-widest text-center text-lg font-mono"
+                                    placeholder="000000"
+                                />
+                                <p v-if="twoFactorConfirmForm.errors.code" class="mt-1.5 text-sm text-red-500">{{ twoFactorConfirmForm.errors.code }}</p>
+                            </div>
+                            <button
+                                type="submit"
+                                :disabled="twoFactorConfirmForm.processing"
+                                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-primary hover:bg-primary-dark shadow-lg shadow-primary/25 transition-all duration-200 disabled:opacity-50"
+                            >
+                                <svg v-if="twoFactorConfirmForm.processing" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                                </svg>
+                                {{ t('profile.confirmCode') }}
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- 2FA is enabled — manage section -->
+                    <div v-if="isTwoFactorActive" class="space-y-5">
+                        <!-- Recovery codes section -->
+                        <div class="p-5 bg-gray-50 dark:bg-gray-700/30 rounded-xl border border-gray-200 dark:border-gray-600 space-y-4">
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-900 dark:text-white">{{ t('profile.recoveryCodes') }}</h3>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ t('profile.recoveryCodesManageHint') }}</p>
+                            </div>
+
+                            <!-- Show codes if loaded -->
+                            <div v-if="recoveryCodes" class="grid grid-cols-2 gap-2">
+                                <code v-for="code in recoveryCodes" :key="code" class="px-3 py-1.5 bg-gray-100 dark:bg-gray-600 rounded-lg text-xs font-mono text-gray-800 dark:text-gray-200 text-center">
+                                    {{ code }}
+                                </code>
+                            </div>
+
+                            <!-- Password form to view/regenerate codes -->
+                            <div v-if="!recoveryCodes" class="space-y-3">
+                                <div class="relative">
+                                    <input
+                                        v-model="twoFactorRecoveryForm.password"
+                                        :type="showRecoveryPassword ? 'text' : 'password'"
+                                        autocomplete="current-password"
+                                        class="w-full px-4 py-2.5 pr-11 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700/50 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+                                        :placeholder="t('profile.currentPassword')"
+                                    />
+                                    <button type="button" @click="showRecoveryPassword = !showRecoveryPassword" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                                        <svg v-if="!showRecoveryPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                        <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
+                                    </button>
+                                </div>
+                                <p v-if="twoFactorRecoveryForm.errors.password" class="text-sm text-red-500">{{ twoFactorRecoveryForm.errors.password }}</p>
+                                <div class="flex gap-2">
+                                    <button
+                                        type="button"
+                                        @click="fetchRecoveryCodes"
+                                        :disabled="twoFactorRecoveryForm.processing"
+                                        class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors disabled:opacity-50"
+                                    >
+                                        {{ t('profile.showRecoveryCodes') }}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div v-if="recoveryCodes" class="flex gap-2">
+                                <button
+                                    type="button"
+                                    @click="regenerateRecoveryCodes"
+                                    :disabled="twoFactorRecoveryForm.processing"
+                                    class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors disabled:opacity-50"
+                                >
+                                    {{ t('profile.regenerateRecoveryCodes') }}
+                                </button>
+                                <button
+                                    type="button"
+                                    @click="recoveryCodes = null"
+                                    class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                                >
+                                    {{ t('profile.hideRecoveryCodes') }}
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Disable 2FA -->
+                        <div class="p-5 bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-200 dark:border-red-800 space-y-4">
+                            <div>
+                                <h3 class="text-sm font-semibold text-red-800 dark:text-red-300">{{ t('profile.disableTwoFactor') }}</h3>
+                                <p class="text-xs text-red-600 dark:text-red-400 mt-1">{{ t('profile.disableTwoFactorHint') }}</p>
+                            </div>
+                            <form @submit.prevent="disableTwoFactor" class="space-y-3">
+                                <div class="relative">
+                                    <input
+                                        v-model="twoFactorDisableForm.password"
+                                        :type="showDisablePassword ? 'text' : 'password'"
+                                        autocomplete="current-password"
+                                        class="w-full px-4 py-2.5 pr-11 rounded-xl border border-red-200 dark:border-red-700 bg-white dark:bg-gray-700/50 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-red-300 focus:border-red-400 transition-colors"
+                                        :placeholder="t('profile.currentPassword')"
+                                    />
+                                    <button type="button" @click="showDisablePassword = !showDisablePassword" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                                        <svg v-if="!showDisablePassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                        <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
+                                    </button>
+                                </div>
+                                <p v-if="twoFactorDisableForm.errors.password" class="text-sm text-red-500">{{ twoFactorDisableForm.errors.password }}</p>
+                                <button
+                                    type="submit"
+                                    :disabled="twoFactorDisableForm.processing"
+                                    class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-red-600 hover:bg-red-700 shadow-lg shadow-red-600/25 transition-all duration-200 disabled:opacity-50"
+                                >
+                                    <svg v-if="twoFactorDisableForm.processing" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                                    </svg>
+                                    {{ t('profile.disableTwoFactor') }}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

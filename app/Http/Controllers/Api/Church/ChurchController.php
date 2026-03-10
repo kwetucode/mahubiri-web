@@ -50,6 +50,7 @@ class ChurchController extends Controller
 
         $query = Church::query()
             ->active() // Only active churches
+            ->whereHas('sermons', fn($q) => $q->where('is_published', true))
             ->with([
                 'createdBy:id,name,email',
                 'sermons' => function ($q) {

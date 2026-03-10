@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\RoleType;
 use App\Http\Controllers\Controller;
 use App\Models\CategorySermon;
-use App\Models\Church;
 use App\Models\Sermon;
 use App\Services\FileUploadService;
 use App\Services\NotificationService;
@@ -27,15 +27,73 @@ class AdminSermonController extends Controller
     }
 
     /**
+     * Check if user is an independent preacher.
+     */
+    private function isIndependentPreacher($user): bool
+    {
+        return $user->role_id === RoleType::INDEPENDENT_PREACHER;
+    }
+
+    /**
+     * Check if user is super admin.
+     */
+    private function isSuperAdmin($user): bool
+    {
+        return $user->role_id === RoleType::ADMIN;
+    }
+
+    /**
+     * Check ownership of a sermon for the current user.
+     */
+    private function authorizeSermon($user, Sermon $sermon): bool
+    {
+        // Super admin can manage any sermon
+        if ($this->isSuperAdmin($user)) {
+            return true;
+        }
+
+        if ($this->isIndependentPreacher($user)) {
+            $profile = $user->preacherProfile;
+            return $profile && $sermon->preacher_profile_id === $profile->id;
+        }
+
+        $church = $user->church;
+        return $church && $sermon->church_id === $church->id;
+    }
+
+    /**
      * List sermons for the authenticated admin's church.
      */
     public function index(Request $request)
     {
         $user = Auth::user();
-        $church = $user->church;
+        $isPreacher = $this->isIndependentPreacher($user);
+        $isAdmin = $this->isSuperAdmin($user);
 
-        if (!$church) {
-            abort(403, 'Vous devez avoir une église pour accéder à cette page.');
+        // Determine scope
+        if ($isAdmin) {
+            $scopeColumn = null;
+            $scopeId = null;
+            $ownerName = 'Toutes les prédications';
+            $ownerId = 0;
+        } elseif ($isPreacher) {
+            $profile = $user->preacherProfile;
+            if (!$profile) {
+                abort(403, 'Vous devez avoir un profil de prédicateur pour accéder à cette page.');
+            }
+            $scopeColumn = 'preacher_profile_id';
+            $scopeId = $profile->id;
+            $ownerName = $profile->ministry_name;
+            $ownerId = $profile->id;
+        } else {
+            $church = $user->church;
+            if (!$church) {
+                abort(403, 'Vous devez avoir une église pour accéder à cette page.');
+            }
+            $scopeColumn = 'church_id';
+            $scopeId = $church->id;
+            $ownerName = $church->name;
+            $ownerId = $church->id;
         }
 
         $search = $request->input('search');
@@ -55,7 +113,7 @@ class AdminSermonController extends Controller
         }
 
         $sermons = Sermon::query()
-            ->where('church_id', $church->id)
+            ->when($scopeColumn, fn ($q) => $q->where($scopeColumn, $scopeId))
             ->with('category')
             ->withCount('views')
             ->when($search, function ($query, $search) {
@@ -88,10 +146,11 @@ class AdminSermonController extends Controller
             ]);
 
         // Stats
-        $totalSermons = Sermon::where('church_id', $church->id)->count();
-        $publishedCount = Sermon::where('church_id', $church->id)->where('is_published', true)->count();
+        $statsQuery = Sermon::query()->when($scopeColumn, fn ($q) => $q->where($scopeColumn, $scopeId));
+        $totalSermons = (clone $statsQuery)->count();
+        $publishedCount = (clone $statsQuery)->where('is_published', true)->count();
         $draftCount = $totalSermons - $publishedCount;
-        $totalViews = Sermon::where('church_id', $church->id)->withCount('views')->get()->sum('views_count');
+        $totalViews = (clone $statsQuery)->withCount('views')->get()->sum('views_count');
 
         return Inertia::render('Admin/Sermons/Index', [
             'sermons' => $sermons,
@@ -103,8 +162,8 @@ class AdminSermonController extends Controller
                 'views' => $totalViews,
             ],
             'church' => [
-                'id' => $church->id,
-                'name' => $church->name,
+                'id' => $ownerId,
+                'name' => $ownerName,
             ],
             'filters' => [
                 'search' => $search,
@@ -134,10 +193,19 @@ class AdminSermonController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
-        $church = $user->church;
+        $isPreacher = $this->isIndependentPreacher($user);
+        $isAdmin = $this->isSuperAdmin($user);
 
-        if (!$church) {
-            abort(403, 'Vous devez avoir une église.');
+        if ($isPreacher) {
+            $profile = $user->preacherProfile;
+            if (!$profile) {
+                abort(403, 'Vous devez avoir un profil de prédicateur.');
+            }
+        } elseif (!$isAdmin) {
+            $church = $user->church;
+            if (!$church) {
+                abort(403, 'Vous devez avoir une église.');
+            }
         }
 
         $validated = $request->validate([
@@ -153,7 +221,6 @@ class AdminSermonController extends Controller
 
         try {
             $data = [
-                'church_id' => $church->id,
                 'title' => $validated['title'],
                 'category_sermon_id' => $validated['category_sermon_id'],
                 'preacher_name' => $validated['preacher_name'],
@@ -162,8 +229,15 @@ class AdminSermonController extends Controller
                 'is_published' => $validated['is_published'] ?? false,
             ];
 
-            // Determine the owner folder for file storage
-            $ownerFolder = 'churches/' . $church->getStorageFolder();
+            if ($isPreacher) {
+                $data['preacher_profile_id'] = $profile->id;
+                $ownerFolder = 'preachers/' . $profile->getStorageFolder();
+            } elseif (!$isAdmin) {
+                $data['church_id'] = $church->id;
+                $ownerFolder = 'churches/' . $church->getStorageFolder();
+            } else {
+                $ownerFolder = 'admin';
+            }
 
             // Handle audio upload with meta extraction
             if ($request->hasFile('audio_file')) {
@@ -184,7 +258,7 @@ class AdminSermonController extends Controller
 
             $sermon = Sermon::create($data);
 
-            Log::info('Admin: Sermon created', ['sermon_id' => $sermon->id, 'church_id' => $church->id]);
+            Log::info('Admin: Sermon created', ['sermon_id' => $sermon->id]);
 
             // Send FCM notification if published
             if ($sermon->is_published) {
@@ -208,10 +282,9 @@ class AdminSermonController extends Controller
     public function edit(Sermon $sermon)
     {
         $user = Auth::user();
-        $church = $user->church;
 
-        if (!$church || $sermon->church_id !== $church->id) {
-            abort(403, 'Vous ne pouvez modifier que les prédications de votre église.');
+        if (!$this->authorizeSermon($user, $sermon)) {
+            abort(403, 'Vous ne pouvez modifier que vos prédications.');
         }
 
         $categories = CategorySermon::orderBy('name')->get(['id', 'name']);
@@ -240,10 +313,9 @@ class AdminSermonController extends Controller
     public function update(Request $request, Sermon $sermon)
     {
         $user = Auth::user();
-        $church = $user->church;
 
-        if (!$church || $sermon->church_id !== $church->id) {
-            abort(403, 'Vous ne pouvez modifier que les prédications de votre église.');
+        if (!$this->authorizeSermon($user, $sermon)) {
+            abort(403, 'Vous ne pouvez modifier que vos prédications.');
         }
 
         $validated = $request->validate([
@@ -269,7 +341,14 @@ class AdminSermonController extends Controller
 
             // Determine the owner folder for file storage
             $church = $sermon->church;
-            $ownerFolder = $church ? 'churches/' . $church->getStorageFolder() : null;
+            $preacherProfile = $sermon->preacherProfile;
+            if ($preacherProfile) {
+                $ownerFolder = 'preachers/' . $preacherProfile->getStorageFolder();
+            } elseif ($church) {
+                $ownerFolder = 'churches/' . $church->getStorageFolder();
+            } else {
+                $ownerFolder = 'admin';
+            }
 
             // Handle new audio file
             if ($request->hasFile('audio_file')) {
@@ -321,9 +400,8 @@ class AdminSermonController extends Controller
     public function togglePublish(Sermon $sermon): JsonResponse
     {
         $user = Auth::user();
-        $church = $user->church;
 
-        if (!$church || $sermon->church_id !== $church->id) {
+        if (!$this->authorizeSermon($user, $sermon)) {
             return response()->json(['success' => false, 'message' => 'Non autorisé.'], 403);
         }
 
@@ -349,9 +427,8 @@ class AdminSermonController extends Controller
     public function destroy(Sermon $sermon): JsonResponse
     {
         $user = Auth::user();
-        $church = $user->church;
 
-        if (!$church || $sermon->church_id !== $church->id) {
+        if (!$this->authorizeSermon($user, $sermon)) {
             return response()->json(['success' => false, 'message' => 'Non autorisé.'], 403);
         }
 

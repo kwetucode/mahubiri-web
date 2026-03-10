@@ -28,6 +28,11 @@ class DashboardController extends Controller
             return $this->churchDashboard($user);
         }
 
+        // Independent Preacher → dedicated preacher dashboard
+        if ($user->role_id === RoleType::INDEPENDENT_PREACHER) {
+            return $this->preacherDashboard($user);
+        }
+
         return Inertia::render('Admin/Dashboard', [
             'stats' => [
                 'totalUsers' => User::count(),
@@ -114,15 +119,90 @@ class DashboardController extends Controller
     }
 
     /**
+     * Independent Preacher dashboard with preacher-specific stats.
+     */
+    private function preacherDashboard($user)
+    {
+        $profile = $user->preacherProfile;
+
+        if (!$profile) {
+            abort(403, 'Aucun profil de prédicateur associé à votre compte.');
+        }
+
+        $profileId = $profile->id;
+
+        $totalSermons = Sermon::where('preacher_profile_id', $profileId)->count();
+        $publishedSermons = Sermon::where('preacher_profile_id', $profileId)->where('is_published', true)->count();
+        $draftSermons = $totalSermons - $publishedSermons;
+        $totalViews = Sermon::where('preacher_profile_id', $profileId)->withCount('views')->get()->sum('views_count');
+
+        $sermonsThisWeek = Sermon::where('preacher_profile_id', $profileId)
+            ->where('created_at', '>=', now()->startOfWeek())->count();
+        $sermonsThisMonth = Sermon::where('preacher_profile_id', $profileId)
+            ->where('created_at', '>=', now()->startOfMonth())->count();
+
+        // Latest sermons (5)
+        $latestSermons = Sermon::where('preacher_profile_id', $profileId)
+            ->with('category')
+            ->withCount('views')
+            ->orderByDesc('created_at')
+            ->take(5)
+            ->get()
+            ->map(fn (Sermon $s) => [
+                'id' => $s->id,
+                'title' => $s->title,
+                'preacher_name' => $s->preacher_name,
+                'category_name' => $s->category?->name,
+                'is_published' => (bool) $s->is_published,
+                'views_count' => $s->views_count,
+                'duration_formatted' => $s->duration_formatted,
+                'created_at' => $s->created_at->format('d/m/Y'),
+                'created_at_human' => $s->created_at->diffForHumans(),
+            ]);
+
+        // Top sermons by views (5)
+        $topSermons = Sermon::where('preacher_profile_id', $profileId)
+            ->where('is_published', true)
+            ->withCount('views')
+            ->orderByDesc('views_count')
+            ->take(5)
+            ->get()
+            ->map(fn (Sermon $s) => [
+                'id' => $s->id,
+                'title' => $s->title,
+                'preacher_name' => $s->preacher_name,
+                'views_count' => $s->views_count,
+            ]);
+
+        return Inertia::render('Admin/PreacherDashboard', [
+            'preacher' => [
+                'id' => $profile->id,
+                'ministry_name' => $profile->ministry_name,
+            ],
+            'stats' => [
+                'totalSermons' => $totalSermons,
+                'publishedSermons' => $publishedSermons,
+                'draftSermons' => $draftSermons,
+                'totalViews' => $totalViews,
+                'sermonsThisWeek' => $sermonsThisWeek,
+                'sermonsThisMonth' => $sermonsThisMonth,
+            ],
+            'latestSermons' => $latestSermons,
+            'topSermons' => $topSermons,
+        ]);
+    }
+
+    /**
      * Return chart data for a given model, grouped by day.
      */
     public function chartData(Request $request)
     {
         $user = Auth::user();
         $isChurchAdmin = $user->role_id === RoleType::CHURCH_ADMIN;
+        $isPreacher = $user->role_id === RoleType::INDEPENDENT_PREACHER;
 
-        // Church admin can only view sermons and views charts
-        $allowedTypes = $isChurchAdmin ? 'sermons,views' : 'users,churches,sermons,views';
+        // Church admin and preacher can only view sermons and views charts
+        $allowedTypes = ($isChurchAdmin || $isPreacher) ? 'sermons,views' : 'users,churches,sermons,views';
 
         $request->validate([
             'type' => "required|in:{$allowedTypes}",
@@ -151,6 +231,15 @@ class DashboardController extends Controller
                 $query->where('church_id', $user->church->id);
             } elseif ($type === 'views') {
                 $query->whereHas('sermon', fn ($q) => $q->where('church_id', $user->church->id));
+            }
+        }
+
+        // Scope to preacher profile if INDEPENDENT_PREACHER
+        if ($isPreacher && in_array($type, ['sermons', 'views']) && $user->preacherProfile) {
+            if ($type === 'sermons') {
+                $query->where('preacher_profile_id', $user->preacherProfile->id);
+            } elseif ($type === 'views') {
+                $query->whereHas('sermon', fn ($q) => $q->where('preacher_profile_id', $user->preacherProfile->id));
             }
         }
 
@@ -186,10 +275,12 @@ class DashboardController extends Controller
             'churches' => Church::whereBetween('created_at', [$prevStart->startOfDay(), $prevEnd->endOfDay()])->count(),
             'sermons' => Sermon::query()
                 ->when($isChurchAdmin && $user->church, fn ($q) => $q->where('church_id', $user->church->id))
+                ->when($isPreacher && $user->preacherProfile, fn ($q) => $q->where('preacher_profile_id', $user->preacherProfile->id))
                 ->whereBetween('created_at', [$prevStart->startOfDay(), $prevEnd->endOfDay()])
                 ->count(),
             'views' => SermonView::query()
                 ->when($isChurchAdmin && $user->church, fn ($q) => $q->whereHas('sermon', fn ($sq) => $sq->where('church_id', $user->church->id)))
+                ->when($isPreacher && $user->preacherProfile, fn ($q) => $q->whereHas('sermon', fn ($sq) => $sq->where('preacher_profile_id', $user->preacherProfile->id)))
                 ->whereBetween('created_at', [$prevStart->startOfDay(), $prevEnd->endOfDay()])
                 ->count(),
         };

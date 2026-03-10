@@ -365,7 +365,7 @@ const toggleFeatured = async (row) => {
                         :model-value="row.is_featured"
                         :loading="featuredLoading"
                         size="sm"
-                        color="emerald"
+                        color="primary"
                         @change="toggleFeatured(row)"
                     />
                 </template>
@@ -398,7 +398,7 @@ const toggleFeatured = async (row) => {
                         :model-value="row.is_active"
                         :loading="toggleLoading && toggleTarget?.id === row.id"
                         size="sm"
-                        color="emerald"
+                        color="primary"
                         @change="requestToggle(row)"
                     />
                 </template>
@@ -495,7 +495,7 @@ const toggleFeatured = async (row) => {
                         :model-value="row.is_active"
                         :loading="toggleLoading && toggleTarget?.id === row.id"
                         size="sm"
-                        color="emerald"
+                        color="primary"
                         @change="requestToggle(row, 'preachers')"
                     />
                 </template>

@@ -28,39 +28,46 @@ class SermonListController extends Controller
                 ->where('is_featured', true)
                 ->first();
 
-            $pinnedSermons = collect();
+            $featuredSermon = null;
 
             if ($featuredChurch) {
-                $pinnedSermons = Sermon::with(['church', 'category', 'currentUserFavorite'])
+                $featuredSermon = Sermon::with(['church', 'category', 'currentUserFavorite'])
                     ->withCount('views')
                     ->published()
                     ->where('church_id', $featuredChurch->id)
                     ->orderByDesc('created_at')
-                    ->take(2)
-                    ->get();
+                    ->first();
             }
 
-            $remainingLimit = max(0, $limit - $pinnedSermons->count());
+            $excludeIds = $featuredSermon ? [$featuredSermon->id] : [];
+            $recentLimit = $featuredSermon ? $limit - 1 : $limit;
 
-            $fallbackSermons = Sermon::with(['church', 'category', 'currentUserFavorite'])
+            $recentSermons = Sermon::with(['church', 'category', 'currentUserFavorite'])
                 ->withCount('views')
                 ->published()
-                ->when($pinnedSermons->isNotEmpty(), function ($query) use ($pinnedSermons) {
-                    $query->whereNotIn('id', $pinnedSermons->pluck('id'));
-                })
+                ->when(!empty($excludeIds), fn ($q) => $q->whereNotIn('id', $excludeIds))
                 ->orderByDesc('created_at')
-                ->take($remainingLimit)
+                ->take($recentLimit)
                 ->get();
 
-            $recentSermons = $pinnedSermons->concat($fallbackSermons);
+            // Insert featured sermon at position 2 (after the first recent sermon)
+            if ($featuredSermon && $recentSermons->isNotEmpty()) {
+                $result = collect();
+                $result->push($recentSermons->shift()); // position 1: most recent
+                $result->push($featuredSermon);          // position 2: featured
+                $result = $result->concat($recentSermons); // positions 3+: rest
+            } else {
+                $result = $recentSermons;
+            }
 
             Log::info('Recent sermons retrieved', [
-                'count' => $recentSermons->count(),
+                'count' => $result->count(),
+                'featured_church_id' => $featuredChurch?->id,
                 'user_id' => Auth::id()
             ]);
 
             return $this->successResponse(
-                SermonResource::collection($recentSermons),
+                SermonResource::collection($result),
                 'Recent sermons retrieved successfully'
             );
         } catch (\Exception $e) {
@@ -96,7 +103,10 @@ class SermonListController extends Controller
                         ->whereColumn('sermon_id', 'sermons.id')
                         ->where('completed', true)
                 ])
-                ->having('completed_unique_users', '>=', $minCompleteViews)
+                ->where(function ($q) use ($minCompleteViews) {
+                    $q->having('completed_unique_users', '>=', $minCompleteViews)
+                      ->orWhere('popularity_score', '>=', 1000);
+                })
                 ->where('popularity_score', '>=', $minScore)
                 ->orderBy('popularity_score', 'desc')
                 ->take($limit)

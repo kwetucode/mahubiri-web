@@ -1,4 +1,5 @@
 <script setup>
+import { inject } from 'vue';
 import { Link } from '@inertiajs/vue3';
 
 defineProps({
@@ -8,10 +9,13 @@ defineProps({
         // Each item: { label: string, href?: string, icon?: string }
     },
 });
+
+const currentDate = inject('currentDate', '');
 </script>
 
 <template>
-    <nav class="flex items-center gap-1.5 text-sm" aria-label="Breadcrumb">
+    <div class="flex items-center justify-between">
+        <nav class="flex items-center gap-1.5 text-sm" aria-label="Breadcrumb">
         <!-- Home -->
         <Link
             href="/admin/dashboard"
@@ -53,4 +57,6 @@ defineProps({
             </span>
         </template>
     </nav>
+    <span v-if="currentDate" class="text-xs text-gray-400 dark:text-gray-500 capitalize hidden sm:block">{{ currentDate }}</span>
+    </div>
 </template>

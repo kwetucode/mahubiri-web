@@ -98,31 +98,37 @@ class HomeAggregatorService
                 ->where('is_featured', true)
                 ->first();
 
-            $pinnedSermons = collect();
+            $featuredSermon = null;
 
             if ($featuredChurch) {
-                $pinnedSermons = Sermon::with(['church.createdBy', 'category'])
+                $featuredSermon = Sermon::with(['church.createdBy', 'category'])
                     ->withCount('views')
                     ->published()
                     ->where('church_id', $featuredChurch->id)
                     ->orderByDesc('created_at')
-                    ->take(2)
-                    ->get();
+                    ->first();
             }
 
-            $remainingLimit = max(0, $limit - $pinnedSermons->count());
+            $excludeIds = $featuredSermon ? [$featuredSermon->id] : [];
+            $recentLimit = $featuredSermon ? $limit - 1 : $limit;
 
-            $fallbackSermons = Sermon::with(['church.createdBy', 'category'])
+            $recentSermons = Sermon::with(['church.createdBy', 'category'])
                 ->withCount('views')
                 ->published()
-                ->when($pinnedSermons->isNotEmpty(), function ($query) use ($pinnedSermons) {
-                    $query->whereNotIn('id', $pinnedSermons->pluck('id'));
-                })
+                ->when(!empty($excludeIds), fn ($q) => $q->whereNotIn('id', $excludeIds))
                 ->orderByDesc('created_at')
-                ->take($remainingLimit)
+                ->take($recentLimit)
                 ->get();
 
-            return $pinnedSermons->concat($fallbackSermons);
+            // Insert featured sermon at position 2 (after the first recent sermon)
+            if ($featuredSermon && $recentSermons->isNotEmpty()) {
+                $result = collect();
+                $result->push($recentSermons->shift());
+                $result->push($featuredSermon);
+                return $result->concat($recentSermons);
+            }
+
+            return $recentSermons;
         });
     }
 
@@ -141,7 +147,10 @@ class HomeAggregatorService
                         ->whereColumn('sermon_id', 'sermons.id')
                         ->where('completed', true),
                 ])
-                ->having('completed_unique_users', '>=', 2)
+                ->where(function ($q) {
+                    $q->having('completed_unique_users', '>=', 2)
+                      ->orWhere('popularity_score', '>=', 1000);
+                })
                 ->where('popularity_score', '>=', 0)
                 ->orderByDesc('popularity_score')
                 ->take(10)
@@ -157,6 +166,7 @@ class HomeAggregatorService
     {
         return Cache::remember('home_churches', 600, function () {
             return Church::active()
+                ->whereHas('sermons', fn($q) => $q->where('is_published', true))
                 ->with(['createdBy'])
                 ->withCount(['sermons' => fn($q) => $q->where('is_published', true)])
                 ->withCount(['sermonViews as total_views'])
