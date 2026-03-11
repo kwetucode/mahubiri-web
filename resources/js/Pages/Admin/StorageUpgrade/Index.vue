@@ -42,9 +42,9 @@ const phonePrefix = computed(() => selectedCountryObj.value?.phone_prefix ?? '+2
 
 const diskStatusColor = computed(() => {
     const s = props.storageInfo?.status;
-    if (s === 'critical') return { bg: 'bg-red-500', text: 'text-red-600', light: 'bg-red-50', hex: '#ef4444', label: t('storageUpgrade.critical') };
-    if (s === 'warning') return { bg: 'bg-amber-500', text: 'text-amber-600', light: 'bg-amber-50', hex: '#f59e0b', label: t('storageUpgrade.warning') };
-    return { bg: 'bg-emerald-500', text: 'text-emerald-600', light: 'bg-emerald-50', hex: '#10b981', label: t('storageUpgrade.good') };
+    if (s === 'critical') return { bg: 'bg-red-500', text: 'text-red-600 dark:text-red-400', light: 'bg-red-50 dark:bg-red-900/20', hex: '#ef4444', label: t('storageUpgrade.critical') };
+    if (s === 'warning') return { bg: 'bg-amber-500', text: 'text-amber-600 dark:text-amber-400', light: 'bg-amber-50 dark:bg-amber-900/20', hex: '#f59e0b', label: t('storageUpgrade.warning') };
+    return { bg: 'bg-emerald-500', text: 'text-emerald-600 dark:text-emerald-400', light: 'bg-emerald-50 dark:bg-emerald-900/20', hex: '#10b981', label: t('storageUpgrade.good') };
 });
 
 const diskArc = computed(() => {
@@ -153,7 +153,7 @@ const statusStyles = {
 const getStatus = (status) => statusStyles[status] || statusStyles.pending;
 
 const planColors = ['from-blue-500 to-blue-600', 'from-primary to-primary-dark', 'from-emerald-500 to-emerald-600'];
-const planBgColors = ['bg-blue-50 border-blue-200', 'bg-primary/5 border-primary/20', 'bg-emerald-50 border-emerald-200'];
+const planBgColors = ['bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800', 'bg-primary/5 border-primary/20', 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800'];
 </script>
 
 <template>
