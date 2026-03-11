@@ -27,17 +27,6 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             \App\Http\Middleware\HandleInertiaRequests::class,
         ]);
-        $middleware->api(prepend: [
-            // Must run FIRST: forces Accept: application/json so Laravel
-            // always renders errors as JSON instead of HTML.
-            \App\Http\Middleware\ForceJsonResponse::class,
-        ]);
-        $middleware->api(append: [
-            \App\Http\Middleware\OptimizeApiResponse::class,
-            // Must run LAST: catches any HTML error responses (WAF/proxy)
-            // and converts them to JSON for the Flutter client.
-            \App\Http\Middleware\HandleWafErrors::class,
-        ]);
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
             'super_admin' => \App\Http\Middleware\EnsureSuperAdmin::class,
