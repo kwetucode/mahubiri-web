@@ -34,11 +34,22 @@ class GlobalSearchController extends Controller
             ->with('church:id,name')
             ->select('id', 'title', 'preacher_name', 'church_id', 'cover_url', 'is_published', 'created_at');
 
-        // Church admins only see their own church's sermons
+        // Church admins and independent preachers only see their own sermons
         if (!$isAdmin) {
-            $churchId = $user->church_id ?? Church::where('created_by', $user->id)->value('id');
-            if ($churchId) {
-                $sermonsQuery->where('church_id', $churchId);
+            if ($user->role_id === RoleType::INDEPENDENT_PREACHER) {
+                $profile = $user->preacherProfile;
+                if ($profile) {
+                    $sermonsQuery->where('preacher_profile_id', $profile->id);
+                } else {
+                    $sermonsQuery->whereRaw('0 = 1');
+                }
+            } else {
+                $church = $user->church;
+                if ($church) {
+                    $sermonsQuery->where('church_id', $church->id);
+                } else {
+                    $sermonsQuery->whereRaw('0 = 1');
+                }
             }
         }
 
