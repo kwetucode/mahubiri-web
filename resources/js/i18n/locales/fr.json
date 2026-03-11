@@ -63,7 +63,8 @@
     "auth": {
         "logout": "Déconnexion",
         "logoutConfirm": "Se déconnecter ?",
-        "logoutMessage": "Vous allez être redirigé vers la page de connexion."
+        "logoutMessage": "Vous allez être redirigé vers la page de connexion.",
+        "loggingOut": "Déconnexion en cours..."
     },
     "layout": {
         "administration": "Administration",

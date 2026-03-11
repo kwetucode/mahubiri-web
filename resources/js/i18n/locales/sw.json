@@ -63,7 +63,8 @@
     "auth": {
         "logout": "Ondoka",
         "logoutConfirm": "Ondoka?",
-        "logoutMessage": "Utaelekezwa kwenye ukurasa wa kuingia."
+        "logoutMessage": "Utaelekezwa kwenye ukurasa wa kuingia.",
+        "loggingOut": "Inaondoka..."
     },
     "layout": {
         "administration": "Utawala",

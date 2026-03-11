@@ -63,7 +63,8 @@
     "auth": {
         "logout": "Log out",
         "logoutConfirm": "Log out?",
-        "logoutMessage": "You will be redirected to the login page."
+        "logoutMessage": "You will be redirected to the login page.",
+        "loggingOut": "Logging out..."
     },
     "layout": {
         "administration": "Administration",

@@ -63,7 +63,8 @@
     "auth": {
         "logout": "Kobima",
         "logoutConfirm": "Kobima?",
-        "logoutMessage": "Okozongisama na nkasa ya kokɔta."
+        "logoutMessage": "Okozongisama na nkasa ya kokɔta.",
+        "loggingOut": "Ezali kobima..."
     },
     "layout": {
         "administration": "Bokambi",

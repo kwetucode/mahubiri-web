@@ -146,18 +146,25 @@ const currentPath = computed(() => {
 });
 
 const showLogoutModal = ref(false);
+const loggingOut = ref(false);
 
 const confirmLogout = () => {
     showLogoutModal.value = true;
 };
 
 const cancelLogout = () => {
+    if (loggingOut.value) return;
     showLogoutModal.value = false;
 };
 
 const logout = () => {
-    showLogoutModal.value = false;
-    router.post('/admin/logout');
+    loggingOut.value = true;
+    router.post('/admin/logout', {}, {
+        onFinish: () => {
+            loggingOut.value = false;
+            showLogoutModal.value = false;
+        },
+    });
 };
 
 defineProps({
@@ -602,6 +609,26 @@ provide('currentDate', currentDate);
             </main>
         </div>
 
+        <!-- Logout fullscreen overlay -->
+        <Transition
+            enter-active-class="transition-opacity duration-300"
+            enter-from-class="opacity-0"
+            enter-to-class="opacity-100"
+            leave-active-class="transition-opacity duration-200"
+            leave-from-class="opacity-100"
+            leave-to-class="opacity-0"
+        >
+            <div v-if="loggingOut" class="fixed inset-0 z-[200] flex items-center justify-center bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
+                <div class="flex flex-col items-center gap-4">
+                    <svg class="animate-spin h-10 w-10 text-red-500" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-300">{{ t('auth.loggingOut') }}</p>
+                </div>
+            </div>
+        </Transition>
+
         <!-- Logout Confirmation Modal -->
         <Transition
             enter-active-class="transition-opacity duration-200"
@@ -640,15 +667,21 @@ provide('currentDate', currentDate);
                         <div class="flex gap-3">
                             <button
                                 @click="cancelLogout"
-                                class="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                                :disabled="loggingOut"
+                                class="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {{ t('common.cancel') }}
                             </button>
                             <button
                                 @click="logout"
-                                class="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-red-500 hover:bg-red-600 shadow-lg shadow-red-500/25 transition-colors"
+                                :disabled="loggingOut"
+                                class="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-red-500 hover:bg-red-600 shadow-lg shadow-red-500/25 transition-colors disabled:opacity-75 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                             >
-                                {{ t('auth.logout') }}
+                                <svg v-if="loggingOut" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                </svg>
+                                {{ loggingOut ? t('common.loading') : t('auth.logout') }}
                             </button>
                         </div>
                     </div>
