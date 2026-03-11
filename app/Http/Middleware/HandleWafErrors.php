@@ -29,6 +29,7 @@ class HandleWafErrors
     private const STATUS_MESSAGES = [
         401 => 'Authentification requise. Veuillez vous reconnecter.',
         403 => 'Accès refusé par le serveur. Réessayez dans quelques instants.',
+        405 => 'Méthode non autorisée par le serveur. Réessayez dans quelques instants.',
         429 => 'Trop de requêtes. Veuillez patienter avant de réessayer.',
         502 => 'Le serveur est temporairement indisponible. Réessayez plus tard.',
         503 => 'Service en maintenance. Réessayez dans quelques instants.',
@@ -165,6 +166,7 @@ class HandleWafErrors
         return match ($status) {
             401     => 'UNAUTHORIZED',
             403     => 'ACCESS_DENIED',
+            405     => 'METHOD_NOT_ALLOWED',
             429     => 'RATE_LIMITED',
             502     => 'BAD_GATEWAY',
             503     => 'SERVICE_UNAVAILABLE',
