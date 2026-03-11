@@ -110,12 +110,13 @@ const typeIcon = (type) => {
         sermon: 'M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3',
         church: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
         user: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
+        preacher: 'M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z',
     };
     return icons[type] || icons.sermon;
 };
 
 const typeLabel = (type) => {
-    const labels = { sermon: t('globalSearch.sermon'), church: t('globalSearch.church'), user: t('globalSearch.user') };
+    const labels = { sermon: t('globalSearch.sermon'), church: t('globalSearch.church'), user: t('globalSearch.user'), preacher: t('globalSearch.preacher') };
     return labels[type] || type;
 };
 
@@ -124,6 +125,7 @@ const typeBg = (type) => {
         sermon: 'bg-purple-50 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400',
         church: 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
         user: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400',
+        preacher: 'bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400',
     };
     return bgs[type] || bgs.sermon;
 };

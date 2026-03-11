@@ -570,7 +570,7 @@
         "closePlayer": "Close player"
     },
     "globalSearch": {
-        "placeholder": "Search sermons, churches, users...",
+        "placeholder": "Search sermons, churches, users, preachers...",
         "noResults": "No results found",
         "noResultsTip1": "Try other keywords",
         "noResultsTip2": "or check spelling",
@@ -581,7 +581,8 @@
         "close": "close",
         "sermon": "Sermon",
         "church": "Church",
-        "user": "User"
+        "user": "User",
+        "preacher": "Preacher"
     },
     "donationCreate": {
         "title": "Make a donation",

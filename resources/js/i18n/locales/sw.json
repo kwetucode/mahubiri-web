@@ -570,7 +570,7 @@
         "closePlayer": "Funga kichezaji"
     },
     "globalSearch": {
-        "placeholder": "Tafuta mahubiri, makanisa, watumiaji...",
+        "placeholder": "Tafuta mahubiri, makanisa, watumiaji, wahubiri...",
         "noResults": "Hakuna matokeo yaliyopatikana",
         "noResultsTip1": "Jaribu maneno mengine",
         "noResultsTip2": "au kagua tahajia",
@@ -581,7 +581,8 @@
         "close": "funga",
         "sermon": "Hubiri",
         "church": "Kanisa",
-        "user": "Mtumiaji"
+        "user": "Mtumiaji",
+        "preacher": "Mhubiri"
     },
     "donationCreate": {
         "title": "Toa mchango",

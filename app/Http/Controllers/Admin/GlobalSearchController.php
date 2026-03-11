@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Church;
+use App\Models\PreacherProfile;
 use App\Models\Sermon;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -83,10 +84,39 @@ class GlobalSearchController extends Controller
                     'id' => $church->id,
                     'title' => $church->name,
                     'subtitle' => collect([$church->city, $church->country_name])->filter()->implode(', '),
-                    'url' => '/admin/churches/' . $church->id,
+                    'url' => '/admin/churches?tab=churches&search=' . urlencode($church->name),
                     'image' => $church->logo_url ? asset($church->logo_url) : null,
                     'badge' => $church->is_active ? 'Active' : 'Inactive',
                     'badge_color' => $church->is_active ? 'emerald' : 'red',
+                ];
+            }
+
+            // ── Independent Preachers (super admin only) ─────────
+            $preachers = PreacherProfile::query()
+                ->with('user:id,name,email')
+                ->select('id', 'user_id', 'ministry_name', 'ministry_type', 'avatar_url', 'city', 'country_name', 'is_active')
+                ->where(function ($q) use ($query) {
+                    $q->where('ministry_name', 'LIKE', "%{$query}%")
+                      ->orWhere('city', 'LIKE', "%{$query}%")
+                      ->orWhereHas('user', function ($uq) use ($query) {
+                          $uq->where('name', 'LIKE', "%{$query}%")
+                              ->orWhere('email', 'LIKE', "%{$query}%");
+                      });
+                })
+                ->orderByDesc('created_at')
+                ->limit(5)
+                ->get();
+
+            foreach ($preachers as $p) {
+                $results[] = [
+                    'type' => 'preacher',
+                    'id' => $p->id,
+                    'title' => $p->user?->name ?? $p->ministry_name,
+                    'subtitle' => collect([$p->ministry_name, $p->city])->filter()->implode(' · '),
+                    'url' => '/admin/churches?tab=preachers&search=' . urlencode($p->user?->name ?? $p->ministry_name),
+                    'image' => $p->avatar_url ? asset($p->avatar_url) : null,
+                    'badge' => $p->is_active ? 'Active' : 'Inactive',
+                    'badge_color' => $p->is_active ? 'emerald' : 'red',
                 ];
             }
 

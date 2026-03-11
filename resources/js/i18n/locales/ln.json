@@ -570,7 +570,7 @@
         "closePlayer": "Kokanga lecteur"
     },
     "globalSearch": {
-        "placeholder": "Luká malobeli, mangomba, basaleli...",
+        "placeholder": "Luká malobeli, mangomba, basaleli, balobi...",
         "noResults": "Mbala moko te emonani",
         "noResultsTip1": "Meká na maloba mosusu",
         "noResultsTip2": "to talá bokomi",
@@ -581,7 +581,8 @@
         "close": "kokanga",
         "sermon": "Lobeli",
         "church": "Lingomba",
-        "user": "Mosaleli"
+        "user": "Mosaleli",
+        "preacher": "Molobi"
     },
     "donationCreate": {
         "title": "Pesá likabo",

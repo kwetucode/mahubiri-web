@@ -570,7 +570,7 @@
         "closePlayer": "Fermer le lecteur"
     },
     "globalSearch": {
-        "placeholder": "Rechercher sermons, églises, utilisateurs...",
+        "placeholder": "Rechercher sermons, églises, utilisateurs, prédicateurs...",
         "noResults": "Aucun résultat trouvé",
         "noResultsTip1": "Essayez avec d'autres mots-clés",
         "noResultsTip2": "ou vérifiez l'orthographe",
@@ -581,7 +581,8 @@
         "close": "fermer",
         "sermon": "Prédication",
         "church": "Église",
-        "user": "Utilisateur"
+        "user": "Utilisateur",
+        "preacher": "Prédicateur"
     },
     "donationCreate": {
         "title": "Faire un don",
