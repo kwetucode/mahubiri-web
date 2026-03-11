@@ -212,36 +212,36 @@ const toggleFeatured = async (row) => {
                         <div class="flex items-center gap-4">
                             <div class="w-11 h-11 rounded-xl bg-primary/10 animate-pulse"></div>
                             <div class="space-y-1.5">
-                                <div class="h-5 w-48 bg-gray-200/80 rounded-lg animate-pulse"></div>
-                                <div class="h-3 w-64 bg-gray-100 rounded animate-pulse"></div>
+                                <div class="h-5 w-48 bg-gray-200/80 dark:bg-gray-700 rounded-lg animate-pulse"></div>
+                                <div class="h-3 w-64 bg-gray-100 dark:bg-gray-700/50 rounded animate-pulse"></div>
                             </div>
                         </div>
                         <div class="h-8 w-28 bg-primary/8 rounded-full animate-pulse hidden sm:block"></div>
                     </div>
                 </div>
                 <!-- Skeleton toolbar -->
-                <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm p-2 flex flex-col sm:flex-row gap-2">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/60 dark:border-gray-700 shadow-sm p-2 flex flex-col sm:flex-row gap-2">
                     <div class="flex gap-1 p-0.5">
-                        <div class="h-9 w-24 bg-gray-100 rounded-xl animate-pulse"></div>
-                        <div class="h-9 w-44 bg-gray-50 rounded-xl animate-pulse"></div>
+                        <div class="h-9 w-24 bg-gray-100 dark:bg-gray-700 rounded-xl animate-pulse"></div>
+                        <div class="h-9 w-44 bg-gray-50 dark:bg-gray-700/50 rounded-xl animate-pulse"></div>
                     </div>
-                    <div class="flex-1 h-9 bg-gray-50 rounded-xl animate-pulse"></div>
+                    <div class="flex-1 h-9 bg-gray-50 dark:bg-gray-700/50 rounded-xl animate-pulse"></div>
                 </div>
                 <!-- Skeleton table -->
-                <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
-                    <div class="border-b border-gray-100 px-5 py-3.5 flex gap-8">
-                        <div v-for="n in 5" :key="'sh-'+n" class="h-3 rounded bg-gray-100 animate-pulse" :style="{ width: (40 + n * 16) + 'px' }"></div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/60 dark:border-gray-700 shadow-sm overflow-hidden">
+                    <div class="border-b border-gray-100 dark:border-gray-700 px-5 py-3.5 flex gap-8">
+                        <div v-for="n in 5" :key="'sh-'+n" class="h-3 rounded bg-gray-100 dark:bg-gray-700 animate-pulse" :style="{ width: (40 + n * 16) + 'px' }"></div>
                     </div>
-                    <div class="divide-y divide-gray-50/80">
+                    <div class="divide-y divide-gray-50/80 dark:divide-gray-700/50">
                         <div v-for="n in 6" :key="'sr-'+n" class="flex items-center gap-4 px-5 py-3.5">
-                            <div class="w-9 h-9 rounded-xl bg-gray-100/80 animate-pulse shrink-0"></div>
+                            <div class="w-9 h-9 rounded-xl bg-gray-100/80 dark:bg-gray-700 animate-pulse shrink-0"></div>
                             <div class="flex-1 space-y-1.5">
-                                <div class="h-3.5 bg-gray-100/80 rounded animate-pulse" :style="{ width: (100 + n * 20) + 'px' }"></div>
-                                <div class="h-2.5 w-20 bg-gray-50 rounded animate-pulse"></div>
+                                <div class="h-3.5 bg-gray-100/80 dark:bg-gray-700 rounded animate-pulse" :style="{ width: (100 + n * 20) + 'px' }"></div>
+                                <div class="h-2.5 w-20 bg-gray-50 dark:bg-gray-700/50 rounded animate-pulse"></div>
                             </div>
-                            <div class="hidden md:block h-4 w-16 bg-gray-50 rounded animate-pulse"></div>
-                            <div class="hidden sm:block h-5 w-11 bg-gray-100/60 rounded-full animate-pulse"></div>
-                            <div class="hidden lg:block h-3 w-20 bg-gray-50 rounded animate-pulse"></div>
+                            <div class="hidden md:block h-4 w-16 bg-gray-50 dark:bg-gray-700/50 rounded animate-pulse"></div>
+                            <div class="hidden sm:block h-5 w-11 bg-gray-100/60 dark:bg-gray-700 rounded-full animate-pulse"></div>
+                            <div class="hidden lg:block h-3 w-20 bg-gray-50 dark:bg-gray-700/50 rounded animate-pulse"></div>
                         </div>
                     </div>
                 </div>
@@ -263,8 +263,8 @@ const toggleFeatured = async (row) => {
                             </svg>
                         </div>
                         <div>
-                            <h1 class="text-lg font-bold text-gray-900 leading-tight">{{ t('churches.title') }}</h1>
-                            <p class="text-xs text-gray-500 mt-0.5">{{ t('churches.subtitle') }}</p>
+                            <h1 class="text-lg font-bold text-gray-900 dark:text-white leading-tight">{{ t('churches.title') }}</h1>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ t('churches.subtitle') }}</p>
                         </div>
                     </div>
                     <span
@@ -278,10 +278,10 @@ const toggleFeatured = async (row) => {
             </div>
 
             <!-- Toolbar: Tabs + Search -->
-            <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/60 dark:border-gray-700 shadow-sm">
                 <div class="flex flex-col sm:flex-row sm:items-center gap-2 p-2">
                     <!-- Tabs -->
-                    <div class="bg-gray-100/80 rounded-xl p-1 inline-flex gap-1 shrink-0">
+                    <div class="bg-gray-100/80 dark:bg-gray-700/50 rounded-xl p-1 inline-flex gap-1 shrink-0">
                         <button
                             v-for="tab in tabs"
                             :key="tab.key"
@@ -289,7 +289,7 @@ const toggleFeatured = async (row) => {
                             class="relative flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200"
                             :class="activeTab === tab.key
                                 ? 'bg-primary text-white shadow-md shadow-primary/30'
-                                : 'text-gray-500 hover:text-gray-700 hover:bg-white/60'"
+                                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-white/60 dark:hover:bg-gray-600/50'"
                         >
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="tab.icon" />
@@ -348,13 +348,13 @@ const toggleFeatured = async (row) => {
                             </svg>
                         </div>
                         <div class="min-w-0">
-                            <p class="text-[13px] font-semibold text-gray-900 truncate leading-tight">
+                            <p class="text-[13px] font-semibold text-gray-900 dark:text-white truncate leading-tight">
                                 {{ row.abbreviation || row.name }}
                             </p>
-                            <p class="text-[11px] text-gray-400 truncate mt-0.5">
+                            <p class="text-[11px] text-gray-400 dark:text-gray-500 truncate mt-0.5">
                                 {{ row.visionary_name || row.created_by_name || '—' }}
                             </p>
-                            <p v-if="row.is_featured" class="text-[10px] text-amber-600 font-semibold mt-0.5">★ {{ t('churches.featuredChurch') }}</p>
+                            <p v-if="row.is_featured" class="text-[10px] text-amber-600 dark:text-amber-400 font-semibold mt-0.5">★ {{ t('churches.featuredChurch') }}</p>
                         </div>
                     </div>
                 </template>
@@ -373,18 +373,18 @@ const toggleFeatured = async (row) => {
                 <!-- Location cell -->
                 <template #cell-city="{ row }">
                     <div v-if="row.city || row.country_name" class="flex items-center gap-1.5">
-                        <svg class="w-3 h-3 text-gray-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-3 h-3 text-gray-300 dark:text-gray-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
-                        <span class="text-[13px] text-gray-600">{{ row.city || row.country_name }}</span>
+                        <span class="text-[13px] text-gray-600 dark:text-gray-400">{{ row.city || row.country_name }}</span>
                     </div>
-                    <span v-else class="text-[13px] text-gray-300">—</span>
+                    <span v-else class="text-[13px] text-gray-300 dark:text-gray-600">—</span>
                 </template>
 
                 <!-- Sermons count cell -->
                 <template #cell-sermons_count="{ row }">
-                    <span class="inline-flex items-center gap-1 text-[13px] font-medium" :class="row.sermons_count > 0 ? 'text-blue-600' : 'text-gray-400'">
+                    <span class="inline-flex items-center gap-1 text-[13px] font-medium" :class="row.sermons_count > 0 ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                         </svg>
@@ -405,7 +405,7 @@ const toggleFeatured = async (row) => {
 
                 <!-- Created at cell -->
                 <template #cell-created_at="{ row }">
-                    <span class="text-[13px] text-gray-500">{{ row.created_at_human || row.created_at }}</span>
+                    <span class="text-[13px] text-gray-500 dark:text-gray-400">{{ row.created_at_human || row.created_at }}</span>
                 </template>
 
                 <template #actions="{ row }">
@@ -451,8 +451,8 @@ const toggleFeatured = async (row) => {
                             </span>
                         </div>
                         <div class="min-w-0">
-                            <p class="text-[13px] font-semibold text-gray-900 truncate leading-tight">{{ row.user_name }}</p>
-                            <p class="text-[11px] text-gray-400 truncate mt-0.5">{{ row.ministry_name }}</p>
+                            <p class="text-[13px] font-semibold text-gray-900 dark:text-white truncate leading-tight">{{ row.user_name }}</p>
+                            <p class="text-[11px] text-gray-400 dark:text-gray-500 truncate mt-0.5">{{ row.ministry_name }}</p>
                         </div>
                     </div>
                 </template>
@@ -470,18 +470,18 @@ const toggleFeatured = async (row) => {
                 <!-- Location cell (preacher) -->
                 <template #cell-city="{ row }">
                     <div v-if="row.city || row.country_name" class="flex items-center gap-1.5">
-                        <svg class="w-3 h-3 text-gray-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-3 h-3 text-gray-300 dark:text-gray-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
-                        <span class="text-[13px] text-gray-600">{{ row.city || row.country_name }}</span>
+                        <span class="text-[13px] text-gray-600 dark:text-gray-400">{{ row.city || row.country_name }}</span>
                     </div>
-                    <span v-else class="text-[13px] text-gray-300">—</span>
+                    <span v-else class="text-[13px] text-gray-300 dark:text-gray-600">—</span>
                 </template>
 
                 <!-- Sermons count cell -->
                 <template #cell-sermons_count="{ row }">
-                    <span class="inline-flex items-center gap-1 text-[13px] font-medium" :class="row.sermons_count > 0 ? 'text-blue-600' : 'text-gray-400'">
+                    <span class="inline-flex items-center gap-1 text-[13px] font-medium" :class="row.sermons_count > 0 ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                         </svg>
@@ -502,7 +502,7 @@ const toggleFeatured = async (row) => {
 
                 <!-- Created at cell -->
                 <template #cell-created_at="{ row }">
-                    <span class="text-[13px] text-gray-500">{{ row.created_at_human || row.created_at }}</span>
+                    <span class="text-[13px] text-gray-500 dark:text-gray-400">{{ row.created_at_human || row.created_at }}</span>
                 </template>
             </DataTable>
             </template>

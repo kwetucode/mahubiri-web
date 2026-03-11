@@ -150,8 +150,8 @@ const totalLabel = computed(() => {
 
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 class="text-2xl font-extrabold text-gray-900">{{ t('categories.title') }}</h1>
-                    <p class="text-gray-500 mt-1 text-sm">{{ t('categories.subtitle') }}</p>
+                    <h1 class="text-2xl font-extrabold text-gray-900 dark:text-white">{{ t('categories.title') }}</h1>
+                    <p class="text-gray-500 dark:text-gray-400 mt-1 text-sm">{{ t('categories.subtitle') }}</p>
                 </div>
                 <div class="flex items-center gap-3">
                     <span class="inline-flex items-center px-4 py-2 bg-primary/10 text-primary rounded-xl text-sm font-bold ring-1 ring-primary/20">
@@ -187,19 +187,19 @@ const totalLabel = computed(() => {
                 @sort="handleSort"
             >
                 <template #cell-name="{ row }">
-                    <span class="text-sm font-semibold text-gray-900">{{ row.name }}</span>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ row.name }}</span>
                 </template>
 
                 <template #cell-sermons_count="{ row }">
-                    <span class="inline-flex items-center gap-1 text-sm font-medium" :class="row.sermons_count > 0 ? 'text-blue-600' : 'text-gray-400'">
+                    <span class="inline-flex items-center gap-1 text-sm font-medium" :class="row.sermons_count > 0 ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'">
                         {{ row.sermons_count }}
                     </span>
                 </template>
 
                 <template #cell-created_at="{ row }">
                     <div>
-                        <p class="text-sm text-gray-700">{{ row.created_at }}</p>
-                        <p class="text-xs text-gray-400">{{ row.created_at_human }}</p>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">{{ row.created_at }}</p>
+                        <p class="text-xs text-gray-400 dark:text-gray-500">{{ row.created_at_human }}</p>
                     </div>
                 </template>
 
@@ -207,14 +207,14 @@ const totalLabel = computed(() => {
                     <div class="inline-flex items-center gap-2">
                         <button
                             @click="openEditModal(row)"
-                            class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors"
+                            class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors"
                         >
                             {{ t('common.edit') }}
                         </button>
                         <button
                             v-if="!row.sermons_count"
                             @click="openDeleteModal(row)"
-                            class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-red-50 text-red-700 hover:bg-red-100 transition-colors"
+                            class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
                         >
                             {{ t('common.delete') }}
                         </button>
@@ -224,20 +224,20 @@ const totalLabel = computed(() => {
 
             <!-- Create Modal -->
             <div v-if="showCreateModal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-                <div class="w-full max-w-md bg-white rounded-2xl border border-gray-200 shadow-xl p-6 space-y-4">
-                    <h3 class="text-lg font-bold text-gray-900">{{ t('categories.addCategory') }}</h3>
+                <div class="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-xl p-6 space-y-4">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ t('categories.addCategory') }}</h3>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('categories.name') }}</label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ t('categories.name') }}</label>
                         <input
                             v-model="createForm.name"
                             type="text"
-                            class="w-full rounded-xl border-gray-300 focus:border-primary focus:ring-primary"
+                            class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-primary focus:ring-primary"
                             :placeholder="t('categories.categoryNamePlaceholder')"
                         />
                     </div>
                     <p v-if="saveError" class="text-sm text-red-600">{{ saveError }}</p>
                     <div class="flex justify-end gap-2">
-                        <button @click="showCreateModal = false" class="px-4 py-2 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100">{{ t('common.cancel') }}</button>
+                        <button @click="showCreateModal = false" class="px-4 py-2 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">{{ t('common.cancel') }}</button>
                         <button @click="saveCreate" :disabled="formLoading" class="px-4 py-2 rounded-xl text-sm font-semibold bg-primary text-white hover:bg-primary/90 disabled:opacity-60">
                             {{ formLoading ? t('common.saving') : t('common.save') }}
                         </button>
@@ -247,20 +247,20 @@ const totalLabel = computed(() => {
 
             <!-- Edit Modal -->
             <div v-if="showEditModal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-                <div class="w-full max-w-md bg-white rounded-2xl border border-gray-200 shadow-xl p-6 space-y-4">
-                    <h3 class="text-lg font-bold text-gray-900">{{ t('categories.editCategory') }}</h3>
+                <div class="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-xl p-6 space-y-4">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ t('categories.editCategory') }}</h3>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('categories.name') }}</label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ t('categories.name') }}</label>
                         <input
                             v-model="editForm.name"
                             type="text"
-                            class="w-full rounded-xl border-gray-300 focus:border-primary focus:ring-primary"
+                            class="w-full rounded-xl border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-primary focus:ring-primary"
                             :placeholder="t('categories.categoryNamePlaceholder')"
                         />
                     </div>
                     <p v-if="saveError" class="text-sm text-red-600">{{ saveError }}</p>
                     <div class="flex justify-end gap-2">
-                        <button @click="showEditModal = false" class="px-4 py-2 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100">{{ t('common.cancel') }}</button>
+                        <button @click="showEditModal = false" class="px-4 py-2 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">{{ t('common.cancel') }}</button>
                         <button @click="saveEdit" :disabled="formLoading" class="px-4 py-2 rounded-xl text-sm font-semibold bg-primary text-white hover:bg-primary/90 disabled:opacity-60">
                             {{ formLoading ? t('common.saving') : t('common.save') }}
                         </button>
