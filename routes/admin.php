@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\StorageUpgradeController;
 use App\Http\Controllers\Admin\StorageCleanupController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RegisterController;
+use App\Http\Controllers\Admin\PasswordResetController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,6 +35,13 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::get('/register', [RegisterController::class, 'showRegister'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
+
+    // Password reset
+    Route::get('/forgot-password', [PasswordResetController::class, 'showForgotPassword'])->name('password.request');
+    Route::post('/forgot-password', [PasswordResetController::class, 'sendResetCode'])->name('password.email');
+    Route::get('/reset-password', [PasswordResetController::class, 'showResetPassword'])->name('password.reset');
+    Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])->name('password.update');
+    Route::post('/forgot-password/resend', [PasswordResetController::class, 'resendCode'])->name('password.resend');
 });
 
 // Authenticated routes

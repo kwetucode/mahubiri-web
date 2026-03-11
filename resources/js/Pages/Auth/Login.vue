@@ -9,6 +9,7 @@ const { t } = useI18n();
 const { theme, toggleTheme } = useTheme();
 const page = usePage();
 const stats = computed(() => page.props.stats || {});
+const passwordReset = computed(() => page.props.flash?.status === 'password-reset');
 
 const form = useForm({
     email: '',
@@ -63,6 +64,14 @@ const features = computed(() => [
                             <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
                         </svg>
                     </button>
+                </div>
+
+                <!-- Password reset success -->
+                <div v-if="passwordReset" class="success-banner">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                    <span>{{ t('login.passwordResetSuccess') }}</span>
                 </div>
 
                 <!-- Heading -->
@@ -137,7 +146,7 @@ const features = computed(() => [
                         </p>
                     </div>
 
-                    <!-- Remember me -->
+                    <!-- Remember me + Forgot password -->
                     <div class="form-options">
                         <label class="remember-label">
                             <input v-model="form.remember" type="checkbox" />
@@ -146,6 +155,7 @@ const features = computed(() => [
                             </span>
                             <span>{{ t('login.rememberMe') }}</span>
                         </label>
+                        <a :href="'/admin/forgot-password'" class="forgot-link">{{ t('login.forgotPassword') }}</a>
                     </div>
 
                     <!-- Submit -->
@@ -326,6 +336,16 @@ const features = computed(() => [
 .login-heading {
     margin-bottom: 32px;
 }
+
+/* Success banner */
+.success-banner {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px; border-radius: 14px;
+    background: #ecfdf5; border: 1px solid #a7f3d0;
+    color: #065f46; font-size: 13px; font-weight: 600;
+    margin-bottom: 20px;
+}
+.success-banner svg { width: 18px; height: 18px; flex-shrink: 0; color: #10b981; }
 .login-heading h2 {
     font-size: 26px; font-weight: 800; color: #111827;
     letter-spacing: -0.5px; margin-bottom: 6px;
@@ -389,7 +409,7 @@ const features = computed(() => [
 
 /* ── Remember ── */
 .form-options {
-    display: flex; align-items: center;
+    display: flex; align-items: center; justify-content: space-between;
 }
 .remember-label {
     display: flex; align-items: center; gap: 10px;
@@ -410,6 +430,13 @@ const features = computed(() => [
 }
 .remember-label input:checked ~ .custom-check svg { opacity: 1; }
 .remember-label:hover .custom-check { border-color: #6B4EAF; }
+
+/* ── Forgot Password Link ── */
+.forgot-link {
+    font-size: 13px; font-weight: 600; color: #6B4EAF;
+    text-decoration: none; transition: color .2s;
+}
+.forgot-link:hover { color: #5a3d96; text-decoration: underline; }
 
 /* ── Submit ── */
 .submit-btn {
@@ -628,6 +655,9 @@ const features = computed(() => [
 :root.dark .login-logo-title { color: #f3f4f6; }
 :root.dark .login-logo-sub { color: #6b7280; }
 
+:root.dark .success-banner { background: #064e3b; border-color: #065f46; color: #a7f3d0; }
+:root.dark .success-banner svg { color: #34d399; }
+
 :root.dark .login-heading h2 { color: #f3f4f6; }
 :root.dark .login-heading p { color: #9ca3af; }
 
@@ -657,6 +687,9 @@ const features = computed(() => [
 :root.dark .remember-label { color: #9ca3af; }
 :root.dark .custom-check { border-color: #4b5563; }
 :root.dark .remember-label:hover .custom-check { border-color: #8b6fcf; }
+
+:root.dark .forgot-link { color: #a78bfa; }
+:root.dark .forgot-link:hover { color: #c4b5fd; }
 
 :root.dark .submit-btn {
     background: linear-gradient(135deg, #7c5fc4 0%, #6B4EAF 100%);

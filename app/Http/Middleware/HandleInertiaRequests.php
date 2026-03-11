@@ -52,6 +52,7 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
+                'status' => fn () => $request->session()->get('status'),
                 'donation_uuid' => fn () => $request->session()->get('donation_uuid'),
                 'upgrade_uuid' => fn () => $request->session()->get('upgrade_uuid'),
                 'twoFactorQrCode' => fn () => $request->session()->get('twoFactorQrCode'),
