@@ -14,7 +14,6 @@ use App\Http\Controllers\Api\Church\UpdateLogoChurchController;
 use App\Http\Controllers\Api\Church\ChurchStatisticsController;
 use App\Http\Controllers\Api\Sermon\FavoriteSermonController;
 use App\Http\Controllers\Api\Sermon\SermonController;
-use App\Http\Controllers\Api\Sermon\SermonAudioStreamController;
 use App\Http\Controllers\Api\Sermon\SermonListController;
 use App\Http\Controllers\Api\Sermon\SermonSearchController;
 use App\Http\Controllers\Api\User\UserAvatarController;
@@ -69,19 +68,6 @@ Route::prefix('auth')->group(function () {
     Route::post('/social/login', [SocialAuthController::class, 'socialLogin'])
         ->name('social.login');
 });
-
-// Public audio streaming route (Range/206 support, HEAD for pre-flight)
-// withoutMiddleware: skip ForceJsonResponse (forces Accept:json — wrong for audio),
-// OptimizeApiResponse (tries to read streamed body for ETag), and HandleWafErrors.
-// These middlewares add overhead and are designed for JSON API responses, not binary audio.
-Route::match(['GET', 'HEAD'], '/sermons/{sermon}/stream', SermonAudioStreamController::class)
-    ->whereNumber('sermon')
-    ->name('sermons.stream')
-    ->withoutMiddleware([
-        \App\Http\Middleware\ForceJsonResponse::class,
-        \App\Http\Middleware\OptimizeApiResponse::class,
-        \App\Http\Middleware\HandleWafErrors::class,
-    ]);
 
 // Protected authentication routes
 Route::middleware('auth:sanctum')->prefix('user')->group(function () {
@@ -282,16 +268,4 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
     });
 });
 
-// ── Temporary debug endpoint (remove after diagnosing 403s) ────────────────
-Route::get('/debug/stream-check/{sermon}', function (\App\Models\Sermon $sermon, Request $request) {
-    return response()->json([
-        'sermon_id'       => $sermon->id,
-        'is_published'    => $sermon->is_published,
-        'has_audio'       => !empty($sermon->audio_url),
-        'audio_url'       => $sermon->audio_url,
-        'file_exists'     => is_file(storage_path('app/public/' . str_replace('storage/', '', $sermon->audio_url ?? ''))),
-        'auth_header'     => $request->header('Authorization') ? 'present' : 'absent',
-        'server_software' => $_SERVER['SERVER_SOFTWARE'] ?? 'unknown',
-        'mod_security'    => function_exists('apache_get_modules') ? in_array('mod_security2', apache_get_modules()) : 'cannot_detect',
-    ]);
-})->whereNumber('sermon');
+

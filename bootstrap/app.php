@@ -46,9 +46,14 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        // Ensure all API exceptions render as JSON, never HTML
+        // Ensure all API exceptions render as JSON, never HTML.
+        // Exclude Inertia requests so that session expiration redirects
+        // to the login page instead of showing raw JSON.
         $exceptions->render(function (\Throwable $e, \Illuminate\Http\Request $request) {
-            if ($request->is('api/*') || $request->wantsJson()) {
+            $isApiRequest = $request->is('api/*')
+                || ($request->wantsJson() && !$request->header('X-Inertia'));
+
+            if ($isApiRequest) {
                 $status = method_exists($e, 'getStatusCode')
                     ? $e->getStatusCode()
                     : 500;
@@ -84,7 +89,8 @@ return Application::configure(basePath: dirname(__DIR__))
                 ], $status);
             }
 
-            // Non-API requests: let Laravel handle normally
+            // Non-API requests (Inertia/web): let Laravel handle normally
+            // (redirect to login on AuthenticationException, etc.)
             return null;
         });
     })
