@@ -76,9 +76,9 @@ const statusFilters = computed(() => [
 ]);
 
 const statusStyles = computed(() => ({
-    completed: { bg: 'bg-emerald-50 text-emerald-700 ring-emerald-600/10', dot: 'bg-emerald-500', label: t('donations.completed') },
-    pending: { bg: 'bg-amber-50 text-amber-700 ring-amber-600/10', dot: 'bg-amber-500', label: t('donations.pending') },
-    failed: { bg: 'bg-red-50 text-red-700 ring-red-600/10', dot: 'bg-red-500', label: t('donations.failed') },
+    completed: { bg: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 ring-emerald-600/10', dot: 'bg-emerald-500', label: t('donations.completed') },
+    pending: { bg: 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 ring-amber-600/10', dot: 'bg-amber-500', label: t('donations.pending') },
+    failed: { bg: 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 ring-red-600/10', dot: 'bg-red-500', label: t('donations.failed') },
 }));
 
 const getStatus = (status) => statusStyles.value[status] || statusStyles.value.pending;
@@ -123,16 +123,16 @@ const statColorMap = {
         text: 'text-primary',
     },
     emerald: {
-        bg: 'bg-emerald-50',
-        text: 'text-emerald-600',
+        bg: 'bg-emerald-50 dark:bg-emerald-900/20',
+        text: 'text-emerald-600 dark:text-emerald-400',
     },
     amber: {
-        bg: 'bg-amber-50',
-        text: 'text-amber-600',
+        bg: 'bg-amber-50 dark:bg-amber-900/20',
+        text: 'text-amber-600 dark:text-amber-400',
     },
     blue: {
-        bg: 'bg-blue-50',
-        text: 'text-blue-600',
+        bg: 'bg-blue-50 dark:bg-blue-900/20',
+        text: 'text-blue-600 dark:text-blue-400',
     },
 };
 </script>
@@ -149,10 +149,10 @@ const statColorMap = {
                 <div class="relative overflow-hidden rounded-2xl bg-linear-to-r from-emerald-500/6 via-emerald-500/3 to-transparent border border-emerald-500/10 p-5">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-4">
-                            <div class="w-11 h-11 rounded-xl bg-emerald-100/60 animate-pulse"></div>
+                            <div class="w-11 h-11 rounded-xl bg-emerald-100/60 dark:bg-emerald-900/30 animate-pulse"></div>
                             <div class="space-y-1.5">
-                                <div class="h-5 w-36 bg-gray-200/80 rounded-lg animate-pulse"></div>
-                                <div class="h-3 w-56 bg-gray-100 rounded animate-pulse"></div>
+                                <div class="h-5 w-36 bg-gray-200/80 dark:bg-gray-700 rounded-lg animate-pulse"></div>
+                                <div class="h-3 w-56 bg-gray-100 dark:bg-gray-700/50 rounded animate-pulse"></div>
                             </div>
                         </div>
                         <div class="h-8 w-28 bg-emerald-100/40 rounded-full animate-pulse hidden sm:block"></div>
@@ -160,38 +160,38 @@ const statColorMap = {
                 </div>
                 <!-- Skeleton stat cards -->
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                    <div v-for="n in 4" :key="'ss-'+n" class="bg-white rounded-xl border border-gray-100 p-3.5">
+                    <div v-for="n in 4" :key="'ss-'+n" class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-3.5">
                         <div class="flex items-center gap-3">
-                            <div class="w-9 h-9 rounded-lg bg-gray-100 animate-pulse shrink-0"></div>
+                            <div class="w-9 h-9 rounded-lg bg-gray-100 dark:bg-gray-700 animate-pulse shrink-0"></div>
                             <div class="flex-1 space-y-1.5">
-                                <div class="h-5 w-12 bg-gray-200/80 rounded animate-pulse"></div>
-                                <div class="h-2.5 w-20 bg-gray-50 rounded animate-pulse"></div>
+                                <div class="h-5 w-12 bg-gray-200/80 dark:bg-gray-700 rounded animate-pulse"></div>
+                                <div class="h-2.5 w-20 bg-gray-50 dark:bg-gray-700/50 rounded animate-pulse"></div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <!-- Skeleton toolbar -->
-                <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm p-2 flex flex-col sm:flex-row gap-2">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/60 dark:border-gray-700 shadow-sm p-2 flex flex-col sm:flex-row gap-2">
                     <div class="flex gap-1 p-0.5">
-                        <div v-for="n in 4" :key="'sf-'+n" class="h-8 rounded-lg bg-gray-100 animate-pulse" :style="{ width: (50 + n * 14) + 'px' }"></div>
+                        <div v-for="n in 4" :key="'sf-'+n" class="h-8 rounded-lg bg-gray-100 dark:bg-gray-700 animate-pulse" :style="{ width: (50 + n * 14) + 'px' }"></div>
                     </div>
-                    <div class="flex-1 h-9 bg-gray-50 rounded-xl animate-pulse"></div>
+                    <div class="flex-1 h-9 bg-gray-50 dark:bg-gray-700/50 rounded-xl animate-pulse"></div>
                 </div>
                 <!-- Skeleton table -->
-                <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
-                    <div class="border-b border-gray-100 px-5 py-3.5 flex gap-8">
-                        <div v-for="n in 5" :key="'sh-'+n" class="h-3 rounded bg-gray-100 animate-pulse" :style="{ width: (40 + n * 16) + 'px' }"></div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/60 dark:border-gray-700 shadow-sm overflow-hidden">
+                    <div class="border-b border-gray-100 dark:border-gray-700 px-5 py-3.5 flex gap-8">
+                        <div v-for="n in 5" :key="'sh-'+n" class="h-3 rounded bg-gray-100 dark:bg-gray-700 animate-pulse" :style="{ width: (40 + n * 16) + 'px' }"></div>
                     </div>
-                    <div class="divide-y divide-gray-50/80">
+                    <div class="divide-y divide-gray-50/80 dark:divide-gray-700/50">
                         <div v-for="n in 6" :key="'sr-'+n" class="flex items-center gap-4 px-5 py-3.5">
-                            <div class="w-8 h-8 rounded-full bg-gray-100/80 animate-pulse shrink-0"></div>
+                            <div class="w-8 h-8 rounded-full bg-gray-100/80 dark:bg-gray-700 animate-pulse shrink-0"></div>
                             <div class="flex-1 space-y-1.5">
-                                <div class="h-3.5 bg-gray-100/80 rounded animate-pulse" :style="{ width: (90 + n * 18) + 'px' }"></div>
-                                <div class="h-2.5 w-24 bg-gray-50 rounded animate-pulse"></div>
+                                <div class="h-3.5 bg-gray-100/80 dark:bg-gray-700 rounded animate-pulse" :style="{ width: (90 + n * 18) + 'px' }"></div>
+                                <div class="h-2.5 w-24 bg-gray-50 dark:bg-gray-700/50 rounded animate-pulse"></div>
                             </div>
-                            <div class="hidden md:block h-3 w-20 bg-gray-50 rounded animate-pulse"></div>
-                            <div class="h-4 w-14 bg-gray-100/60 rounded-full animate-pulse"></div>
-                            <div class="hidden lg:block h-3 w-16 bg-gray-50 rounded animate-pulse"></div>
+                            <div class="hidden md:block h-3 w-20 bg-gray-50 dark:bg-gray-700/50 rounded animate-pulse"></div>
+                            <div class="h-4 w-14 bg-gray-100/60 dark:bg-gray-700 rounded-full animate-pulse"></div>
+                            <div class="hidden lg:block h-3 w-16 bg-gray-50 dark:bg-gray-700/50 rounded animate-pulse"></div>
                         </div>
                     </div>
                 </div>
@@ -211,13 +211,13 @@ const statColorMap = {
                             </svg>
                         </div>
                         <div>
-                            <h1 class="text-lg font-bold text-gray-900 leading-tight">{{ t('donations.title') }}</h1>
-                            <p class="text-xs text-gray-500 mt-0.5">{{ t('donations.subtitle') }}</p>
+                            <h1 class="text-lg font-bold text-gray-900 dark:text-white leading-tight">{{ t('donations.title') }}</h1>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ t('donations.subtitle') }}</p>
                         </div>
                     </div>
                     <span
                         v-if="donations"
-                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 text-emerald-700 rounded-full text-xs font-bold ring-1 ring-emerald-500/15 shrink-0 self-start sm:self-auto"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 rounded-full text-xs font-bold ring-1 ring-emerald-500/15 shrink-0 self-start sm:self-auto"
                     >
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500/60"></span>
                         {{ t('donations.donationCount', { count: donations.total }) }}
@@ -230,7 +230,7 @@ const statColorMap = {
                 <div
                     v-for="stat in statCards"
                     :key="stat.label"
-                    class="bg-white rounded-xl border border-gray-100 p-3.5 hover:shadow-sm transition-shadow"
+                    class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-3.5 hover:shadow-sm transition-shadow"
                 >
                     <div class="flex items-center gap-3">
                         <div
@@ -242,20 +242,20 @@ const statColorMap = {
                             </svg>
                         </div>
                         <div class="min-w-0">
-                            <p class="text-lg font-bold text-gray-900 leading-tight truncate" :class="{ 'text-sm': stat.isText }">
+                            <p class="text-lg font-bold text-gray-900 dark:text-white leading-tight truncate" :class="{ 'text-sm': stat.isText }">
                                 {{ stat.value }}
                             </p>
-                            <p class="text-[11px] text-gray-400 mt-0.5 truncate">{{ stat.label }}</p>
+                            <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5 truncate">{{ stat.label }}</p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Toolbar: Filters + Search -->
-            <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/60 dark:border-gray-700 shadow-sm">
                 <div class="flex flex-col sm:flex-row sm:items-center gap-2 p-2">
                     <!-- Status filters -->
-                    <div class="bg-gray-100/80 rounded-xl p-1 inline-flex gap-1 shrink-0">
+                    <div class="bg-gray-100/80 dark:bg-gray-700/50 rounded-xl p-1 inline-flex gap-1 shrink-0">
                         <button
                             v-for="f in statusFilters"
                             :key="f.key"
@@ -263,7 +263,7 @@ const statColorMap = {
                             class="relative flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold transition-all duration-200"
                             :class="statusFilter === f.key
                                 ? 'bg-primary text-white shadow-md shadow-primary/30'
-                                : 'text-gray-500 hover:text-gray-700 hover:bg-white/60'"
+                                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-white/60 dark:hover:bg-gray-600/50'"
                         >
                             {{ f.label }}
                             <span
@@ -307,8 +307,8 @@ const statColorMap = {
                             </span>
                         </div>
                         <div class="min-w-0">
-                            <p class="text-[13px] font-semibold text-gray-900 truncate leading-tight">{{ row.donor_name }}</p>
-                            <p class="text-[11px] text-gray-400 truncate mt-0.5">{{ row.phone_number }}</p>
+                            <p class="text-[13px] font-semibold text-gray-900 dark:text-white truncate leading-tight">{{ row.donor_name }}</p>
+                            <p class="text-[11px] text-gray-400 dark:text-gray-500 truncate mt-0.5">{{ row.phone_number }}</p>
                         </div>
                     </div>
                 </template>
@@ -319,14 +319,14 @@ const statColorMap = {
                         <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="recipientIcon(row.recipient_type)" />
                         </svg>
-                        <span class="text-[13px] text-gray-600 truncate">{{ row.recipient_name }}</span>
+                        <span class="text-[13px] text-gray-600 dark:text-gray-300 truncate">{{ row.recipient_name }}</span>
                     </div>
                 </template>
 
                 <!-- Amount cell -->
                 <template #cell-amount="{ row }">
                     <div class="text-right">
-                        <p class="text-[13px] font-bold" :class="row.status === 'completed' ? 'text-emerald-700' : 'text-gray-700'">
+                        <p class="text-[13px] font-bold" :class="row.status === 'completed' ? 'text-emerald-700 dark:text-emerald-400' : 'text-gray-700 dark:text-gray-300'">
                             {{ row.formatted_amount }}
                         </p>
                         <span
@@ -351,7 +351,7 @@ const statColorMap = {
 
                 <!-- Created at cell -->
                 <template #cell-created_at="{ row }">
-                    <span class="text-[13px] text-gray-500">{{ row.created_at_human || row.created_at }}</span>
+                    <span class="text-[13px] text-gray-500 dark:text-gray-400">{{ row.created_at_human || row.created_at }}</span>
                 </template>
             </DataTable>
             </template>

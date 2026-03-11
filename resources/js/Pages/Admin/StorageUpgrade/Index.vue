@@ -145,9 +145,9 @@ const resetTracking = () => {
 };
 
 const statusStyles = {
-    completed: { bg: 'bg-emerald-50 text-emerald-700 ring-emerald-600/10', dot: 'bg-emerald-500', label: 'Complété' },
-    pending: { bg: 'bg-amber-50 text-amber-700 ring-amber-600/10', dot: 'bg-amber-500', label: 'En attente' },
-    failed: { bg: 'bg-red-50 text-red-700 ring-red-600/10', dot: 'bg-red-500', label: 'Échoué' },
+    completed: { bg: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 ring-emerald-600/10', dot: 'bg-emerald-500', label: 'Complété' },
+    pending: { bg: 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 ring-amber-600/10', dot: 'bg-amber-500', label: 'En attente' },
+    failed: { bg: 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 ring-red-600/10', dot: 'bg-red-500', label: 'Échoué' },
 };
 
 const getStatus = (status) => statusStyles[status] || statusStyles.pending;
@@ -173,8 +173,8 @@ const planBgColors = ['bg-blue-50 border-blue-200', 'bg-primary/5 border-primary
                     <div class="flex items-center gap-4">
                         <img src="/logo.png" alt="Mahubiri" class="w-12 h-12 rounded-xl shadow-md shadow-primary/20 object-contain" />
                         <div>
-                            <h1 class="text-xl font-bold text-gray-900">{{ t('storageUpgrade.title') }}</h1>
-                            <p class="text-sm text-gray-500 mt-0.5">{{ t('storageUpgrade.subtitle', { church: churchName }) }}</p>
+                            <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ t('storageUpgrade.title') }}</h1>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{{ t('storageUpgrade.subtitle', { church: churchName }) }}</p>
                         </div>
                     </div>
                     <span
@@ -188,11 +188,11 @@ const planBgColors = ['bg-blue-50 border-blue-200', 'bg-primary/5 border-primary
             </div>
 
             <!-- Sandbox banner -->
-            <div v-if="isSandbox" class="flex items-center gap-3 px-4 py-3 bg-orange-50 border border-orange-200 rounded-xl">
-                <svg class="w-5 h-5 text-orange-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div v-if="isSandbox" class="flex items-center gap-3 px-4 py-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-xl">
+                <svg class="w-5 h-5 text-orange-500 dark:text-orange-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
                 </svg>
-                <p class="text-sm font-medium text-orange-700">{{ t('storageUpgrade.sandboxWarning') }}</p>
+                <p class="text-sm font-medium text-orange-700 dark:text-orange-400">{{ t('storageUpgrade.sandboxWarning') }}</p>
             </div>
 
             <!-- Tracking status banner -->
@@ -205,59 +205,59 @@ const planBgColors = ['bg-blue-50 border-blue-200', 'bg-primary/5 border-primary
                 leave-to-class="opacity-0 -translate-y-2"
             >
                 <!-- Pending -->
-                <div v-if="trackingState === 'pending'" class="bg-amber-50 border border-amber-200 rounded-2xl p-5 text-center space-y-3">
-                    <div class="mx-auto flex items-center justify-center w-12 h-12 rounded-full bg-amber-100">
-                        <svg class="w-6 h-6 text-amber-600 animate-spin" fill="none" viewBox="0 0 24 24">
+                <div v-if="trackingState === 'pending'" class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-5 text-center space-y-3">
+                    <div class="mx-auto flex items-center justify-center w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-900/40">
+                        <svg class="w-6 h-6 text-amber-600 dark:text-amber-400 animate-spin" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
                     </div>
                     <div>
-                        <h3 class="text-sm font-bold text-amber-800">{{ t('storageUpgrade.paymentInitiated') }}</h3>
-                        <p class="text-xs text-amber-700 mt-1">{{ trackingMessage }}</p>
+                        <h3 class="text-sm font-bold text-amber-800 dark:text-amber-300">{{ t('storageUpgrade.paymentInitiated') }}</h3>
+                        <p class="text-xs text-amber-700 dark:text-amber-400 mt-1">{{ trackingMessage }}</p>
                     </div>
-                    <div class="flex items-center justify-center gap-1.5 text-xs text-amber-600">
+                    <div class="flex items-center justify-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
                         <span class="inline-block w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span>
                         {{ t('storageUpgrade.checkingStatus') }}
                     </div>
                 </div>
 
                 <!-- Completed -->
-                <div v-else-if="trackingState === 'completed'" class="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 text-center space-y-3">
-                    <div class="mx-auto flex items-center justify-center w-12 h-12 rounded-full bg-emerald-100">
+                <div v-else-if="trackingState === 'completed'" class="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-5 text-center space-y-3">
+                    <div class="mx-auto flex items-center justify-center w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-900/40">
                         <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                         </svg>
                     </div>
                     <div>
-                        <h3 class="text-sm font-bold text-emerald-800">{{ t('storageUpgrade.paymentCompleted') }}</h3>
-                        <p class="text-xs text-emerald-700 mt-1">{{ trackingMessage }}</p>
+                        <h3 class="text-sm font-bold text-emerald-800 dark:text-emerald-300">{{ t('storageUpgrade.paymentCompleted') }}</h3>
+                        <p class="text-xs text-emerald-700 dark:text-emerald-400 mt-1">{{ trackingMessage }}</p>
                     </div>
-                    <button @click="resetTracking" class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-emerald-700 bg-emerald-100 hover:bg-emerald-200 rounded-xl transition-colors">
+                    <button @click="resetTracking" class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/30 hover:bg-emerald-200 dark:hover:bg-emerald-900/50 rounded-xl transition-colors">
                         {{ t('storageUpgrade.backToPlans') }}
                     </button>
                 </div>
 
                 <!-- Failed -->
-                <div v-else-if="trackingState === 'failed'" class="bg-red-50 border border-red-200 rounded-2xl p-5 text-center space-y-3">
-                    <div class="mx-auto flex items-center justify-center w-12 h-12 rounded-full bg-red-100">
+                <div v-else-if="trackingState === 'failed'" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-5 text-center space-y-3">
+                    <div class="mx-auto flex items-center justify-center w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/40">
                         <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </div>
                     <div>
-                        <h3 class="text-sm font-bold text-red-800">{{ t('storageUpgrade.paymentFailed') }}</h3>
-                        <p v-if="failureReason" class="text-xs text-red-700 mt-1">{{ failureReason }}</p>
+                        <h3 class="text-sm font-bold text-red-800 dark:text-red-300">{{ t('storageUpgrade.paymentFailed') }}</h3>
+                        <p v-if="failureReason" class="text-xs text-red-700 dark:text-red-400 mt-1">{{ failureReason }}</p>
                     </div>
-                    <button @click="resetTracking" class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-red-700 bg-red-100 hover:bg-red-200 rounded-xl transition-colors">
+                    <button @click="resetTracking" class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-red-700 dark:text-red-400 bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 rounded-xl transition-colors">
                         {{ t('storageUpgrade.backToPlans') }}
                     </button>
                 </div>
             </Transition>
 
             <!-- Current storage status -->
-            <div class="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
-                <div class="px-6 py-4 flex items-center justify-between border-b border-gray-100">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/60 dark:border-gray-700 shadow-sm overflow-hidden">
+                <div class="px-6 py-4 flex items-center justify-between border-b border-gray-100 dark:border-gray-700">
                     <div class="flex items-center gap-3">
                         <div class="flex items-center justify-center w-9 h-9 rounded-xl bg-primary/10 text-primary">
                             <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -265,8 +265,8 @@ const planBgColors = ['bg-blue-50 border-blue-200', 'bg-primary/5 border-primary
                             </svg>
                         </div>
                         <div>
-                            <h3 class="text-sm font-semibold text-gray-800">{{ t('storageUpgrade.currentUsage') }}</h3>
-                            <p class="text-[11px] text-gray-400">{{ t('storageUpgrade.quotaOf', { size: storageInfo.current_limit_gb }) }}</p>
+                            <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-200">{{ t('storageUpgrade.currentUsage') }}</h3>
+                            <p class="text-[11px] text-gray-400 dark:text-gray-500">{{ t('storageUpgrade.quotaOf', { size: storageInfo.current_limit_gb }) }}</p>
                         </div>
                     </div>
                 </div>
@@ -275,34 +275,34 @@ const planBgColors = ['bg-blue-50 border-blue-200', 'bg-primary/5 border-primary
                         <!-- Donut Chart -->
                         <div class="relative shrink-0" style="width: 120px; height: 120px;">
                             <svg viewBox="0 0 36 36" class="w-full h-full -rotate-90">
-                                <circle cx="18" cy="18" r="15.915" fill="none" class="stroke-gray-100" stroke-width="3" />
+                                <circle cx="18" cy="18" r="15.915" fill="none" class="stroke-gray-100 dark:stroke-gray-700" stroke-width="3" />
                                 <circle cx="18" cy="18" r="15.915" fill="none" :stroke="diskStatusColor.hex" stroke-width="3" stroke-linecap="round"
                                     :stroke-dasharray="diskArc.used + ' ' + diskArc.gap" stroke-dashoffset="0" class="transition-all duration-700 ease-out" />
                             </svg>
                             <div class="absolute inset-0 flex flex-col items-center justify-center">
-                                <span class="text-lg font-bold text-gray-900 leading-none">{{ storageInfo.used_percentage }}%</span>
-                                <span class="text-[10px] text-gray-400 mt-0.5">{{ t('storageUpgrade.used') }}</span>
+                                <span class="text-lg font-bold text-gray-900 dark:text-white leading-none">{{ storageInfo.used_percentage }}%</span>
+                                <span class="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">{{ t('storageUpgrade.used') }}</span>
                             </div>
                         </div>
 
                         <!-- Stats -->
                         <div class="flex-1 grid grid-cols-2 gap-4">
                             <div>
-                                <p class="text-xs text-gray-400">{{ t('storageUpgrade.used') }}</p>
-                                <p class="text-lg font-bold text-gray-900">
+                                <p class="text-xs text-gray-400 dark:text-gray-500">{{ t('storageUpgrade.used') }}</p>
+                                <p class="text-lg font-bold text-gray-900 dark:text-white">
                                     {{ storageInfo.used_gb >= 1 ? storageInfo.used_gb + ' GB' : storageInfo.used_mb + ' MB' }}
                                 </p>
                             </div>
                             <div>
-                                <p class="text-xs text-gray-400">{{ t('storageUpgrade.available') }}</p>
-                                <p class="text-lg font-bold text-gray-900">{{ storageInfo.remaining_gb }} GB</p>
+                                <p class="text-xs text-gray-400 dark:text-gray-500">{{ t('storageUpgrade.available') }}</p>
+                                <p class="text-lg font-bold text-gray-900 dark:text-white">{{ storageInfo.remaining_gb }} GB</p>
                             </div>
                             <div>
-                                <p class="text-xs text-gray-400">{{ t('storageUpgrade.quota') }}</p>
-                                <p class="text-lg font-bold text-gray-900">{{ storageInfo.current_limit_gb }} GB</p>
+                                <p class="text-xs text-gray-400 dark:text-gray-500">{{ t('storageUpgrade.quota') }}</p>
+                                <p class="text-lg font-bold text-gray-900 dark:text-white">{{ storageInfo.current_limit_gb }} GB</p>
                             </div>
                             <div>
-                                <p class="text-xs text-gray-400">{{ t('storageUpgrade.status') }}</p>
+                                <p class="text-xs text-gray-400 dark:text-gray-500">{{ t('storageUpgrade.status') }}</p>
                                 <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-semibold" :class="[diskStatusColor.light, diskStatusColor.text]">
                                     <span class="w-1.5 h-1.5 rounded-full" :class="diskStatusColor.bg"></span>
                                     {{ diskStatusColor.label }}
@@ -315,7 +315,7 @@ const planBgColors = ['bg-blue-50 border-blue-200', 'bg-primary/5 border-primary
 
             <!-- Plans -->
             <div>
-                <h2 class="text-lg font-bold text-gray-900 mb-4">{{ t('storageUpgrade.choosePlan') }}</h2>
+                <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">{{ t('storageUpgrade.choosePlan') }}</h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div
                         v-for="(plan, i) in plans"
@@ -337,13 +337,13 @@ const planBgColors = ['bg-blue-50 border-blue-200', 'bg-primary/5 border-primary
                             </div>
 
                             <div>
-                                <h3 class="text-lg font-bold text-gray-900">+{{ plan.extra_gb }} GB</h3>
-                                <p class="text-xs text-gray-500 mt-0.5">{{ plan.label }}</p>
+                                <h3 class="text-lg font-bold text-gray-900 dark:text-white">+{{ plan.extra_gb }} GB</h3>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ plan.label }}</p>
                             </div>
 
                             <div>
-                                <p class="text-2xl font-extrabold text-gray-900">{{ plan.price.toLocaleString() }}</p>
-                                <p class="text-xs text-gray-400">{{ plan.currency }}</p>
+                                <p class="text-2xl font-extrabold text-gray-900 dark:text-white">{{ plan.price.toLocaleString() }}</p>
+                                <p class="text-xs text-gray-400 dark:text-gray-500">{{ plan.currency }}</p>
                             </div>
 
                             <button
@@ -358,12 +358,12 @@ const planBgColors = ['bg-blue-50 border-blue-200', 'bg-primary/5 border-primary
             </div>
 
             <!-- Purchase History -->
-            <div v-if="history && history.length > 0" class="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-100">
-                    <h3 class="text-sm font-semibold text-gray-800">{{ t('storageUpgrade.history') }}</h3>
-                    <p class="text-[11px] text-gray-400 mt-0.5">{{ t('storageUpgrade.historyDescription') }}</p>
+            <div v-if="history && history.length > 0" class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/60 dark:border-gray-700 shadow-sm overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+                    <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-200">{{ t('storageUpgrade.history') }}</h3>
+                    <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">{{ t('storageUpgrade.historyDescription') }}</p>
                 </div>
-                <div class="divide-y divide-gray-50">
+                <div class="divide-y divide-gray-50 dark:divide-gray-700/50">
                     <div v-for="item in history" :key="item.id" class="px-6 py-3.5 flex items-center justify-between gap-4">
                         <div class="flex items-center gap-3 min-w-0">
                             <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 text-primary shrink-0">
@@ -372,12 +372,12 @@ const planBgColors = ['bg-blue-50 border-blue-200', 'bg-primary/5 border-primary
                                 </svg>
                             </div>
                             <div class="min-w-0">
-                                <p class="text-sm font-semibold text-gray-800 truncate">+{{ item.extra_gb }} GB</p>
-                                <p class="text-[11px] text-gray-400">{{ item.created_at_human }}</p>
+                                <p class="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">+{{ item.extra_gb }} GB</p>
+                                <p class="text-[11px] text-gray-400 dark:text-gray-500">{{ item.created_at_human }}</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-4 shrink-0">
-                            <span class="text-sm font-bold text-gray-700">{{ item.formatted_amount }}</span>
+                            <span class="text-sm font-bold text-gray-700 dark:text-gray-300">{{ item.formatted_amount }}</span>
                             <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[11px] font-semibold ring-1" :class="getStatus(item.status).bg">
                                 <span class="w-1.5 h-1.5 rounded-full" :class="getStatus(item.status).dot"></span>
                                 {{ getStatus(item.status).label }}
@@ -394,14 +394,14 @@ const planBgColors = ['bg-blue-50 border-blue-200', 'bg-primary/5 border-primary
                     <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" @click="closeModal"></div>
 
                     <!-- Modal -->
-                    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+                    <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
                         <!-- Header -->
-                        <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+                        <div class="px-6 py-5 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
                             <div>
-                                <h3 class="text-lg font-bold text-gray-900">{{ t('storageUpgrade.confirmPurchase') }}</h3>
-                                <p class="text-sm text-gray-500 mt-0.5">{{ t('storageUpgrade.paymentViaMobile') }}</p>
+                                <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ t('storageUpgrade.confirmPurchase') }}</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{{ t('storageUpgrade.paymentViaMobile') }}</p>
                             </div>
-                            <button @click="closeModal" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                            <button @click="closeModal" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
                                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                 </svg>
@@ -409,7 +409,7 @@ const planBgColors = ['bg-blue-50 border-blue-200', 'bg-primary/5 border-primary
                         </div>
 
                         <!-- Plan summary -->
-                        <div class="px-6 py-4 bg-gray-50 border-b border-gray-100">
+                        <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-700">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-3">
                                     <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 text-primary">
@@ -418,11 +418,11 @@ const planBgColors = ['bg-blue-50 border-blue-200', 'bg-primary/5 border-primary
                                         </svg>
                                     </div>
                                     <div>
-                                        <p class="text-sm font-bold text-gray-800">+{{ selectedPlan?.extra_gb }} GB</p>
-                                        <p class="text-xs text-gray-500">{{ selectedPlan?.label }}</p>
+                                        <p class="text-sm font-bold text-gray-800 dark:text-gray-200">+{{ selectedPlan?.extra_gb }} GB</p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ selectedPlan?.label }}</p>
                                     </div>
                                 </div>
-                                <p class="text-lg font-extrabold text-gray-900">{{ selectedPlan?.price?.toLocaleString() }} {{ selectedPlan?.currency }}</p>
+                                <p class="text-lg font-extrabold text-gray-900 dark:text-white">{{ selectedPlan?.price?.toLocaleString() }} {{ selectedPlan?.currency }}</p>
                             </div>
                         </div>
 
@@ -430,10 +430,10 @@ const planBgColors = ['bg-blue-50 border-blue-200', 'bg-primary/5 border-primary
                         <form @submit.prevent="submitPurchase" class="px-6 py-5 space-y-4">
                             <!-- Country -->
                             <div class="space-y-1.5">
-                                <label class="block text-sm font-semibold text-gray-700">{{ t('storageUpgrade.country') }}</label>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">{{ t('storageUpgrade.country') }}</label>
                                 <select
                                     v-model="form.country_code"
-                                    class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+                                    class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm dark:text-gray-200 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
                                 >
                                     <option v-for="c in countries" :key="c.code" :value="c.code">
                                         {{ c.name }} ({{ c.currency }})
@@ -443,29 +443,29 @@ const planBgColors = ['bg-blue-50 border-blue-200', 'bg-primary/5 border-primary
 
                             <!-- Phone Number -->
                             <div class="space-y-1.5">
-                                <label class="block text-sm font-semibold text-gray-700">{{ t('storageUpgrade.phoneNumber') }}</label>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">{{ t('storageUpgrade.phoneNumber') }}</label>
                                 <input
                                     v-model="form.phone_number"
                                     type="text"
                                     :placeholder="`${phonePrefix}812345678`"
-                                    class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+                                    class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl text-sm dark:text-gray-200 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
                                     :class="{ 'border-red-300 focus:ring-red-200': form.errors.phone_number }"
                                 />
                                 <p v-if="form.errors.phone_number" class="text-xs text-red-500">{{ form.errors.phone_number }}</p>
-                                <p class="text-xs text-gray-400">{{ t('storageUpgrade.phoneHint') }}</p>
+                                <p class="text-xs text-gray-400 dark:text-gray-500">{{ t('storageUpgrade.phoneHint') }}</p>
                             </div>
 
                             <!-- Payment error -->
-                            <div v-if="form.errors.payment" class="flex items-center gap-3 p-3 bg-red-50 border border-red-200 rounded-xl">
+                            <div v-if="form.errors.payment" class="flex items-center gap-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
                                 <svg class="w-5 h-5 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <p class="text-sm text-red-700">{{ form.errors.payment }}</p>
+                                <p class="text-sm text-red-700 dark:text-red-400">{{ form.errors.payment }}</p>
                             </div>
 
                             <!-- Actions -->
                             <div class="flex items-center justify-end gap-3 pt-2">
-                                <button type="button" @click="closeModal" class="px-5 py-2.5 text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">
+                                <button type="button" @click="closeModal" class="px-5 py-2.5 text-sm font-semibold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-xl transition-colors">
                                     {{ t('common.cancel') }}
                                 </button>
                                 <button
