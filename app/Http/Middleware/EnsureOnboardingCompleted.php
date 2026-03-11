@@ -22,6 +22,19 @@ class EnsureOnboardingCompleted
         }
 
         if ($user && is_null($user->onboarding_completed_at)) {
+            // Check if user already has an entity (church or preacher profile)
+            // If so, fix the missing onboarding_completed_at and let them through
+            $hasEntity = match ($user->role_id) {
+                RoleType::CHURCH_ADMIN => $user->church()->exists(),
+                RoleType::INDEPENDENT_PREACHER => $user->preacherProfile()->exists(),
+                default => false,
+            };
+
+            if ($hasEntity) {
+                $user->update(['onboarding_completed_at' => now()]);
+                return $next($request);
+            }
+
             return redirect()->route('admin.onboarding.setup');
         }
 

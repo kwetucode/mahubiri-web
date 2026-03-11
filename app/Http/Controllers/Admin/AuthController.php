@@ -78,8 +78,19 @@ class AuthController extends Controller
         }
 
         // Redirect to onboarding if not completed (not for super admin)
+        // But first check if user already has a church/preacher profile (e.g. onboarding_completed_at was not set properly)
         if ($user->role_id !== \App\Enums\RoleType::ADMIN && is_null($user->onboarding_completed_at)) {
-            return redirect()->route('admin.onboarding.setup');
+            $hasEntity = match ($user->role_id) {
+                \App\Enums\RoleType::CHURCH_ADMIN => $user->church()->exists(),
+                \App\Enums\RoleType::INDEPENDENT_PREACHER => $user->preacherProfile()->exists(),
+                default => false,
+            };
+
+            if ($hasEntity) {
+                $user->update(['onboarding_completed_at' => now()]);
+            } else {
+                return redirect()->route('admin.onboarding.setup');
+            }
         }
 
         return redirect()->intended(route('admin.dashboard'));

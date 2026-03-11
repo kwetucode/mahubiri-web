@@ -143,6 +143,21 @@ class RegisterController extends Controller
             return redirect()->route('admin.dashboard');
         }
 
+        // If user already has a church or preacher profile, complete onboarding and go to dashboard
+        if ($user->role_id === RoleType::CHURCH_ADMIN && $user->church()->exists()) {
+            if (is_null($user->onboarding_completed_at)) {
+                $user->update(['onboarding_completed_at' => now()]);
+            }
+            return redirect()->route('admin.dashboard');
+        }
+
+        if ($user->role_id === RoleType::INDEPENDENT_PREACHER && $user->preacherProfile()->exists()) {
+            if (is_null($user->onboarding_completed_at)) {
+                $user->update(['onboarding_completed_at' => now()]);
+            }
+            return redirect()->route('admin.dashboard');
+        }
+
         if ($user->role_id === RoleType::CHURCH_ADMIN) {
             return Inertia::render('Auth/Onboarding/ChurchSetup');
         }
@@ -161,6 +176,15 @@ class RegisterController extends Controller
 
         if ($user->role_id === RoleType::ADMIN) {
             return redirect()->route('admin.dashboard');
+        }
+
+        // Prevent duplicate church creation
+        if ($user->church()->exists()) {
+            if (is_null($user->onboarding_completed_at)) {
+                $user->update(['onboarding_completed_at' => now()]);
+            }
+            return redirect()->route('admin.dashboard')
+                ->with('info', __('Vous avez déjà une église associée à votre compte.'));
         }
 
         $validated = $request->validate([
