@@ -715,7 +715,7 @@ const cleanupEmptyFolders = async () => {
                                                     type="checkbox"
                                                     :checked="selectedOrphans.length === storageAnalysis.orphan_files.length"
                                                     @change="toggleAllOrphans"
-                                                    class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                                    class="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-primary focus:ring-primary"
                                                 />
                                                 <span class="text-[11px] text-orange-600 dark:text-orange-400">{{ t('settings.selectAll') }}</span>
                                             </label>
@@ -726,7 +726,7 @@ const cleanupEmptyFolders = async () => {
                                                     type="checkbox"
                                                     :value="file.path"
                                                     v-model="selectedOrphans"
-                                                    class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary shrink-0"
+                                                    class="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-primary focus:ring-primary shrink-0"
                                                 />
                                                 <div class="flex-1 min-w-0">
                                                     <p class="text-sm text-gray-700 dark:text-gray-300 truncate">{{ file.path }}</p>
@@ -779,7 +779,7 @@ const cleanupEmptyFolders = async () => {
                                                     type="checkbox"
                                                     :checked="selectedEmptyFolders.length === storageAnalysis.empty_folders.length"
                                                     @change="toggleAllEmptyFolders"
-                                                    class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                                    class="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-primary focus:ring-primary"
                                                 />
                                                 <span class="text-[11px] text-slate-600 dark:text-slate-400">{{ t('settings.selectAll') }}</span>
                                             </label>
@@ -790,7 +790,7 @@ const cleanupEmptyFolders = async () => {
                                                     type="checkbox"
                                                     :value="folder"
                                                     v-model="selectedEmptyFolders"
-                                                    class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary shrink-0"
+                                                    class="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-primary focus:ring-primary shrink-0"
                                                 />
                                                 <div class="flex items-center gap-2 flex-1 min-w-0">
                                                     <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

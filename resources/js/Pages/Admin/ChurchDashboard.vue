@@ -125,10 +125,10 @@ onMounted(() => {
                 <template v-if="pageLoading">
                     <div v-for="n in 4" :key="'skel-stat-'+n" class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 px-3 py-2.5">
                         <div class="flex items-center gap-2.5">
-                            <div class="w-7 h-7 rounded-lg bg-gray-100 animate-pulse shrink-0"></div>
+                            <div class="w-7 h-7 rounded-lg bg-gray-100 dark:bg-gray-700 animate-pulse shrink-0"></div>
                             <div class="flex-1">
-                                <div class="h-5 w-12 bg-gray-100 rounded-lg animate-pulse mb-1"></div>
-                                <div class="h-2.5 w-20 bg-gray-50 rounded animate-pulse"></div>
+                                <div class="h-5 w-12 bg-gray-100 dark:bg-gray-700 rounded-lg animate-pulse mb-1"></div>
+                                <div class="h-2.5 w-20 bg-gray-50 dark:bg-gray-600 rounded animate-pulse"></div>
                             </div>
                         </div>
                     </div>
@@ -307,10 +307,10 @@ onMounted(() => {
 
                     <div v-if="pageLoading" class="divide-y divide-gray-50 dark:divide-gray-700/50">
                         <div v-for="n in 5" :key="'skel-s-'+n" class="flex items-center gap-3 px-5 py-3">
-                            <div class="w-8 h-8 rounded-lg bg-gray-100 animate-pulse shrink-0"></div>
+                            <div class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 animate-pulse shrink-0"></div>
                             <div class="flex-1">
-                                <div class="h-3.5 w-40 bg-gray-100 rounded animate-pulse mb-1"></div>
-                                <div class="h-2.5 w-24 bg-gray-50 rounded animate-pulse"></div>
+                                <div class="h-3.5 w-40 bg-gray-100 dark:bg-gray-700 rounded animate-pulse mb-1"></div>
+                                <div class="h-2.5 w-24 bg-gray-50 dark:bg-gray-600 rounded animate-pulse"></div>
                             </div>
                         </div>
                     </div>

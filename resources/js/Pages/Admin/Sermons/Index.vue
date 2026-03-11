@@ -192,40 +192,40 @@ const closePlayer = () => {
                     <!-- Skeleton header -->
                     <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-gray-100 animate-pulse"></div>
+                            <div class="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 animate-pulse"></div>
                             <div>
-                                <div class="h-4 w-28 bg-gray-100 rounded animate-pulse mb-1.5"></div>
-                                <div class="h-3 w-40 bg-gray-50 rounded animate-pulse"></div>
+                                <div class="h-4 w-28 bg-gray-100 dark:bg-gray-700 rounded animate-pulse mb-1.5"></div>
+                                <div class="h-3 w-40 bg-gray-50 dark:bg-gray-600 rounded animate-pulse"></div>
                             </div>
                         </div>
-                        <div class="h-9 w-36 bg-gray-100 rounded-xl animate-pulse"></div>
+                        <div class="h-9 w-36 bg-gray-100 dark:bg-gray-700 rounded-xl animate-pulse"></div>
                     </div>
                     <!-- Skeleton stats -->
                     <div class="grid grid-cols-4 divide-x divide-gray-100 dark:divide-gray-700 border-b border-gray-100 dark:border-gray-700">
                         <div v-for="n in 4" :key="'ss-'+n" class="px-4 py-3 text-center">
-                            <div class="h-6 w-10 bg-gray-100 rounded animate-pulse mx-auto mb-1"></div>
-                            <div class="h-3 w-16 bg-gray-50 rounded animate-pulse mx-auto"></div>
+                            <div class="h-6 w-10 bg-gray-100 dark:bg-gray-700 rounded animate-pulse mx-auto mb-1"></div>
+                            <div class="h-3 w-16 bg-gray-50 dark:bg-gray-600 rounded animate-pulse mx-auto"></div>
                         </div>
                     </div>
                     <!-- Skeleton toolbar -->
                     <div class="px-4 py-2.5 border-b border-gray-100 dark:border-gray-700 flex gap-2">
                         <div class="flex gap-1 p-0.5">
-                            <div class="h-8 w-14 bg-gray-100 rounded-lg animate-pulse"></div>
-                            <div class="h-8 w-18 bg-gray-50 rounded-lg animate-pulse"></div>
-                            <div class="h-8 w-20 bg-gray-50 rounded-lg animate-pulse"></div>
+                            <div class="h-8 w-14 bg-gray-100 dark:bg-gray-700 rounded-lg animate-pulse"></div>
+                            <div class="h-8 w-18 bg-gray-50 dark:bg-gray-600 rounded-lg animate-pulse"></div>
+                            <div class="h-8 w-20 bg-gray-50 dark:bg-gray-600 rounded-lg animate-pulse"></div>
                         </div>
-                        <div class="flex-1 h-8 bg-gray-50 rounded-lg animate-pulse"></div>
+                        <div class="flex-1 h-8 bg-gray-50 dark:bg-gray-600 rounded-lg animate-pulse"></div>
                     </div>
                     <!-- Skeleton rows -->
                     <div class="divide-y divide-gray-50/80 dark:divide-gray-700/50">
                         <div v-for="n in 6" :key="'sr-'+n" class="flex items-center gap-4 px-5 py-3">
-                            <div class="w-9 h-9 rounded-lg bg-gray-100/80 animate-pulse shrink-0"></div>
+                            <div class="w-9 h-9 rounded-lg bg-gray-100/80 dark:bg-gray-700 animate-pulse shrink-0"></div>
                             <div class="flex-1 space-y-1">
-                                <div class="h-3.5 bg-gray-100/80 rounded animate-pulse" :style="{ width: (100 + n * 20) + 'px' }"></div>
-                                <div class="h-2.5 w-20 bg-gray-50 rounded animate-pulse"></div>
+                                <div class="h-3.5 bg-gray-100/80 dark:bg-gray-700 rounded animate-pulse" :style="{ width: (100 + n * 20) + 'px' }"></div>
+                                <div class="h-2.5 w-20 bg-gray-50 dark:bg-gray-600 rounded animate-pulse"></div>
                             </div>
-                            <div class="hidden md:block h-3 w-16 bg-gray-50 rounded animate-pulse"></div>
-                            <div class="hidden sm:block h-5 w-10 bg-gray-100/60 rounded-full animate-pulse"></div>
+                            <div class="hidden md:block h-3 w-16 bg-gray-50 dark:bg-gray-600 rounded animate-pulse"></div>
+                            <div class="hidden sm:block h-5 w-10 bg-gray-100/60 dark:bg-gray-700 rounded-full animate-pulse"></div>
                         </div>
                     </div>
                 </div>

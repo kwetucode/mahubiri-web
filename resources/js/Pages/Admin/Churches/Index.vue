@@ -112,16 +112,16 @@ const totalLabel = computed(() => {
 });
 
 const ministryColors = {
-    pasteur: 'bg-purple-50 text-purple-700 ring-1 ring-purple-600/10',
-    apotre: 'bg-blue-50 text-blue-700 ring-1 ring-blue-600/10',
-    evangeliste: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/10',
-    prophete: 'bg-amber-50 text-amber-700 ring-1 ring-amber-600/10',
-    enseignant: 'bg-cyan-50 text-cyan-700 ring-1 ring-cyan-600/10',
-    docteur: 'bg-red-50 text-red-700 ring-1 ring-red-600/10',
+    pasteur: 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 ring-1 ring-purple-600/10',
+    apotre: 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 ring-1 ring-blue-600/10',
+    evangeliste: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 ring-1 ring-emerald-600/10',
+    prophete: 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 ring-1 ring-amber-600/10',
+    enseignant: 'bg-cyan-50 dark:bg-cyan-900/20 text-cyan-700 dark:text-cyan-400 ring-1 ring-cyan-600/10',
+    docteur: 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 ring-1 ring-red-600/10',
 };
 
 const getMinistryColor = (type) => {
-    return ministryColors[type] || 'bg-gray-50 text-gray-700 ring-1 ring-gray-600/10';
+    return ministryColors[type] || 'bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 ring-1 ring-gray-600/10';
 };
 
 const tabs = computed(() => [

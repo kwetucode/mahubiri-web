@@ -131,11 +131,11 @@ onMounted(() => {
                 <template v-if="pageLoading">
                     <div v-for="n in 4" :key="'skel-stat-'+n" class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 px-4 py-3.5">
                         <div class="flex items-center justify-between mb-3">
-                            <div class="w-9 h-9 rounded-xl bg-gray-100 animate-pulse"></div>
-                            <div class="w-12 h-4 rounded-full bg-gray-100 animate-pulse"></div>
+                            <div class="w-9 h-9 rounded-xl bg-gray-100 dark:bg-gray-700 animate-pulse"></div>
+                            <div class="w-12 h-4 rounded-full bg-gray-100 dark:bg-gray-700 animate-pulse"></div>
                         </div>
-                        <div class="h-7 w-20 bg-gray-100 rounded-lg animate-pulse mb-1.5"></div>
-                        <div class="h-3 w-28 bg-gray-50 rounded animate-pulse"></div>
+                        <div class="h-7 w-20 bg-gray-100 dark:bg-gray-700 rounded-lg animate-pulse mb-1.5"></div>
+                        <div class="h-3 w-28 bg-gray-50 dark:bg-gray-600 rounded animate-pulse"></div>
                     </div>
                 </template>
                 <!-- Actual cards -->
@@ -159,24 +159,24 @@ onMounted(() => {
                 <template v-if="pageLoading">
                     <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/80 dark:border-gray-700 overflow-hidden">
                         <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-700">
-                            <div class="h-4 w-32 bg-gray-100 rounded animate-pulse mb-1.5"></div>
-                            <div class="h-3 w-52 bg-gray-50 rounded animate-pulse"></div>
+                            <div class="h-4 w-32 bg-gray-100 dark:bg-gray-700 rounded animate-pulse mb-1.5"></div>
+                            <div class="h-3 w-52 bg-gray-50 dark:bg-gray-600 rounded animate-pulse"></div>
                         </div>
                         <div class="divide-y divide-gray-50 dark:divide-gray-700/50">
                             <div v-for="n in 4" :key="'skel-act-'+n" class="flex items-center gap-3 px-5 py-3">
-                                <div class="w-8 h-8 rounded-lg bg-gray-100 animate-pulse shrink-0"></div>
+                                <div class="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 animate-pulse shrink-0"></div>
                                 <div class="flex-1">
-                                    <div class="h-3.5 w-40 bg-gray-100 rounded animate-pulse mb-1"></div>
-                                    <div class="h-2.5 w-20 bg-gray-50 rounded animate-pulse"></div>
+                                    <div class="h-3.5 w-40 bg-gray-100 dark:bg-gray-700 rounded animate-pulse mb-1"></div>
+                                    <div class="h-2.5 w-20 bg-gray-50 dark:bg-gray-600 rounded animate-pulse"></div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="space-y-5">
                         <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200/80 dark:border-gray-700 p-5">
-                            <div class="h-4 w-28 bg-gray-100 rounded animate-pulse mb-3"></div>
+                            <div class="h-4 w-28 bg-gray-100 dark:bg-gray-700 rounded animate-pulse mb-3"></div>
                             <div class="space-y-2">
-                                <div class="h-12 bg-gray-50 rounded-xl animate-pulse"></div>
+                                <div class="h-12 bg-gray-50 dark:bg-gray-600 rounded-xl animate-pulse"></div>
                             </div>
                         </div>
                         <div class="bg-gray-900 rounded-2xl p-5">

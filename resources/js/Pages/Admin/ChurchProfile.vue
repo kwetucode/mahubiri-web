@@ -152,7 +152,7 @@ const infoItems = computed(() => [
                                     <button
                                         v-if="!editing"
                                         @click="startEditing"
-                                        class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white/90 text-primary rounded-xl text-xs font-semibold hover:bg-white transition-colors shadow-sm"
+                                        class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white/90 dark:bg-gray-800/90 text-primary rounded-xl text-xs font-semibold hover:bg-white dark:hover:bg-gray-800 transition-colors shadow-sm"
                                     >
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -162,7 +162,7 @@ const infoItems = computed(() => [
                                     <button
                                         v-else
                                         @click="cancelEditing"
-                                        class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white/90 text-primary rounded-xl text-xs font-semibold hover:bg-white transition-colors shadow-sm"
+                                        class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white/90 dark:bg-gray-800/90 text-primary rounded-xl text-xs font-semibold hover:bg-white dark:hover:bg-gray-800 transition-colors shadow-sm"
                                     >
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
