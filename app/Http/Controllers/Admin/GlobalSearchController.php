@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\RoleType;
 use App\Http\Controllers\Controller;
 use App\Models\Church;
 use App\Models\PreacherProfile;
@@ -25,7 +26,7 @@ class GlobalSearchController extends Controller
 
         $query = trim($request->input('q'));
         $user = Auth::user();
-        $isAdmin = $user->role === 'admin';
+        $isAdmin = $user->role_id === RoleType::ADMIN;
         $results = [];
 
         // ── Sermons ──────────────────────────────────────────────
