@@ -123,7 +123,7 @@ class GlobalSearchController extends Controller
 
             // ── Users (super admin only) ─────────────────────────
             $users = User::query()
-                ->select('id', 'name', 'email', 'role', 'created_at')
+                ->select('id', 'name', 'email', 'role_id', 'created_at')
                 ->where(function ($q) use ($query) {
                     $q->where('name', 'LIKE', "%{$query}%")
                       ->orWhere('email', 'LIKE', "%{$query}%");
@@ -140,7 +140,7 @@ class GlobalSearchController extends Controller
                     'subtitle' => $u->email,
                     'url' => '/admin/users?search=' . urlencode($u->name),
                     'image' => null,
-                    'badge' => ucfirst(str_replace('_', ' ', $u->role ?? 'user')),
+                    'badge' => RoleType::getDescription($u->role_id),
                     'badge_color' => 'blue',
                 ];
             }
