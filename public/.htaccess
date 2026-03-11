@@ -1,21 +1,3 @@
-# Disable ModSecurity for API routes (prevents false 403 blocks on Bearer tokens)
-<IfModule mod_security2.c>
-    SecRuleEngine Off
-    # If SecRuleEngine Off is ignored by hosting (AllowOverride),
-    # remove specific OWASP CRS rules that block Authorization headers
-    SecRuleRemoveById 920420
-    SecRuleRemoveById 921110
-    SecRuleRemoveById 942100
-    SecRuleRemoveById 949110
-    SecRuleRemoveById 980130
-</IfModule>
-
-# Legacy mod_security v1 fallback
-<IfModule mod_security.c>
-    SecFilterEngine Off
-    SecFilterScanPOST Off
-</IfModule>
-
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
