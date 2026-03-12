@@ -813,6 +813,65 @@
         "tip2": "Mix letters, numbers and symbols",
         "tip3": "Avoid previously used passwords"
     },
+    "errors": {
+        "goHome": "Go to homepage",
+        "goBack": "Go back",
+        "403": {
+            "title": "Access denied",
+            "description": "You don't have permission to access this page. Check your access rights or contact an administrator.",
+            "badge": "Restricted access",
+            "heroTitle1": "Access",
+            "heroTitle2": "not authorized",
+            "heroDesc": "This page requires specific permissions. Make sure you're logged in with the correct account.",
+            "suggestion1": "Make sure you're logged in",
+            "suggestion2": "Contact your administrator",
+            "suggestion3": "Return to the homepage"
+        },
+        "404": {
+            "title": "Page not found",
+            "description": "The page you're looking for doesn't exist or has been moved. Check the URL or return to the homepage.",
+            "badge": "Page not found",
+            "heroTitle1": "Oops, this page",
+            "heroTitle2": "doesn't exist",
+            "heroDesc": "It seems you followed an outdated link or entered an incorrect address.",
+            "suggestion1": "Check the URL you entered",
+            "suggestion2": "Use the site navigation",
+            "suggestion3": "Return to the homepage"
+        },
+        "419": {
+            "title": "Session expired",
+            "description": "Your session has expired. Please refresh the page and try again.",
+            "badge": "Session expired",
+            "heroTitle1": "Your session",
+            "heroTitle2": "has expired",
+            "heroDesc": "For security reasons, your session expired after a period of inactivity.",
+            "suggestion1": "Refresh the page",
+            "suggestion2": "Log in to your account again",
+            "suggestion3": "Check your internet connection"
+        },
+        "500": {
+            "title": "Server error",
+            "description": "An internal error occurred. Our team has been notified and is working to resolve the issue.",
+            "badge": "Internal error",
+            "heroTitle1": "Something",
+            "heroTitle2": "went wrong",
+            "heroDesc": "The server encountered an unexpected error. Please try again in a few moments.",
+            "suggestion1": "Try again in a few minutes",
+            "suggestion2": "Clear your browser cache",
+            "suggestion3": "Contact support if the issue persists"
+        },
+        "503": {
+            "title": "Service unavailable",
+            "description": "The service is temporarily unavailable for maintenance. We'll be back very soon.",
+            "badge": "Maintenance in progress",
+            "heroTitle1": "Maintenance",
+            "heroTitle2": "in progress",
+            "heroDesc": "We're making improvements to give you a better experience.",
+            "suggestion1": "Wait a few minutes",
+            "suggestion2": "Refresh the page later",
+            "suggestion3": "Follow our updates"
+        }
+    },
     "register": {
         "title": "Create an account",
         "subtitle": "Registration",

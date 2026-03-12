@@ -813,6 +813,65 @@
         "tip2": "Sangá bakɔmɔ, ba numbɛrɔ mpe bilembo",
         "tip3": "Bobá ba motó ya nkuku oyo esalemaki liboso"
     },
+    "errors": {
+        "goHome": "Zonga na ndako",
+        "goBack": "Zonga nsima",
+        "403": {
+            "title": "Nzela epesami te",
+            "description": "Ozali na ndingisa te ya kokɔta na lokasa oyo. Talá makoki na yo ya bokɔti to benga mokambi.",
+            "badge": "Bokɔti ya ndelo",
+            "heroTitle1": "Bokɔti",
+            "heroTitle2": "epesami te",
+            "heroDesc": "Lokasa oyo esɛngi ndingisa ya motuya. Talá soki okɔti na kɔnti ya malamu.",
+            "suggestion1": "Talá soki okɔti",
+            "suggestion2": "Bengá mokambi na yo",
+            "suggestion3": "Zongá na lokasa ya liboso"
+        },
+        "404": {
+            "title": "Lokasa emonani te",
+            "description": "Lokasa oyo ozali koluka ezali te to ebongwani esika. Talá URL to zongá na ndako.",
+            "badge": "Lokasa emonani te",
+            "heroTitle1": "Aa, lokasa oyo",
+            "heroTitle2": "ezali te",
+            "heroDesc": "Emonani lokola olandaki lien ya kala to okomaki adrɛsi oyo ezali malamu te.",
+            "suggestion1": "Talá URL oyo okomaki",
+            "suggestion2": "Salelá navigation ya site",
+            "suggestion3": "Zongá na lokasa ya liboso"
+        },
+        "419": {
+            "title": "Session esilaki",
+            "description": "Session na yo esilaki. Svp rafraîchir lokasa mpe meká lisusu.",
+            "badge": "Session esilaki",
+            "heroTitle1": "Session na yo",
+            "heroTitle2": "esilaki",
+            "heroDesc": "Mpo na sécurité, session na yo esilaki nsima ya ntango ya kozanga kosala.",
+            "suggestion1": "Rafraîchir lokasa",
+            "suggestion2": "Kɔtá lisusu na kɔnti na yo",
+            "suggestion3": "Talá connexion na yo ya internet"
+        },
+        "500": {
+            "title": "Erreur ya serveur",
+            "description": "Erreur ya kati esalemi. Équipe na biso eyebisami mpe ezali kosala mpo na kosilisa likambo.",
+            "badge": "Erreur ya kati",
+            "heroTitle1": "Eloko moko",
+            "heroTitle2": "ekendeki mabe",
+            "heroDesc": "Serveur ekutani na erreur oyo etalelami te. Svp meká lisusu nsima ya mwa ntango.",
+            "suggestion1": "Meká lisusu nsima ya miniti moke",
+            "suggestion2": "Longola cache ya navigateur na yo",
+            "suggestion3": "Bengá support soki likambo ekobika"
+        },
+        "503": {
+            "title": "Service ezali te",
+            "description": "Service ezali te mpo na mwa ntango ya maintenance. Tokozonga nokinoki.",
+            "badge": "Maintenance ezali kosalema",
+            "heroTitle1": "Maintenance",
+            "heroTitle2": "ezali kosalema",
+            "heroDesc": "Tozali kosala mabongisi mpo na kopesa yo expérience ya malamu koleka.",
+            "suggestion1": "Zelá miniti moke",
+            "suggestion2": "Rafraîchir lokasa na nsima",
+            "suggestion3": "Landá ba mises à jour na biso"
+        }
+    },
     "register": {
         "title": "Salá kɔnti",
         "subtitle": "Bokɔti",

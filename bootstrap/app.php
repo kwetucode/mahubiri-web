@@ -4,6 +4,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Support\Facades\Route;
+use Symfony\Component\HttpFoundation\Response;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -78,8 +79,16 @@ return Application::configure(basePath: dirname(__DIR__))
                 ], $status);
             }
 
-            // Non-API requests (Inertia/web): let Laravel handle normally
-            // (redirect to login on AuthenticationException, etc.)
+            // Non-API requests (Inertia/web): render Error page for HTTP exceptions
+            if ($e instanceof \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface) {
+                $status = $e->getStatusCode();
+                if (in_array($status, [403, 404, 419, 500, 503])) {
+                    return \Inertia\Inertia::render('Error', ['status' => $status])
+                        ->toResponse($request)
+                        ->setStatusCode($status);
+                }
+            }
+
             return null;
         });
     })

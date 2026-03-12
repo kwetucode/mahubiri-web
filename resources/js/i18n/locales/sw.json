@@ -813,6 +813,65 @@
         "tip2": "Changanya herufi, nambari na alama",
         "tip3": "Epuka maneno ya siri yaliyotumiwa awali"
     },
+    "errors": {
+        "goHome": "Rudi nyumbani",
+        "goBack": "Rudi nyuma",
+        "403": {
+            "title": "Ufikiaji umekataliwa",
+            "description": "Huna ruhusa ya kufikia ukurasa huu. Angalia haki zako za ufikiaji au wasiliana na msimamizi.",
+            "badge": "Ufikiaji mdogo",
+            "heroTitle1": "Ufikiaji",
+            "heroTitle2": "haujaidhinishwa",
+            "heroDesc": "Ukurasa huu unahitaji ruhusa maalum. Hakikisha umeingia kwa akaunti sahihi.",
+            "suggestion1": "Hakikisha umeingia",
+            "suggestion2": "Wasiliana na msimamizi wako",
+            "suggestion3": "Rudi kwenye ukurasa wa nyumbani"
+        },
+        "404": {
+            "title": "Ukurasa haupatikani",
+            "description": "Ukurasa unaoutafuta haupo au umehamishwa. Angalia URL au rudi nyumbani.",
+            "badge": "Ukurasa haupatikani",
+            "heroTitle1": "Lo, ukurasa huu",
+            "heroTitle2": "haupo",
+            "heroDesc": "Inaonekana umefuata kiungo kilichopitwa na wakati au umeingiza anwani isiyo sahihi.",
+            "suggestion1": "Angalia URL uliyoingiza",
+            "suggestion2": "Tumia urambazaji wa tovuti",
+            "suggestion3": "Rudi kwenye ukurasa wa nyumbani"
+        },
+        "419": {
+            "title": "Kipindi kimeisha",
+            "description": "Kipindi chako kimeisha. Tafadhali onyesha upya ukurasa na ujaribu tena.",
+            "badge": "Kipindi kimeisha",
+            "heroTitle1": "Kipindi chako",
+            "heroTitle2": "kimeisha",
+            "heroDesc": "Kwa sababu za usalama, kipindi chako kimeisha baada ya muda wa kutofanya kazi.",
+            "suggestion1": "Onyesha upya ukurasa",
+            "suggestion2": "Ingia tena kwenye akaunti yako",
+            "suggestion3": "Angalia muunganisho wako wa mtandao"
+        },
+        "500": {
+            "title": "Hitilafu ya seva",
+            "description": "Hitilafu ya ndani imetokea. Timu yetu imearifiwa na inafanya kazi kutatua tatizo.",
+            "badge": "Hitilafu ya ndani",
+            "heroTitle1": "Kitu fulani",
+            "heroTitle2": "kimeenda vibaya",
+            "heroDesc": "Seva imekutana na hitilafu isiyotarajiwa. Tafadhali jaribu tena baada ya muda mfupi.",
+            "suggestion1": "Jaribu tena baada ya dakika chache",
+            "suggestion2": "Futa kashe ya kivinjari chako",
+            "suggestion3": "Wasiliana na msaada ikiwa tatizo linaendelea"
+        },
+        "503": {
+            "title": "Huduma haipatikani",
+            "description": "Huduma haipatikani kwa muda kwa sababu ya matengenezo. Tutarudi hivi karibuni.",
+            "badge": "Matengenezo yanaendelea",
+            "heroTitle1": "Matengenezo",
+            "heroTitle2": "yanaendelea",
+            "heroDesc": "Tunafanya maboresho kukupa uzoefu bora zaidi.",
+            "suggestion1": "Subiri dakika chache",
+            "suggestion2": "Onyesha upya ukurasa baadaye",
+            "suggestion3": "Fuata masasisho yetu"
+        }
+    },
     "register": {
         "title": "Tengeneza akaunti",
         "subtitle": "Usajili",

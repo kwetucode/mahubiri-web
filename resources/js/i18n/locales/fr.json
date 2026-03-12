@@ -813,6 +813,65 @@
         "tip2": "Mélangez lettres, chiffres et symboles",
         "tip3": "Évitez les mots de passe déjà utilisés"
     },
+    "errors": {
+        "goHome": "Retour à l'accueil",
+        "goBack": "Page précédente",
+        "403": {
+            "title": "Accès refusé",
+            "description": "Vous n'avez pas la permission d'accéder à cette page. Vérifiez vos droits d'accès ou contactez un administrateur.",
+            "badge": "Accès restreint",
+            "heroTitle1": "Accès",
+            "heroTitle2": "non autorisé",
+            "heroDesc": "Cette page nécessite des permissions spécifiques. Vérifiez que vous êtes connecté avec le bon compte.",
+            "suggestion1": "Vérifiez que vous êtes connecté",
+            "suggestion2": "Contactez votre administrateur",
+            "suggestion3": "Retournez à la page d'accueil"
+        },
+        "404": {
+            "title": "Page introuvable",
+            "description": "La page que vous recherchez n'existe pas ou a été déplacée. Vérifiez l'URL ou retournez à l'accueil.",
+            "badge": "Page introuvable",
+            "heroTitle1": "Oups, cette page",
+            "heroTitle2": "n'existe pas",
+            "heroDesc": "Il semble que vous ayez suivi un lien obsolète ou saisi une adresse incorrecte.",
+            "suggestion1": "Vérifiez l'URL saisie",
+            "suggestion2": "Utilisez la navigation du site",
+            "suggestion3": "Retournez à la page d'accueil"
+        },
+        "419": {
+            "title": "Session expirée",
+            "description": "Votre session a expiré. Veuillez rafraîchir la page et réessayer.",
+            "badge": "Session expirée",
+            "heroTitle1": "Votre session",
+            "heroTitle2": "a expiré",
+            "heroDesc": "Pour des raisons de sécurité, votre session a expiré après une période d'inactivité.",
+            "suggestion1": "Rafraîchissez la page",
+            "suggestion2": "Reconnectez-vous à votre compte",
+            "suggestion3": "Vérifiez votre connexion internet"
+        },
+        "500": {
+            "title": "Erreur serveur",
+            "description": "Une erreur interne est survenue. Notre équipe a été notifiée et travaille à résoudre le problème.",
+            "badge": "Erreur interne",
+            "heroTitle1": "Quelque chose",
+            "heroTitle2": "s'est mal passé",
+            "heroDesc": "Le serveur a rencontré une erreur inattendue. Veuillez réessayer dans quelques instants.",
+            "suggestion1": "Réessayez dans quelques minutes",
+            "suggestion2": "Videz le cache de votre navigateur",
+            "suggestion3": "Contactez le support si le problème persiste"
+        },
+        "503": {
+            "title": "Service indisponible",
+            "description": "Le service est temporairement indisponible pour maintenance. Nous serons de retour très bientôt.",
+            "badge": "Maintenance en cours",
+            "heroTitle1": "Maintenance",
+            "heroTitle2": "en cours",
+            "heroDesc": "Nous effectuons des améliorations pour vous offrir une meilleure expérience.",
+            "suggestion1": "Patientez quelques minutes",
+            "suggestion2": "Rafraîchissez la page ultérieurement",
+            "suggestion3": "Suivez nos mises à jour"
+        }
+    },
     "register": {
         "title": "Créer un compte",
         "subtitle": "Inscription",
